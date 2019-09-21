@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>centos7搭建hadoop(适合新手) | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="因为博主比较菜，所以装这个hadoop环境搞了特别久。所以稍微整理一下，希望能帮助到大家。第一次写教程，有不好的地方请大家指正。 1.准备3台centOS64centOS下载地址https://www.centos.org/download/我用的是minimal ISO这款centOS安装后没有图形界面，很多软件也需要自己安装但优点就是这个镜像真的很小，安装也很快！">
+<meta name="keywords" content="大数据,centos,hadoop">
+<meta property="og:type" content="article">
+<meta property="og:title" content="centos7搭建hadoop(适合新手)">
+<meta property="og:url" content="http://yoursite.com/2017/12/14/玩转linux/centos7搭建hadoop-适合新手/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="因为博主比较菜，所以装这个hadoop环境搞了特别久。所以稍微整理一下，希望能帮助到大家。第一次写教程，有不好的地方请大家指正。 1.准备3台centOS64centOS下载地址https://www.centos.org/download/我用的是minimal ISO这款centOS安装后没有图形界面，很多软件也需要自己安装但优点就是这个镜像真的很小，安装也很快！">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://img.blog.csdn.net/20171106140246032?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQveXVqdWFuMTEw/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast">
+<meta property="og:image" content="http://img.blog.csdn.net/20171106140550787?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQveXVqdWFuMTEw/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast">
+<meta property="og:image" content="http://img.blog.csdn.net/20171106140911218?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQveXVqdWFuMTEw/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast">
+<meta property="og:image" content="http://img.blog.csdn.net/20171106141308852?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQveXVqdWFuMTEw/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast">
+<meta property="og:image" content="http://img.blog.csdn.net/20171106141906787?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQveXVqdWFuMTEw/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast">
+<meta property="og:image" content="http://img.blog.csdn.net/20171106142512622?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQveXVqdWFuMTEw/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast">
+<meta property="og:image" content="http://img.blog.csdn.net/20171106143741131?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQveXVqdWFuMTEw/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast">
+<meta property="og:image" content="http://img.blog.csdn.net/20171106143938312?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQveXVqdWFuMTEw/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast">
+<meta property="og:image" content="http://img.blog.csdn.net/20171106144524320?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQveXVqdWFuMTEw/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast">
+<meta property="og:image" content="http://img.blog.csdn.net/20171106144921054?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQveXVqdWFuMTEw/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast">
+<meta property="og:image" content="http://img.blog.csdn.net/20171106145201537?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQveXVqdWFuMTEw/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast">
+<meta property="og:image" content="http://img.blog.csdn.net/20171106145740102?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQveXVqdWFuMTEw/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast">
+<meta property="og:image" content="http://img.blog.csdn.net/20171106151151820?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQveXVqdWFuMTEw/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast">
+<meta property="og:image" content="http://img.blog.csdn.net/20171106151237169?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQveXVqdWFuMTEw/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast">
+<meta property="og:updated_time" content="2018-07-18T07:24:08.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="centos7搭建hadoop(适合新手)">
+<meta name="twitter:description" content="因为博主比较菜，所以装这个hadoop环境搞了特别久。所以稍微整理一下，希望能帮助到大家。第一次写教程，有不好的地方请大家指正。 1.准备3台centOS64centOS下载地址https://www.centos.org/download/我用的是minimal ISO这款centOS安装后没有图形界面，很多软件也需要自己安装但优点就是这个镜像真的很小，安装也很快！">
+<meta name="twitter:image" content="http://img.blog.csdn.net/20171106140246032?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQveXVqdWFuMTEw/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-玩转linux/centos7搭建hadoop-适合新手" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/12/14/玩转linux/centos7搭建hadoop-适合新手/" class="article-date">
+  <time datetime="2017-12-14T09:08:04.000Z" itemprop="datePublished">2017-12-14</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/大数据/">大数据</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      centos7搭建hadoop(适合新手)
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>因为博主比较菜，所以装这个hadoop环境搞了特别久。<br>所以稍微整理一下，希望能帮助到大家。第一次写教程，有不好的地方请大家指正。</p>
+<p><strong>1.准备3台centOS64</strong><br>centOS下载地址<a href="https://www.centos.org/download/" target="_blank" rel="noopener">https://www.centos.org/download/</a><br>我用的是minimal ISO<br>这款centOS安装后没有图形界面，很多软件也需要自己安装<br>但优点就是这个镜像真的很小，安装也很快！</p>
+<a id="more"></a>
+<p><strong>1.安装完3个之后，修改Ip地址 （这里是把ip地址修改为静态的）</strong><br> vi /etc/sysconfig/network-scripts/<br><img src="http://img.blog.csdn.net/20171106140246032?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQveXVqdWFuMTEw/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="这里写图片描述"></p>
+<p>编辑ifcfg-ens33里的内容（注意每个人的电脑可能不同）</p>
+<p>图中红线框里一定要修改，没有的添加上(HWADDR可以没有）<br><img src="http://img.blog.csdn.net/20171106140550787?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQveXVqdWFuMTEw/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="这里写图片描述"></p>
+<p>关于NETMASK,GATEWAY，BROADCAST怎么填，看虚拟机-&gt;编辑-&gt;虚拟网络编辑器 ，选中NAT,NAT设置</p>
+<p><img src="http://img.blog.csdn.net/20171106140911218?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQveXVqdWFuMTEw/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="这里写图片描述"><br>三台都需要设置<br>我的三台ip分别为<br>master 192.168.198.137<br>slave1 192.168.198.135<br>slave2 192.168.198.136<br>设置完毕后<br>ping 下内网及外网<br><strong>还有设置dns（我就是这个没设置，然后一直只能ping通ip，Ping不同域名）</strong><br>vim /etc/resolv.conf<br><img src="http://img.blog.csdn.net/20171106141308852?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQveXVqdWFuMTEw/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="这里写图片描述"></p>
+<p><strong>2.ip改完了，现在来修改hostname（为什么要改hostname?！那你想每次都输一串ip地址吗？）</strong><br>hostnamectl set-hostname 【你要的名字】 这样会修改三种主机名<br>hostnamectl –static set-hostname 【你要的名字】 只会修改static主机名<br>重启后你的hostname就变了<br>我这里是将一个改为master<br>另外两个为slave1和slave2<br>vim /etc/hosts 修改如下，这样在这三台主机间才能通过hostname来识别彼此<br><img src="http://img.blog.csdn.net/20171106141906787?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQveXVqdWFuMTEw/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="这里写图片描述"><br>完成后可以试试ping slave1能不能行！</p>
+<p>好滴，基本设置就完成了！</p>
+<p><strong>3.现在开始装java环境</strong><br>由于我用的是minimal ios,所以没有java环境，得自己装JDK<br>(这里我又入了坑，我用的hadoop2.7.4，jdk1.7，然后都在最后了，发现提示jdk环境不对，大家还是更我一起来吧！用hadoop2.7.4,jdk1.8)<br>jdk下载地址<br><a href="http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html" target="_blank" rel="noopener">http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html</a><br><img src="http://img.blog.csdn.net/20171106142512622?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQveXVqdWFuMTEw/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="这里写图片描述"><br>好滴！问题又来了！我们用的是文字界面啊！<br>第一，直接在centos中下载，先按照wegt(yum install wegt),然后wegt 下载地址就行下载啦！<br>第二，用传输文件的软件，从window下载，传送到虚拟机就行啦！我用的是FileZilla（非常简单好用！）<br>我用的是FileZilla<br>将jdk-8u151-linux-x64.tar.gz从FileZilla移动到centOS的root目录下<br>解压 tar -vzxf jdk-8u151-linux-x64.tar.gz<br>得到jdk1.8.0_151<br>我们手动创建 mkdir /usr/java<br>将jdk移动到这个文件 mv /root/jdk1.8.0_151 /usr/java<br>设置Java 环境<br>vim /etc/profile<br><img src="http://img.blog.csdn.net/20171106143741131?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQveXVqdWFuMTEw/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="这里写图片描述"><br>java -version 查看java环境是否弄好了<br><img src="http://img.blog.csdn.net/20171106143938312?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQveXVqdWFuMTEw/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="这里写图片描述"><br>三台机器都需要按照java环境</p>
+<p><strong>4.配置SSH免密码登录</strong><br>进入~/.ssh目录<br>每台机器执行：ssh-keygen -t rsa，一路回车<br>生成两个文件，一个私钥，一个公钥，在master1中执行：cp id_rsa.pub authorized_keys<br>a：本机无密钥登录<br>修改authorized_keys权限：chmod 644 authorized_keys<br>此时重启ssh服务：sudo service sshd restart<br>试一试，连接及退出<br><img src="http://img.blog.csdn.net/20171106144524320?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQveXVqdWFuMTEw/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="这里写图片描述"><br> b：master与其他节点无密钥登录<br>从master中把authorized_keys分发到各个结点上(会提示输入密码，输入密码即可)：<br>scp /root/.ssh/authorized_keys slave1:/root/.ssh<br>scp /root/.ssh/authorized_keys slave2:/root/.ssh<br>（这里.ssh的位置需要注意下，由于我用的是root用户，所以直接就在/root下，其他可能是/home/用户名/下）<br>然后在各个节点对authorized_keys执行(一定要执行该步，否则会报错)：chmod 644 authorized_keys<br>试试连接到其他节点<br><img src="http://img.blog.csdn.net/20171106144921054?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQveXVqdWFuMTEw/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="这里写图片描述"><br>连接成功啦，而且不需要密码，是不是很棒！<br><strong>5.关键的hadoop安装配置开始啦！</strong><br>1.下载地址<br><a href="http://hadoop.apache.org/releases.html" target="_blank" rel="noopener">http://hadoop.apache.org/releases.html</a><br><img src="http://img.blog.csdn.net/20171106145201537?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQveXVqdWFuMTEw/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="这里写图片描述"><br> 同样用FileZilla将hadoop-2.7.4.tar.gz /opt/hadoop-2.7.4移动到/root下<br> 解压 tar -zxvf hadoop-2.7.4.tar.gz<br>移动到mv hadoop-2.7.4  /opt/hadoop</p>
+<p>2.修改配置文件<br> 进入到/opt/hadoop/hadoop2.7.4/etc/hadoop/路径下<br> 添加JAVA_HOME环境到hadoop-env.sh和yarn-env.sh<br> JAVA_HOME=/usr/java/jdk1.8.5_151<br><img src="http://img.blog.csdn.net/20171106145740102?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQveXVqdWFuMTEw/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="这里写图片描述"></p>
+<p> core-site.xml：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&lt;configuration&gt;  </span><br><span class="line">    &lt;property&gt;  </span><br><span class="line">      &lt;name&gt;fs.default.name&lt;/name&gt;  </span><br><span class="line">      &lt;value&gt;hdfs://master:9000&lt;/value&gt;  </span><br><span class="line">    &lt;/property&gt;  </span><br><span class="line">    &lt;property&gt;  </span><br><span class="line">      &lt;name&gt;hadoop.tmp.dir&lt;/name&gt;  </span><br><span class="line">      &lt;value&gt;/opt/hadoop/tmp&lt;/value&gt;  </span><br><span class="line">    &lt;/property&gt;  </span><br><span class="line">  &lt;/configuration&gt;</span><br></pre></td></tr></table></figure>
+
+<p>  hdfs-site.xml：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&lt;configuration&gt;  </span><br><span class="line">     &lt;property&gt;  </span><br><span class="line">       &lt;name&gt;dfs.replication&lt;/name&gt;  </span><br><span class="line">       &lt;value&gt;2&lt;/value&gt;  </span><br><span class="line">     &lt;/property&gt;  </span><br><span class="line">     &lt;property&gt;  </span><br><span class="line">       &lt;name&gt;dfs.namenode.name.dir&lt;/name&gt;  </span><br><span class="line">       &lt;value&gt;file:/opt/hadoop/dfs/name&lt;/value&gt;  </span><br><span class="line">     &lt;/property&gt;  </span><br><span class="line">     &lt;property&gt;  </span><br><span class="line">       &lt;name&gt;dfs.datanode.data.dir&lt;/name&gt;  </span><br><span class="line">       &lt;value&gt;file:/opt/hadoop/dfs/data&lt;/value&gt;  </span><br><span class="line">     &lt;/property&gt;  </span><br><span class="line">   &lt;/configuration&gt;</span><br></pre></td></tr></table></figure>
+
+<p>mapred-site.xml：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&lt;configuration&gt;  </span><br><span class="line">      &lt;property&gt;  </span><br><span class="line">        &lt;name&gt;mapreduce.framework.name&lt;/name&gt;  </span><br><span class="line">        &lt;value&gt;yarn&lt;/value&gt;  </span><br><span class="line">      &lt;/property&gt;  </span><br><span class="line">      &lt;property&gt;  </span><br><span class="line">        &lt;name&gt;mapreduce.jobhistory.address&lt;/name&gt;  </span><br><span class="line">        &lt;value&gt;Master:10020&lt;/value&gt;  </span><br><span class="line">      &lt;/property&gt;  </span><br><span class="line">      &lt;property&gt;  </span><br><span class="line">        &lt;name&gt;mapreduce.jobhistory.webapp.address&lt;/name&gt;  </span><br><span class="line">        &lt;value&gt;Master:19888&lt;/value&gt;  </span><br><span class="line">      &lt;/property&gt;  </span><br><span class="line">    &lt;/configuration&gt;</span><br></pre></td></tr></table></figure>
+
+<p>yarn-site.xml：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">&lt;configuration&gt;     </span><br><span class="line">   &lt;!-- Site specific YARN configuration properties --&gt;  </span><br><span class="line">     &lt;property&gt;  </span><br><span class="line">       &lt;name&gt;yarn.nodemanager.aux-services&lt;/name&gt;  </span><br><span class="line">       &lt;value&gt;mapreduce_shuffle&lt;/value&gt;  </span><br><span class="line">     &lt;/property&gt;  </span><br><span class="line">     &lt;property&gt;  </span><br><span class="line">       &lt;name&gt;yarn.nodemanager.aux-services.mapreduce.shuffle.class&lt;/name&gt;  </span><br><span class="line">       &lt;value&gt;org.apache.hadoop.mapred.ShuffleHandler&lt;/value&gt;  </span><br><span class="line">     &lt;/property&gt;  </span><br><span class="line">     &lt;property&gt;  </span><br><span class="line">       &lt;name&gt;yarn.resourcemanager.address&lt;/name&gt;  </span><br><span class="line">       &lt;value&gt;master:8032&lt;/value&gt;  </span><br><span class="line">     &lt;/property&gt;  </span><br><span class="line">     &lt;property&gt;  </span><br><span class="line">   &lt;name&gt;yarn.resourcemanager.scheduler.address&lt;/name&gt;  </span><br><span class="line">       &lt;value&gt;master:8030&lt;/value&gt;  </span><br><span class="line">     &lt;/property&gt;  </span><br><span class="line">     &lt;property&gt;  </span><br><span class="line">       &lt;name&gt;yarn.resourcemanager.resource-tracker.address&lt;/name&gt;  </span><br><span class="line">       &lt;value&gt;master:8031&lt;/value&gt;  </span><br><span class="line">     &lt;/property&gt;  </span><br><span class="line">     &lt;property&gt;  </span><br><span class="line">       &lt;name&gt;yarn.resourcemanager.admin.address&lt;/name&gt;  </span><br><span class="line">       &lt;value&gt;master:8033&lt;/value&gt;  </span><br><span class="line">     &lt;/property&gt;  </span><br><span class="line">     &lt;property&gt;  </span><br><span class="line">       &lt;name&gt;yarn.resourcemanager.webapp.address&lt;/name&gt;  </span><br><span class="line">       &lt;value&gt;master:8088&lt;/value&gt;  </span><br><span class="line">     &lt;/property&gt;  </span><br><span class="line">   &lt;/configuration&gt;</span><br></pre></td></tr></table></figure>
+
+<p> 编辑slaves文件:<br> 清空slaves，再加入从节点的名字<br>        slave1<br>        slave2</p>
+<p>3.将hadoop分发到各个节点（因为权限问题，先将该文件夹分发到各个节点的/home/master目录下，再进入各个节点将文件夹移到/opt下）<br>scp -r /opt/hadoop slave1:/opt/hadoop<br>scp -r /opt/hadoop slave2:/opt/hadoop<br>（由于我三台都使用的是root，所以不存在权限问题。如果有权限问题，可以先移动到/home/用户名/下，再到相应的机器下用sudo来移动）</p>
+<p>4.在Master服务器启动hadoop，从节点会自动启动，进入/home/hadoop/hadoop-2.7.0目录<br>(1)初始化，输入命令，bin/hdfs namenode -format<br>(2)全部启动sbin/start-all.sh，也可以分开sbin/start-dfs.sh、sbin/start-yarn.sh<br>(3)终止服务器：sbin/stop-all.sh<br>(4)输入命令jps，可以看到相关信息</p>
+<p>5.本机上用浏览器访问<br>(1)关闭防火墙systemctl stop firewalld.service<br>(2)浏览器打开<a href="http://192.168.198.137:8088/" target="_blank" rel="noopener">http://192.168.198.137:8088/</a><br>(3)浏览器打开<a href="http://192.168.198:137:50070/" target="_blank" rel="noopener">http://192.168.198:137:50070/</a><br><img src="http://img.blog.csdn.net/20171106151151820?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQveXVqdWFuMTEw/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="这里写图片描述"></p>
+<p><img src="http://img.blog.csdn.net/20171106151237169?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQveXVqdWFuMTEw/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="这里写图片描述"></p>
+<p>好滴！环境搭建好了！虽然我也不知道下一步该干啥了！emmmmmmm…….<br>但是很开心！党的十九大思想报告好没写好！<br>加油吧！程序员们！<br>砸门学计算机的女子绝不会轻易放弃！</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/12/14/玩转linux/centos7搭建hadoop-适合新手/" data-id="ck0hncd7y008ufyxx6xml7dmt" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/centos/">centos</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hadoop/">hadoop</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/大数据/">大数据</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/12/21/玩转linux/centos升级到python3/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          centos升级到python3
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/12/14/问题记录/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">问题记录</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/GPU/">GPU</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Spark/">Spark</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/docker/">docker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/go/">go</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/golang/">golang</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/linux/">linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/node/">node</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/书中自有黄金屋/">书中自有黄金屋</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/人生苦短我用python/">人生苦短我用python</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/人生苦短我用python/linux环境配置/">linux环境配置</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/其他/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/">分布式</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/分布式共识算法/">分布式共识算法</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式基本理论/">分布式基本理论</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/">区块链</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/Hyperledger-Fabric/">Hyperledger Fabric</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/《区块链：从数字货币到信用社会》/">《区块链：从数字货币到信用社会》</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/以太坊开发/">以太坊开发</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/区块链基本原理/">区块链基本原理</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/比特币原理/">比特币原理</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/大数据/">大数据</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/工具/">工具</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/编程基础/">编程基础</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/问题记录/">问题记录</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ACID/">ACID</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CAP/">CAP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ECDSA/">ECDSA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GO/">GO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GPU/">GPU</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Hyperledger-Fabric/">Hyperledger Fabric</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PBFT/">PBFT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spark/">Spark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blockchain/">blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/c/">c++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/centos/">centos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/centos7/">centos7</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cuda/">cuda</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dockerfile/">dockerfile</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/eos/">eos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gas/">gas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go/">go</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hadoop/">hadoop</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hyperledger-fabric/">hyperledger fabric</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/">js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/leveldb/">leveldb</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/node/">node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nvcc/">nvcc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/paxos/">paxos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pos/">pos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pow/">pow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python3/">python3</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spv/">spv</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/yaml/">yaml</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zab/">zab</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/以太坊/">以太坊</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式共识算法/">分布式共识算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式数据库/">分布式数据库</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式理论/">分布式理论</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/区块链/">区块链</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/地址生成/">地址生成</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/大数据/">大数据</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/密码学/">密码学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/挖矿/">挖矿</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/比特币/">比特币</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/编程基础/">编程基础</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/错误记录/">错误记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/问题记录/">问题记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/阅读/">阅读</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ACID/" style="font-size: 11.67px;">ACID</a> <a href="/tags/CAP/" style="font-size: 10px;">CAP</a> <a href="/tags/ECDSA/" style="font-size: 15px;">ECDSA</a> <a href="/tags/GO/" style="font-size: 13.33px;">GO</a> <a href="/tags/GPU/" style="font-size: 11.67px;">GPU</a> <a href="/tags/Hyperledger-Fabric/" style="font-size: 16.67px;">Hyperledger Fabric</a> <a href="/tags/PBFT/" style="font-size: 10px;">PBFT</a> <a href="/tags/Spark/" style="font-size: 10px;">Spark</a> <a href="/tags/blockchain/" style="font-size: 20px;">blockchain</a> <a href="/tags/c/" style="font-size: 11.67px;">c++</a> <a href="/tags/centos/" style="font-size: 11.67px;">centos</a> <a href="/tags/centos7/" style="font-size: 15px;">centos7</a> <a href="/tags/cuda/" style="font-size: 10px;">cuda</a> <a href="/tags/docker/" style="font-size: 18.33px;">docker</a> <a href="/tags/dockerfile/" style="font-size: 11.67px;">dockerfile</a> <a href="/tags/eos/" style="font-size: 10px;">eos</a> <a href="/tags/gas/" style="font-size: 10px;">gas</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/go/" style="font-size: 15px;">go</a> <a href="/tags/hadoop/" style="font-size: 10px;">hadoop</a> <a href="/tags/hyperledger-fabric/" style="font-size: 10px;">hyperledger fabric</a> <a href="/tags/js/" style="font-size: 10px;">js</a> <a href="/tags/leveldb/" style="font-size: 10px;">leveldb</a> <a href="/tags/linux/" style="font-size: 13.33px;">linux</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/node/" style="font-size: 10px;">node</a> <a href="/tags/nvcc/" style="font-size: 10px;">nvcc</a> <a href="/tags/paxos/" style="font-size: 10px;">paxos</a> <a href="/tags/pos/" style="font-size: 10px;">pos</a> <a href="/tags/pow/" style="font-size: 10px;">pow</a> <a href="/tags/python/" style="font-size: 13.33px;">python</a> <a href="/tags/python3/" style="font-size: 15px;">python3</a> <a href="/tags/spv/" style="font-size: 11.67px;">spv</a> <a href="/tags/yaml/" style="font-size: 10px;">yaml</a> <a href="/tags/zab/" style="font-size: 10px;">zab</a> <a href="/tags/以太坊/" style="font-size: 10px;">以太坊</a> <a href="/tags/分布式共识算法/" style="font-size: 15px;">分布式共识算法</a> <a href="/tags/分布式数据库/" style="font-size: 10px;">分布式数据库</a> <a href="/tags/分布式理论/" style="font-size: 13.33px;">分布式理论</a> <a href="/tags/区块链/" style="font-size: 11.67px;">区块链</a> <a href="/tags/地址生成/" style="font-size: 10px;">地址生成</a> <a href="/tags/大数据/" style="font-size: 11.67px;">大数据</a> <a href="/tags/密码学/" style="font-size: 10px;">密码学</a> <a href="/tags/挖矿/" style="font-size: 10px;">挖矿</a> <a href="/tags/比特币/" style="font-size: 11.67px;">比特币</a> <a href="/tags/编程基础/" style="font-size: 11.67px;">编程基础</a> <a href="/tags/错误记录/" style="font-size: 10px;">错误记录</a> <a href="/tags/问题记录/" style="font-size: 10px;">问题记录</a> <a href="/tags/阅读/" style="font-size: 11.67px;">阅读</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">December 2017</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/09/13/玩转linux/linux使用/">linux使用</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/13/区块链/比特币原理/比特币交易脚本及交易数据(二)/">比特币交易脚本及交易数据(二)</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/13/编程基础/c++面向对象/">C++面向对象</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/13/编程基础/c++基础/">C++基础</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/13/区块链/比特币原理/比特币交易脚本及交易数据(一)/">比特币交易脚本及交易数据(一)</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>Spark-GPU:一个集群上加速的内存数据处理引擎 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Spark-GPU:一个集群上加速的内存数据处理引擎摘要   Apache Spark是一个内存数据处理系统，支持大型数据集上的SQL查询和高级分析。在本文中，我们介绍了Spark-GPU的设计和实现，使Spark能够利用GPU的大规模并行处理能力实现高性能和高吞吐量。Spark-GPU将通用数据处理系统转换为GPU支持的系统，通过解决几个真实世界的技术挑战，包括最大限度地减少内部和外部数据传输，">
+<meta name="keywords" content="GPU,Spark">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spark-GPU:一个集群上加速的内存数据处理引擎">
+<meta property="og:url" content="http://yoursite.com/2019/09/13/SparkGPU论文翻译/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="Spark-GPU:一个集群上加速的内存数据处理引擎摘要   Apache Spark是一个内存数据处理系统，支持大型数据集上的SQL查询和高级分析。在本文中，我们介绍了Spark-GPU的设计和实现，使Spark能够利用GPU的大规模并行处理能力实现高性能和高吞吐量。Spark-GPU将通用数据处理系统转换为GPU支持的系统，通过解决几个真实世界的技术挑战，包括最大限度地减少内部和外部数据传输，">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2019-02-21T02:50:28.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Spark-GPU:一个集群上加速的内存数据处理引擎">
+<meta name="twitter:description" content="Spark-GPU:一个集群上加速的内存数据处理引擎摘要   Apache Spark是一个内存数据处理系统，支持大型数据集上的SQL查询和高级分析。在本文中，我们介绍了Spark-GPU的设计和实现，使Spark能够利用GPU的大规模并行处理能力实现高性能和高吞吐量。Spark-GPU将通用数据处理系统转换为GPU支持的系统，通过解决几个真实世界的技术挑战，包括最大限度地减少内部和外部数据传输，">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-SparkGPU论文翻译" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/09/13/SparkGPU论文翻译/" class="article-date">
+  <time datetime="2019-09-13T04:49:40.000Z" itemprop="datePublished">2019-09-13</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Spark/">Spark</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Spark-GPU:一个集群上加速的内存数据处理引擎
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="Spark-GPU-一个集群上加速的内存数据处理引擎"><a href="#Spark-GPU-一个集群上加速的内存数据处理引擎" class="headerlink" title="Spark-GPU:一个集群上加速的内存数据处理引擎"></a>Spark-GPU:一个集群上加速的内存数据处理引擎</h1><h2 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h2><p>   Apache Spark是一个内存数据处理系统，支持大型数据集上的SQL查询和高级分析。在本文中，我们介绍了Spark-GPU的设计和实现，使Spark能够利用GPU的大规模并行处理能力实现高性能和高吞吐量。Spark-GPU将通用数据处理系统转换为GPU支持的系统，通过解决几个真实世界的技术挑战，包括最大限度地减少内部和外部数据传输，准备合适的数据格式和批处理模式以实现高效的GPU执行， CPU和GPU之间具有任务调度功能的GPU工作负载的适用性。我们通过一系列具有代表性的分析工作量对Spark-GPU进行了全面的评估，以展示其有效性。我们的结果显示，Spark-GPU将机器学习工作负载的性能提高了16.13倍，SQL查询性能提高了4.83倍。</p>
+<a id="more"></a>
+<h2 id="I-简介"><a href="#I-简介" class="headerlink" title="I. 简介"></a>I. 简介</h2><pre><code>处理日益庞大的数据量的数据处理研发已经快速推进了两个阶段。 在第一阶段，已经开发了基于横向扩展模型的可扩展系统。 一个这样的系统是Hadoop ，它是MapReduce的开源实现。 </code></pre><p>经在Hadoop之上建立了几个广泛使用的数据处理系统（例如Pig和Hive），我们已经进入了第二阶段的高性能数据处理研发。 这些努力主要来自最好的利用先进的和低成本的商品设备，如多核，GPU 和固态硬盘。 在这个阶段，提高性能最有吸引力的方法之一是内存计算。 随着DRAM容量的增加和价格的下降，越来越多的应用程序的数据集可以被整合到一个集群的内存中。 利用主存储器来提高数据分析应用程序的性能已经变得可取和可行。</p>
+<pre><code>Apache Spark是一个代表性的开源分布式内存数据处理系统，由于基于Hadoop性能的提升而备受欢迎。不仅支持处理SQL查询，并且也为例如机器学习和图应用这样的高级数据分析提了</code></pre><p>序化的处理能力。使用内存数据处理，数据分析应用的性能瓶颈已经从磁盘I/O和网络转换成了计算，Spark正是如此。结果，在现代的集群环境中去利用各种计算资源来提高数据分析应用的性能就变得十分重要了。</p>
+<pre><code>我们已经明确了spark的具体的计算需求，主要有两个特别的执行模式。</code></pre><p><strong>首先，在Spark上运行的数据分析应用存在大量的并行性。</strong>Spark将数据抽象为RDD，并且在Spark上的数据分析应用被构建为一系列基于RDD的操作。每个RDD操作都适用于RDD中的所有数据。<br><strong>第二，很多数据分析应用都是计算密集的。在这些应用中进行复杂的迭代计算，例如机器学习。</strong> 这两种模式使GPU成为加速Spark性能的理想计算设备。</p>
+<p>   GPU是具有高计算能力和存储器带宽的大规模并行计算设备，适用于数据并行应用。研究界已经广泛研究了如何利用GPU来加速各种数据分析应用，包括SQL查询，NoSQL操作，机器学习和<br>形应用。这些应用程序的性能可以通过GPU显著提高。不过，其中很多工作采用以GPU为中心的设计，基于GPU的特性对系统进行重新设计，以最大化GPU的性能，而不考虑CPU的性能。 Apache Spark是一个CPU优化的数据处理系统。 考虑到CPU和GPU的不同类型的优化，目前还不清楚它能从高性能GPU中受益多少。</p>
+<pre><code>在本文中，我们将探讨如何使用GPU来加速生产级，CPU优化的分布式内存数据处理系统（如Apache Spark）上各种数据分析应用程序的性能。 具体而言，我们设计并实现了Spark GPU，</code></pre><p>是一种CPU-GPU混合数据分析系统，不仅可以运行SQL查询，还可以在CPU和GPU上运行各种复杂的数据分析应用程序。 我们提供了一组将GPU有效连接到Spark的设计，以充分利用GPU的功能。 Spark？GPU使用启发式规则将SQL查询卸载到GPU，并为GPU提供块处理能力，以获得数据分析应用程序的最佳性能。 我们的综合评估显示，Spark-GPU可为SQL查询实现高达4.83倍的性能提升，并为计算密集型机器学习应用程序实现高达16.13倍的性能提升。</p>
+<p>我们做出的主要贡献如下：<br>1.我们已经确定并分析了在分布式内存数据处理系统中有效使用GPU的挑战。<br>2.我们已经设计并实施了Spark-GPU，通过Spark的合理变化最大程度地利用了GPU的功能。<br>3.我们通过各种代表性工作负载全面评估了系统的性能，并说明了在Spark中使用GPU的优缺点。<br>4.我们提供了一种将GPU集成到内存数据处理系统的高效方法。</p>
+<p>   本文的其余部分安排如下。 第二节描述了Spark-GPU的整体架构。 第III节第IV节和第V节描述了Spark-GPU的详细设计。 第六部分介<br>   Spark-GPU的评估结果。 在第七部分介绍了相关工作后，第八部分结束了论文。</p>
+<!--more-->
+<h2 id="II-SPARK-GPU-概览"><a href="#II-SPARK-GPU-概览" class="headerlink" title="II. SPARK-GPU 概览"></a>II. SPARK-GPU 概览</h2><pre><code>本节介绍在Spark中使用GPU的挑战，并概述Spark-GPU，它克服了所有挑战，并可以高效地在CPU和GPU上执行各种数据分析应用程序。</code></pre><h3 id="A-挑战"><a href="#A-挑战" class="headerlink" title="A.挑战"></a>A.挑战</h3><p>在Spark上运行的数据分析应用程序通常具有丰富的数据并行性，这与GPU的并行体系结构自然匹配。 但是，由于Spark和GPU的独特属性，在Spark中有效使用GPU是一项不平凡的任务。 为了使GPU能够很好地处理在Spark上运行的数据分析应用程序，必须解决以下挑战。<br><strong>首先，Spark使用迭代器模型[14]来执行应用程序。 Spark中的每个RDD都实现了一个迭代器接口，该接口在调用时会计算并返回RDD的一个元素。 单元素一次迭代器模型具有简单性和灵活性等优点。 但是，它不符合GPU的架构，并且可能会显着低于GPU资源。 为了最大化GPU的性能，系统必须支持块处理，并在GPU上处理之前将数据转换为GPU友好格式。 这些操作可能引入昂贵的数据复制操作，这些操作在系统设计中必须最小化。</strong><br><strong>其次，Spark采用托管语言（即Scala）实现，并运行在带有自动内存管理和垃圾收集的Java虚拟机（JVM）之上。</strong> Spark中的数据表示为Java / Scala对象，并存储在JVM的堆内存中。 然而，GPU程序通常用CUDA [3]和OpenCL [4]等GPU编程模型来实现，它不能访问存储在Java堆内存中的数据。 因此，为了将计算卸载到GPU上，必须频繁地在Java堆内存和本地内存之间复制数据，而这些代价非常昂贵。 为了获得GPU的高性能，必须开发一种最小化Java堆内存和本机内存之间数据复制的软件机制。<br>第三，Yarn [36]和Mesos [21]等现有的集群资源管理以粗粒度的方式管理GPU，专门将GPU分配给任务。 这不足以利用GPU资源。 共享GPU的主要挑战是GPU不具备与CPU相同的操作系统支持级别。 操作系统不提供GPU设备内存的虚拟内存管理。 相反，每个GPU程序本身管理GPU设备内存。 在这种情况下，当多个GPU程序在GPU上同时运行时，由于GPU设备内存不足，它们可能会崩溃。</p>
+<h2 id="B-Spark-GPU的概述"><a href="#B-Spark-GPU的概述" class="headerlink" title="B.Spark-GPU的概述"></a>B.Spark-GPU的概述</h2><p>Spark-GPU处理所有上述挑战，以有效执行GPU上的数据分析应用程序。<br><strong>显示了Spark-GPU的架构。 Spark中的几个组件已被修改.首先，Spark-GPU扩展了Spark的迭代器模型，以支持GPU上的块处理，可以更好地利用GPU的大规模并行性和高内存带宽。 第三部分介绍了如何在顶层支持和使用块处理.其次，Spark-GPU扩展了Spark的SQL模块以将SQL查询卸载到GPU。 Spark-GPU向Spark推出了一组高性能GPU查询运算符，并扩展了其查询优化器，以便与CPU查询运算符和GPU查询运算符一起生成查询计划。 第四部分解释了如何在GPU上处理SQL查询.</strong></p>
+<p><strong>第二，为了在GPU上高效执行数据分析应用程序，Spark-GPU扩展了Spark的集群管理器和任务调度程序，以管理集群中的GPU。 Spark中的所有调度决策均基于数据分析应用程序中的操作。 每个操作都将RDD或多个RDD作为输入并输出新的RDD。 Spark维护RDD的谱系图并将图分成一个或多个阶段。 每个阶段都是一个执行单位，将由一组任务执行。 Spark-GPU管理GPU资源并将GPU任务安排到GPU节点。 第五节介绍了Spark-GPU如何管理GPU资源并安排任务。</strong></p>
+<h2 id="III-执行模型和数据格式"><a href="#III-执行模型和数据格式" class="headerlink" title="III. 执行模型和数据格式"></a>III. 执行模型和数据格式</h2><p><strong>GPU是一个大规模并行协处理器，它以单指令多线程（SIMT）方式执行式执行GPU内核。 为了最大化GPU的性能，必须满足两个要求。 首先，每个GPU内核都应启动大量GPU线程，这可以利用GPU计算资源并隐藏GPU内存访问延迟来实现吞吐量。 其次，为了充分利用GPU的内存带宽，应该以连续的GPU线程访问续GPU内存位置的方式访问数据。</strong></p>
+<p>为了满足第一个要求，系统需要支持一次处理数据元素块的块处理模型[32]。 为了满足第二个要求，系统需要将数据组织成合适的格式，以便能够以一种合并的方式访问它们。 但是，Spark不符合这两个要求。 它采用迭代器模型并且使用行格式一次计算一个元素，这可能明显地不足GPU资源。 在这种情况下，为了有效利用GPU资源，块处理和其他数据格式（如列格式）应与系统中的迭代器模型和行格式共存。<br>A.我们的解决方案：GPU-RDD</p>
+<p><strong>Spark的设计以RDD的概念为中心。 为了支持块处理，我们引入了一种新类型的RDD：GPU-RDD，它在本机内存中以行格式或列格式缓存其所有数据。 每个GPU-RDD提供两个接口来访问数据：一个是标准的RDD接口，每次调用接口时返回一个元素; 另一个是块接口，它返回缓冲数据的地址。 标准接口可以轻松将GPU-RDD集成到现有的Spark数据流中。 此外，块接口使应用程序能够一次对GPU-RDD应用对所有缓冲数据的操作，这可以更好地利用现代并行计算设备（例如，GPU）。</strong><br>GPU-RDD可以来自现有的RDD或其他GPU-RDD。 默认情况下，GPU-RDD中的数据以列格式存储，因为它可以更好地利用GPU的内存带宽。 但是，如果创建GPU-RDD时应用程序可以始终选择行格式，以保证更好的mmm   m   mn n性能。<br>Spark-GPU使用BlockRecords来表示GPU RDD中的数据。 BlockRecord对应RDD中的一个数据分区。 它包含缓冲数据和相应的元数据，例如分区中元素的数量，数据类型和其他。 缓冲数据可以存储在连续存储器区域中（对于行格式和列格式），也可以存储在只有同一列中的数据存储在连续存储器中（仅用于列格式）的不同存储器区域。 排列数据的最佳方式取决于计算模式。 对于数据分析应用程序（如SQL查询），通常只有一小部分列将用于计算。 在这种情况下，数据可以存储在不同的存储区域中。 另一方面，如果在计算中使用所有的数据或者数据具有大量的列，则应该将它们存储在一个存储区中，使得PCIe数据传输开销可以最小化。<br><strong>Spark-GPU利用本机内存而不是Java堆内存来缓冲GPU-RDD中的数据，这有两个主要优势。 首先，它在Java堆内存中保存一个数据复制操作。 本地内存中的数据可以直接转移到GPU进行处理。 其次，它不会增加Java内存管理的开销。 Java堆内存的大量使用会导致更频繁的垃圾收集活动，这会显着降低系统的性能。</strong></p>
+<p><strong>GPU-RDD的本机内存由JVM在对象被垃圾回收时或由显式执行内存释放函数调用的应用程序释放。 由于RDD是只读的（注意RDD上的操作将创建新的RDD）和GPU-RDD缓冲区数据，因此为GPU-RDD分配内存可能会压缩系统内存使用量，这可能会在系统耗尽时显着降低系统性能 记忆。 有几个连续的GPU-RDD时，Spark-GPU可优化本机内存使用情况。 Spark-GPU不是为每个GPU-RDD缓冲数据，而仅保留连续GPU-RDD的最后一个GPU-RDD的本机内存。 其他GPU-RDD使用的所有本机内存将立即释放。</strong></p>
+<p>B.使用GPU-RDD进行GPU处理<br>GPU-RDD上的操作可以卸载到GPU上。 Spark-GPU支持几种内置的GPU-RDD操作，例如在GPU上执行的过滤器和映射。 这些内置操作具有数据并行性，通常用于数据预处理。 为了在GPU上执行更复杂的GPU-RDD操作，用户需要实现自己的自定义功能，每个功能都计算RDD中的一个数据分区（由一个BlockRecord表示）<br>由于GPU通常使用CUDA或OpenCL进行编程，而Spark则在Scala中实现，因此每个GPU自定义函数都必须包含在CUDA或OpenCL中实现的本机函数以及本机函数顶部的Scala包装器。 本机功能利用GPU实现定制功能的核心功能。 Scala包装提供了一个接口，可以在SparkGPU中执行，并通过Java Native Interface（JNI）与本地函数交互。<br>    为SparkGPU开发定制功能的工作与开发单节点GPU程序的工作类似。 Spark-GPU为GPU的有效使用提供原始GPU操作和系统支持，而数据分析应用程序则确定它们是否应使用GPU。<br>将GPU与GPU-RDD一起使用并不是免费的，因为它在Java堆和本机内存之间以及本机内存和GPU设备内存之间引发额外的数据复制操作。 一般来说，以下步骤<br>需要将GPU-RDD上的操作卸载到GPU：</p>
+<blockquote>
+<p>（1）将数据从Java堆复制到本地内存以创建GPU-RDD;<br>（2）将数据传输到GPU设备存储器;<br>（3）在GPU上计算;<br>（4）将来自GPU设备存储器的结果传输到本地存储器;<br>（5）将结果从本机内存复制到Java堆。<br> 与直接执行相比在CPU上执行操作并将其卸载到GPU后，会引入步骤（1），（2），（4）和（5）中所示的数据副本。 请注意，第5步仅在调用GPU-RDD的标准数据访问接口时发生。<br>数据复制很昂贵，可能会降低GPU的性能优势。 为了说明它的开销，我们在Spark-GPU上进行了一个微型基准测试。 微基准测试只是从Spark RDD创建GPU-RDD，然后通过调用GPU-RDD的标准数据访问接口来投影所有数据。 我们在具有16个CPU核心和32 GB内存的单个节点上执行微基准测试。 我们将RDD中的总行数设置为200万，并将行中的每一列设置为一个16字节的字符串。 我们使用字符串类型的原因是，在Java堆中创建字符串对象是昂贵的。我们改变了行中的列数并测量了微型基准测试的执行时间。 为了比较，我们还报告了直接投影Spark中所有行的执行时间。 结果如图3所示。</p>
+</blockquote>
+<p>微基准测试显示了在Spark-GPU中使用GPU-RDD进行数据复制的昂贵开销。 开销随着数据的大小而增加。 当一行中有8个字符串列时，创建GPU RDD的执行时间比投影Spark中的行长18.3倍，并且将GPU-RDD中的所有数据投影到行的执行时间延长了10.5倍。 造成较高开销的原因是Java字符串对象不能直接复制到本机内存。 字符串对象必须先转换为字节数组，然后逐字节复制到本地内存中，这很昂贵。 这表明如果某个操作对每个数据分区没有进行太多计算，则不应该将其卸载到GPU中。<br>GPU的性能优势来源于其高度的平行性和高内存带宽。 要决定某个操作是否可以从GPU中受益，应该考虑三个因素：</p>
+<blockquote>
+<p>（1）操作是否是计算密集型的;<br>（2）操作是否多次访问相同的数据;<br>（3）数据上是否存在多个连续的GPU操作。 如果三个因素中的任何一个都存在，则该操作应被视为卸载到GPU。</p>
+</blockquote>
+<h2 id="IV-在GPUS上进行查询处理"><a href="#IV-在GPUS上进行查询处理" class="headerlink" title="IV. 在GPUS上进行查询处理"></a>IV. 在GPUS上进行查询处理</h2><p>SQL查询是重要的数据分析应用程序。 SQL查询和其他数据分析应用程序之间的主要区别在于SQL查询只指定要计算的内容，而不指明如何进行计算。 这是数据处理系统确定查询执行逻辑。 在这种情况下，为了高效地执行CPU和GPU上的SQL查询，Spark-GPU实现了一组高性能GPU查询操作符，并扩展了Spark的查询优化器，以便与CPU查询操作符和GPU查询操作符一起构建查询执行计划。 在本节中，我们首先介绍Spark-GPU中GPU查询运算符的设计。 然后我们介绍GPU意识查询优化器并描述优化技术以提高Spark-GPU上的查询性能。<br>A.GPU查询运算符<br>Spark-GPU支持五种重要的GPU查询操作符：<br>GPU扫描，GPU广播连接，GPU散列连接，GPU集成和GPU排序，可用作各种SQL查询的构建模块。 每个GPU查询运算符都包含一个Scala包装器和一个本地函数。 Scala包装器实现了一个迭代器接口，每次调用时都会以行格式返回一个数据元素。 本地函数使用标准GPU编程模型处理GPU上的列数据。<br>1）GPU扫描：GPU扫描运算符对内存数据执行选择操作，这将返回所有满足查询谓词的数据。 要使用GPU扫描运算符，必须将数据显式缓存在Java堆内存中或存储在本机内存中。<br>主要的选择操作是在GPU上计算的，包含三个步骤：（1）评估查询谓词; （2）计算输出位置和（3）投影结果。 在第一步中，将查询谓词进行评估并维护0/1矢量以跟踪满足谓词的数据。 在第二步中，在0/1向量上计算前缀和以决定结果缓冲区中GPU线程的开始写入位置，以避免在写入结果时进行同步。 在最后一步中，基于0/1矢量和前缀和，生成满足查询谓词的数据。<br>2）GPU广播连接和散列连接：连接是最重要的SQL操作之一。 Spark-GPU在GPU上支持两种Equi-Join运算符：<strong>GPU广播连接和GPU散列连接</strong>。 GPU广播连接运算符首先广播两个输入<br>中较小的一个。 然后它将广播表与另一个表的每个数据分区相连接.<strong>GPU散列连接运算符首先根据连接键的散列值对数据进行重新分区，这将在两个表中重排数据。 然后它加入每对新分区的数据。</strong><br>Spark-GPU在两个操作员的GPU上执行连接部分。 我们在GPU上实现传统的散列连接算法，因为它的性能很好，特别是当两个表的大小差别很大时[8]。 它有一个构建阶段和一个探测阶段。<br>在构建阶段，哈希表建立在一个表上。 我们将哈希表存储在GPU内的连续内存中，以便可以高效地进行搜索。 每个散列表项都是一个（id，value）对，其中id表示散列键，value表示分区中数据的位置。 我们扫描构建表两次以避免构建哈希表时的同步。 第一次扫描只是计算散列到每个散列值的键的数量，而第二次扫描直接写入散列表存储器而没有基于第一个扫描结果的前缀总和进行同步。 探测阶段很简单。 扫描另一个表中的连接键列以探测散列表，并且维护0/1矢量以指示应该投影哪些数据。 与GPU扫描运算符相似，在向量上计算前缀和，以便可以在没有同步的情况下生成结果。<br>3）GPU聚合：聚合将数据分成组并计算每个组内的各种功能。 GPU聚合运算符实现为部分聚合，然后是全局聚合。 部分聚合直接聚合输入数据的每个分区，这大大减少了要混洗的数据量。 之后，将每个分区的聚合结果进行混洗，并计算最终的聚合结果。 标准汇总函数（如SUM和AVG）在Spark-GPU中受支持。<br>4）GPU排序：GPU排序运算符的逻辑与GPU聚合运算符的逻辑类似。 GPU排序运算符首先对GPU上的每个数据分区进行排序。 然后它对所有分区中的数据进行混洗。<br>Spark-GPU在GPU上实现了双向排序。 由于排序通常是在SQL查询中进行聚合后执行的，因此要排序的数据元素数量相对较少。 在这种情况下，可以使用GPU共享内存进行排序。 键（即查询的order-by子句中的列）首先在GPU上排序。 如果查询中列的顺序有多个，则数据将按每列逐一排序。 在对键进行排序后，可以使用收集操作生成结果。</p>
+<p><strong>B.GPU感知查询优化器</strong><br>   给定一个SQL查询，查询优化器用现有的查询操作符查找最佳执行计划。 Spark的查询优化器设计有一套规则和策略。 规则用于生成优化的逻辑查询计划，策略用于生成优化的执<br>划。 目前Spark的查询优化器没有准确的成本模型来估计哪个执行计划做得最好，因此它只是选择执行查询的第一个计划。<br>为了与CPU操作员和GPU操作员生成查询执行计划，Spark-GPU通过添加一组新的GPU策略来扩展Spark的查询优化器。 Spark-GPU保证，如果生成具有GPU查询操作符的查询计划，它将成为所有计划中的第一个物理计划，因此将用于运行查询。<br>给定一个逻辑计划，确定是否使用GPU查询操作符的标准是：<br>（1）GPU可以提高操作员的性能;<br>（2）存在一系列GPU查询运算符，它们在将数据复制回Java堆之前处理本机内存中的数据。<br> 如果上述任一条件成立，则查询优化器将选择GPU查询运算符。 否则，它将使用Spark的现有CPU查询操作符。 添加了以下GPU策略：<br>1.加入运算符被卸载到GPU。 如果一个连接表的大小小于Spark的广播阈值，则使用GPU广播连接运算符。 否则使用GPU散列连接运算符。 其基本原理是连接运算符的性能受存储器访问的限制。 它可以受益于GPU的高内存带宽，因此GPU连接运营商将始终使用.<br>2.GPU广播连接的孩子应尽可能使用GPU运算符。 基本原理是当数据在本机内存中时，尽可能多地向GPU推送操作。 请注意，这不适用于其他联合运算符，因为它们将从两个表中混洗数据.<br>如果聚合可以分为部分聚合和全局聚合，则将使用GPU聚合操作符，因为聚合是计算密集型操作。 如果可能的话，GPU聚合的孩子也将使用GPU查询操作符执行。<br>3.如果排序的孩子是GPU运算符，则将使用GPU排序运算符。 当数据存储在本机内存中时，理性的做法是尽可能多地向GPU推送操作。<br>并非所有的查询操作都适用于GPU。 例如，如果一个查询只包含一个简单的扫描操作符，它将在CPU上执行。</p>
+<p><strong>C.优化</strong><br>Spark-GPU在CPU和CPU上执行查询。 但是，由于查询运算符的迭代器接口，这并不能保证最佳性能。 我们使用以下查询来说明问题。 查询首先扫描大表行和小表供应商，然后加入满足扫描谓词的元组。<br>Spark-GPU使用两个GPU扫描运算符执行查询，然后执行GPU广播连接运算符。 由于查询操作符通过行格式迭代器接口连接，因此必须将大表行序的扫描结果从本地内存复制到Java堆，并在GPU扫描后将其物化为行，然后复制回本机内存并批量处理为列格式 加入GPU。 这些数据复制操作是不必要的，因为大表行命令的GPU内存中扫描的结果已经在本机内存中，并且可以直接用于GPU上的连接。<br>为了解决这个问题，Spark-GPU引入了一个批量接口来连接GPU查询操作。 批处理接口在GPU上执行运算符，并在本机内存中以列格式返回数据，而不是在Java堆中以行格式返回。 最初的迭代器接口是在批处理接口之上实现的。 GPU查询运算符从另一个GPU查询运算符中提取数据时，可以直接调用批处理接口获取本地内存中的数据地址，避免了不必要的数据复制操作，提高了查询性能。</p>
+<p>Ⅴ.GPU资源管理</p>
+<p>应该在集群中有效管理GPU。 管理GPU的直接方法是将每个GPU视为一个CPU核心，并以与CPU相同的方式管理GPU。 在这种情况下，当任务需要GPU时，GPU将专门分配给该任务，直到任务完成。 这种粗粒度管理方法已被MapReduce Hadoop系统（例如[16]）采用来管理GPU资源。 虽然这种方法使GPU在集群中可用，但它可能会使用不足的GPU资源，这可能会降低GPU应用程序的性能。<br>为了理解这个问题，我们在Spark-GPU上实现了一个合成的GPU工作负载，并在改变可以在GPU上同时执行的任务数量时测量其性能。工作负载包含三个简单的操作：（1）将数据传输到GPU; （2）访问GPU内部的数据和（3）产生一个常数作为结果。我们控制在GPU内部访问数据的次数，以控制计算时间与PCIe数据传输时间的比率，以模拟不同计算强度的工作负载。使用三种计算/ PCIe比率：1：1,10：1和100：1。这些实验是在一个具有一个GPU的16核心节点上进行的。因此，并发GPU任务的最大数量是16个。输入数据被缓存在内存中并具有16个分区。每个分区的大小是128MB。对于每个计算/ PCIe比率，我们使用工作负载性能时，只能在GPU上执行一项任务作为基准，并将所有其他性能标准化为基准。执行结果如图4所示。<br>从图4中可以获得两个观察结果。首先，GPU共享可以提高Spark-GPU上GPU应用程序的性能。当计算/ PCIe比率为1：1时，性能提高2倍以上。其次，增加计算/ PCIe比率会降低共享GPU获得的性能优势。决定GPU共享益处的基本因素是在GPU上运行任务时可并行执行的工作量。为了将操作卸载到GPU，Spark-GPU需要在本机内存和Java堆之间复制数据，通过PCIe总线在本机内存和GPU设备内存之间传输数据，并在GPU上执行内核。在这些操作中，两个操作组合是连续执行的。首先，由于GPU的LEFTOVER资源管理，内核执行难以并行执行[33]。其次，由于硬件限制，必须以相同的方向连续执行PCIe数据传输。所有其他操作组合都可以重叠，因此可以共享GPU。<br>Spark-GPU有必要以精细的方式管理GPU以启用GPU共享。 原因有两个。首先，Spark-GPU是一种通用数据处理引擎。它需要利用高性能GPU来尽可能多的工作负载。 其次，GPU共享可以通过重叠来自不同GPU任务的操作来提高系统吞吐量。</p>
+<p><strong>A.我们的解决方案：用户级GPU管理</strong></p>
+<p>   我们设计了一个用户级库来管理现有研究激发的GPU内存（例如[23]，[38]，[37]）。我们有两个设计目标。首先，图书馆应该对GPU程序和操作系统都是透明的。其次，内存管理的<br>销应尽可能低。以前的工作（例如[23]，[38]，[37]）需要对GPU编程接口或操作系统进行修改，以在GPU上没有足够的设备内存时改善工作负载性能。这些修改将大大限制系统可以处理的GPU工作负载。在Spark-GPU中，我们的库设计针对GPU内存争用很少的常规场景进行了优化。库确保任务不会因GPU内存争用而崩溃。当GPU内存争用发生时，Spark-GPU将停止调度GPU的新任务，因为GPU任务的性能会因PCIe总线上频繁的数据交换活动而严重降级。<br>    在spark-GPU中，集群中每个worker启动时都需要载入GPU管理库。有了GPU管理库，每一个GPU任务都有权使用整个GPU资源，即使GPU是共享的。</p>
+<p><strong>B.GPU抽象和任务调度</strong><br>Spark-GPU支持在群集中共享GPU。 它将每个GPU抽象成多个逻辑GPU。 每个逻辑GPU可以运行一个GPU任务。 GPU的共享粒度是可配置的。用户需要明确设置每个节点上可用GPU的数量以及每个GPU上可以同时执行多少个GPU任务。 请注意，在一个节点上可同时执行的GPU任务总数不能超过该节点上CPU内核的总数，因为每个GPU任务都需要一个CPU内核来启动任务.Spark-GPU根据RDD谱系安排任务 为了将任务调度到GPU，调度器检查一个阶段是否包含由GPU操作（例如，SQL GPU操作员和GPU-RDD操作）创建的任何RDD。 如果一个阶段包含任何GPU操作，它只会被调度到节点<br>具有GPU并且至少有一个可用的CPU内核。 同一节点上的GPU任务以FIFO的方式安排给GPU。</p>
+<p>VI.实验<br>在本节中，我们将全面研究Spark-GPU的性能。 我们的目标是说明在内存数据处理系统中使用GPU的优势和局限性。 我们首先描述实验环境和实验中使用的工作量。 然后我们给出实验结果。<br>实验表明：<br>1.Spark-GPU可将SQL查询性能提高高达4.83倍，数据挖掘和统计工作负载高达16.13倍，这表明Spark-GPU在加速使用GPU的数据并行分析工作负载方面的优势。<br>2.在集群中共享GPU可提高性能。SQL查询的性能可以提高高达1.61倍，而数据挖掘和统计工作量的改进是微不足道的。</p>
+<p>A.实验环境和工作量</p>
+<p>我们在具有Amazon EC2上的9个节点的群集上进行了所有实验。 EC2实例类型是g2.x2large。 每个节点有一个2.6 GHZ Intel Xeon E5-2670（Sandy Bridge）处理器和15 GB内存，带宽为51.2 GB / s。每个节点上都有一个NVIDIA GK104 GPU。 GPU有1536个内核，4GB内存，时钟频率为800MHZ，内存带宽为192.26 GB / s。 每个节点上的操作系统是Ubuntu 14.04。 NVIDIA驱动程序的版本是320.48。 CUDA 6.5被使用。 在集群中，我们将一个节点配置为Spark的主节点（也是HDFS的名称节点），其余节点为从节点。 实验中使用了Spark 1.6.0和Hadoop 2.6.0。 Spark-GPU是在Spark 1.6.0之上开发的。<br>我们使用来自四个类别的工作负载来检查Spark-GPU的性能：数据挖掘，统计分析，Star Schema Benchmark [30]查询和TPC-H基准[5]查询。 我们使用的数据挖掘和统计工作量是K-Means和逻辑回归。 KMeans的数据集有200万个数据点，每个数据点具有256或1024个特征。 中心数量为2048个。逻辑回归数据集有200万个数据点。 其中每个都有512或1024个功能。 GPU版本的K-Means和逻辑回归是基于GPU-RDD实现的。 我们在实验中将星形模式基准和TPC-H基准的比例因子设置为50 2。<br>在实验中，所有工作负载的数据最初都缓存在集群内存中。 我们每次运行5次实验并报告中位数结果。<br>B. GPU共享的有效性<br>图6显示了代表以下工作负载类型的每个类别的工作负载结果：计算密集型工作负载（K-Means-1024和LR-1024），混洗查询（TPC-H-Q3）和混洗 - 罕见查询（SSBQ3.1）。 当我们研究Spark-GPU的性能时，将在稍后讨论工作负载细节。 我们观察到，只有shufflerare查询才能从共享GPU中获益显着。性能提高了1.61倍。 其他工作负载的改进是平庸的。 原因在于共享GPU的好处主要来自于将当前GPU内核执行与PCIe数据传输重叠用于后续GPU任务。 这与我们在第五节中的分析一致。<br>另一个观察结果是，在两个任务之间共享GPU比其他选择更好。 这说明，虽然共享GPU可以重叠操作以提高性能，但过度订购可能会导致资源争夺并在某种程度上降低性能。<br>B.Spark-GPU的有效性<br>我们接下来通过与Spark的性能进行比较来检验Spark-GPU的设计。 在这些实验中，GPU在Spark-GPU中的两个任务之间共享，以提供最佳性能。<br>请注意，在Spark中也有使用GPU进行机器学习工作量的研究（例如HeteroSpark [27]）。 我们并不比较Spark-GPU，因为：（1）他们的代码不可用; （2）它们不像Spark-GPU那样是通用系统。<br>1）数据挖掘：K-Means是一种广泛使用的聚类算法。 我们在Spark和Spark-GPU上实现它来研究性能。 该算法主要包括两个步骤：（1）找到每个数据点最近的中心;（2）更新聚类中心。 在Spark-GPU上实现算法时，我们首先创建了一个GPU-RDD，以本地内存中的一个连续区域的柱状格式存储数据。 请注意，数据点的每个分区只需要一个GPU存储器复制命令，并且可以保证合并的GPU存储器存取。 然后我们对GPU-RDD进行了计算。 对于每个迭代的计算，我们卸载了计算离GPU最近的中心的操作。 GPU内核启动后，可为一个分区中的每个数据点找到最近的中心，并在中心本地聚合。 之后，进行全局聚合以更新这些中心<br>图7显示了性能结果。 对于K-Means工作负载，Spark-GPU明显优于Spark。 当数据点有256个和1024个特征时，Spark-GPU分别将性能提高了5.71倍和3.84倍。 由于K-Means的计算密集型特性，性能得到了改善。 K-Means只在每次迭代中洗牌中心。 占主导地位的操作是找到最近的中心，这可以从GPU的高内存带宽中获益很多<br>高并行性。<br>2）统计分析：Logistic回归是一种常见的情况<br>采用分类法进行统计分析。 该算法找到最能分离数据集的值v。 在每次迭代计算中，逻辑函数都应用于数据集中的每个数据点。 然后汇总所有结果以更新v。在Spark-GPU上实现时，每个数据分区首先在GPU上计算出本地v。 之后，Spark-GPU汇总所有本地值以更新v。与K-Means类似，我们以柱状格式将所有数据点存储在一个连续内存区域中，这减少了将数据点传输到GPU设备内存的开销，并增加了 GPU内核性能。 性能结果如图8所示。</p>
+<p>Logistic回归的表现趋势与K-Means相似。 Spark-GPU显着改善了性能。当数据具有512和1024个特征时，性能提高了16.13倍和13.73倍。 Spark-GPU更好性能的原因是逻辑回归受到每个数据点的计算限制，这可以从GPU的高计算能力中受益。</p>
+<h2 id="VII-相关工作"><a href="#VII-相关工作" class="headerlink" title="VII. 相关工作"></a>VII. 相关工作</h2><p>由于其高性能，图形处理器单元（GPU）已成为一种通用计算设备。在过去的十年中，研究界就如何使用GPU加速各种数据并行操作进行了广泛的研究。<br>在关系数据库中，GPU已被用于加速数据库操作员和复杂的分析查询。 在运行GPU时，排序[13]，[34]，连接[18]，[24]和聚合[25]的性能已经通过优化算法显着提高。 复杂的查询可以通过各种软件优化使用GPU而受益[17]，[39]，[38]。 这些作品展示了使用GPU来处理SQL查询的性能潜力。<br>借助GPU在数据并行应用方面的卓越性能，研究人员已经研究了如何在MapReduce系统中使用GPU。 Mars [16]在单节点GPU上设计了一个类似MapReduce的系统Mars。 Mars在GPU上实现了一系列接口，如Map和Reduce，可用于在GPU上实现各种分析应用程序。斯图尔特等人。 [35]提出了GPRM，一种类似MapReduce的GPU框架，接受用户实现的GPU内核以进行Map和Reduce操作，并在GPU集群上运行它们。 El-Helw等人[11]使用OpenCL设计了一个MapReduce框架Glasswing，它可以利用各种计算设备并重叠计算和通信等操作。他等人。 [19]提出Hadoop +系统，可以在Hadoop集群中执行应用程序CPU和GPU的应用程序。他们专注于CPU任务和GPU之间的资源争夺，并提出了一个帮助分配GPU资源的模型。这些类似MapReduce的GPU系统改进了各种工作负载的性能，这体现了GPU在MapReduce系统中的性能潜力。<br>HeteroSpark [27]是一个框架，支持使用GPU在Spark上执行某些机器学习工作负载。 它使用Java RMI在CPU的JVM和GPU的JVM之间传输数据，这可能会产生昂贵的开销（例如数据的序列化和反序列化）并损害系统的容错能力。 Spark-GPU不会在集群节点之间引入任何额外通信，并在使用GPU时将数据移动降至最低。</p>
+<h2 id="VIII-结论"><a href="#VIII-结论" class="headerlink" title="VIII. 结论"></a>VIII. 结论</h2><p>在这项工作中，我们探索了如何提高生产级的，CPU优化的分布式内存数据处理系统与GPU的性能。我们已经介绍了Spark-GPU的设计，这是一种基于Apache Spark构建的CPU-GPU混合系统，可以以最有效的方式利用GPU。 Spark-GPU解决了Spark和GPU之间不匹配所带来的一系列现实挑战。我们的工作得出以下结论：（1）Spark-GPU可以加速各种数据分析工作负载，但需要非平凡的工程努力来解决Spark之间的关键不匹配问题基于Java的以网络为中心的执行模型和GPU独特的架构和编程模型; （2）Spark-GPU为传统数据仓库工作负载（由TPC-H查询和星型架构基准查询表示）提供了一定级别的加速（高达4.83倍）。 GPU的性能优势受查询执行过程中数据混洗的显着影响; （3）Spark-GPU可显着加速计算密集型数据挖掘和统计分析应用程序（高达16.13倍），以K-means聚类和物流回归算法为代表。 Spark-GPU代表了在群集上构建加速的内存数据处理引擎的有效方法。</p>
+<h2 id="IX-致谢"><a href="#IX-致谢" class="headerlink" title="IX.致谢"></a>IX.致谢</h2><p>我们感谢匿名审稿人的建设性意见。 这项工作得到了美国国家科学基金会的部分支持，资助为OCI-1147522，CNS-1162165和CCF-1513944。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/09/13/SparkGPU论文翻译/" data-id="ck0hncd8a009lfyxxf9fw1f21" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/GPU/">GPU</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Spark/">Spark</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/09/13/docker/docke入门实战（一）——mysql镜像使用/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          docker入门（一）----mysql镜像使用
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/09/13/js实现sleep函数/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">js实现sleep函数</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/GPU/">GPU</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Spark/">Spark</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/docker/">docker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/go/">go</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/golang/">golang</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/linux/">linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/node/">node</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/书中自有黄金屋/">书中自有黄金屋</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/人生苦短我用python/">人生苦短我用python</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/人生苦短我用python/linux环境配置/">linux环境配置</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/其他/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/">分布式</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/分布式共识算法/">分布式共识算法</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式基本理论/">分布式基本理论</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/">区块链</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/Hyperledger-Fabric/">Hyperledger Fabric</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/《区块链：从数字货币到信用社会》/">《区块链：从数字货币到信用社会》</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/以太坊开发/">以太坊开发</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/区块链基本原理/">区块链基本原理</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/比特币原理/">比特币原理</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/大数据/">大数据</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/工具/">工具</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/编程基础/">编程基础</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/问题记录/">问题记录</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ACID/">ACID</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CAP/">CAP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ECDSA/">ECDSA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GO/">GO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GPU/">GPU</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Hyperledger-Fabric/">Hyperledger Fabric</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PBFT/">PBFT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spark/">Spark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blockchain/">blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/c/">c++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/centos/">centos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/centos7/">centos7</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cuda/">cuda</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dockerfile/">dockerfile</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/eos/">eos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gas/">gas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go/">go</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hadoop/">hadoop</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hyperledger-fabric/">hyperledger fabric</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/">js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/leveldb/">leveldb</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/node/">node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nvcc/">nvcc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/paxos/">paxos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pos/">pos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pow/">pow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python3/">python3</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spv/">spv</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/yaml/">yaml</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zab/">zab</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/以太坊/">以太坊</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式共识算法/">分布式共识算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式数据库/">分布式数据库</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式理论/">分布式理论</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/区块链/">区块链</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/地址生成/">地址生成</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/大数据/">大数据</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/密码学/">密码学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/挖矿/">挖矿</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/比特币/">比特币</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/编程基础/">编程基础</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/错误记录/">错误记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/问题记录/">问题记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/阅读/">阅读</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ACID/" style="font-size: 11.67px;">ACID</a> <a href="/tags/CAP/" style="font-size: 10px;">CAP</a> <a href="/tags/ECDSA/" style="font-size: 15px;">ECDSA</a> <a href="/tags/GO/" style="font-size: 13.33px;">GO</a> <a href="/tags/GPU/" style="font-size: 11.67px;">GPU</a> <a href="/tags/Hyperledger-Fabric/" style="font-size: 16.67px;">Hyperledger Fabric</a> <a href="/tags/PBFT/" style="font-size: 10px;">PBFT</a> <a href="/tags/Spark/" style="font-size: 10px;">Spark</a> <a href="/tags/blockchain/" style="font-size: 20px;">blockchain</a> <a href="/tags/c/" style="font-size: 11.67px;">c++</a> <a href="/tags/centos/" style="font-size: 11.67px;">centos</a> <a href="/tags/centos7/" style="font-size: 15px;">centos7</a> <a href="/tags/cuda/" style="font-size: 10px;">cuda</a> <a href="/tags/docker/" style="font-size: 18.33px;">docker</a> <a href="/tags/dockerfile/" style="font-size: 11.67px;">dockerfile</a> <a href="/tags/eos/" style="font-size: 10px;">eos</a> <a href="/tags/gas/" style="font-size: 10px;">gas</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/go/" style="font-size: 15px;">go</a> <a href="/tags/hadoop/" style="font-size: 10px;">hadoop</a> <a href="/tags/hyperledger-fabric/" style="font-size: 10px;">hyperledger fabric</a> <a href="/tags/js/" style="font-size: 10px;">js</a> <a href="/tags/leveldb/" style="font-size: 10px;">leveldb</a> <a href="/tags/linux/" style="font-size: 13.33px;">linux</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/node/" style="font-size: 10px;">node</a> <a href="/tags/nvcc/" style="font-size: 10px;">nvcc</a> <a href="/tags/paxos/" style="font-size: 10px;">paxos</a> <a href="/tags/pos/" style="font-size: 10px;">pos</a> <a href="/tags/pow/" style="font-size: 10px;">pow</a> <a href="/tags/python/" style="font-size: 13.33px;">python</a> <a href="/tags/python3/" style="font-size: 15px;">python3</a> <a href="/tags/spv/" style="font-size: 11.67px;">spv</a> <a href="/tags/yaml/" style="font-size: 10px;">yaml</a> <a href="/tags/zab/" style="font-size: 10px;">zab</a> <a href="/tags/以太坊/" style="font-size: 10px;">以太坊</a> <a href="/tags/分布式共识算法/" style="font-size: 15px;">分布式共识算法</a> <a href="/tags/分布式数据库/" style="font-size: 10px;">分布式数据库</a> <a href="/tags/分布式理论/" style="font-size: 13.33px;">分布式理论</a> <a href="/tags/区块链/" style="font-size: 11.67px;">区块链</a> <a href="/tags/地址生成/" style="font-size: 10px;">地址生成</a> <a href="/tags/大数据/" style="font-size: 11.67px;">大数据</a> <a href="/tags/密码学/" style="font-size: 10px;">密码学</a> <a href="/tags/挖矿/" style="font-size: 10px;">挖矿</a> <a href="/tags/比特币/" style="font-size: 11.67px;">比特币</a> <a href="/tags/编程基础/" style="font-size: 11.67px;">编程基础</a> <a href="/tags/错误记录/" style="font-size: 10px;">错误记录</a> <a href="/tags/问题记录/" style="font-size: 10px;">问题记录</a> <a href="/tags/阅读/" style="font-size: 11.67px;">阅读</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">December 2017</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/09/13/玩转linux/linux使用/">linux使用</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/13/区块链/比特币原理/比特币交易脚本及交易数据(二)/">比特币交易脚本及交易数据(二)</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/13/编程基础/c++面向对象/">C++面向对象</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/13/编程基础/c++基础/">C++基础</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/13/区块链/比特币原理/比特币交易脚本及交易数据(一)/">比特币交易脚本及交易数据(一)</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

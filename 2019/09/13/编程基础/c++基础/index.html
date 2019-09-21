@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>C++基础 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="在大多数系统中，main返回的值被用来指示特定状态。返回0表示成功，非0的返回值的含义由系统定义，通常用来指出错误类型。 集成开发环境（Integrated Development Environment)IDE，将编译器与其他程序创建和分析工具包装在一起。 输入输出C++没有定义任何的输入输出语句，取而代之的是一个全面的标准库来提供IO机制。标准输入输出对象：cin cout cerr clog">
+<meta name="keywords" content="c++,编程基础">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C++基础">
+<meta property="og:url" content="http://yoursite.com/2019/09/13/编程基础/c++基础/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="在大多数系统中，main返回的值被用来指示特定状态。返回0表示成功，非0的返回值的含义由系统定义，通常用来指出错误类型。 集成开发环境（Integrated Development Environment)IDE，将编译器与其他程序创建和分析工具包装在一起。 输入输出C++没有定义任何的输入输出语句，取而代之的是一个全面的标准库来提供IO机制。标准输入输出对象：cin cout cerr clog">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2019-09-10T14:07:24.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="C++基础">
+<meta name="twitter:description" content="在大多数系统中，main返回的值被用来指示特定状态。返回0表示成功，非0的返回值的含义由系统定义，通常用来指出错误类型。 集成开发环境（Integrated Development Environment)IDE，将编译器与其他程序创建和分析工具包装在一起。 输入输出C++没有定义任何的输入输出语句，取而代之的是一个全面的标准库来提供IO机制。标准输入输出对象：cin cout cerr clog">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-编程基础/c++基础" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/09/13/编程基础/c++基础/" class="article-date">
+  <time datetime="2019-09-13T04:50:00.000Z" itemprop="datePublished">2019-09-13</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/编程基础/">编程基础</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      C++基础
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>在大多数系统中，main返回的值被用来指示特定状态。返回0表示成功，非0的返回值的含义由系统定义，通常用来指出错误类型。</p>
+<p>集成开发环境（Integrated Development Environment)IDE，将编译器与其他程序创建和分析工具包装在一起。</p>
+<h2 id="输入输出"><a href="#输入输出" class="headerlink" title="输入输出"></a>输入输出</h2><p>C++没有定义任何的输入输出语句，取而代之的是一个全面的标准库来提供IO机制。<br>标准输入输出对象：cin cout cerr clog</p>
+<p>std::cout&lt;&lt;”enter some thing”&lt;&lt;std::endl;</p>
+<p>endl是一个操纵符。写入的效果是结束当前行，并将与设备关联的缓冲区中的内容刷到设备中。<br>缓存刷新操作可以保证到目前为止程序所产生的所有输出都真正写入到输出流中，而不是仅仅停留内存中等待写入流。</p>
+<a id="more"></a>
+<p>std::指出cout和endl是定义在std的命名空间（namespace)中的。命名空间可以帮助避免不经意的名字定义冲突，标准库定义的所有名字都在命名空间std中。</p>
+<p>可寻址的最小内存成为“字节(byte)”,存储的基本单元成为”字（word)”,通常由几个字节组成。<br>大多数字节由8比特，字则有32位或64位</p>
+<h2 id="选择类型时应该遵循的一些准则："><a href="#选择类型时应该遵循的一些准则：" class="headerlink" title="选择类型时应该遵循的一些准则："></a>选择类型时应该遵循的一些准则：</h2><p>明知道不是负值的情况下，选用无符号类型</p>
+<p>char在一些机器上是有符号的，一些机器上又是无符号的。所有在使用char时最好显示指定signed char或者unsigned char。<br>执行浮点运算选用doulbe,因为float精度不够，且double和float计算相差无几，并且在一些机器上doulbe更快</p>
+<h2 id="默认初始化变量"><a href="#默认初始化变量" class="headerlink" title="默认初始化变量"></a>默认初始化变量</h2><p>如何是内置类型的变量未被显示初始化，它的值由定义的位置决定。定义于任何函数体之外的变量被初始化为0，定义于<strong>函数体内部的内置类型变量将不被初始化</strong>。一个未被初始化的内置类型变量的值是未定义的。</p>
+<p>每个累各自决定其初始化对象的方式。而且，是否允许不经初始化就定义对象由类自己决定。如果类允许这样的行为，则决定对象的初始值到底是什么</p>
+<h2 id="变量声明和定义的关系"><a href="#变量声明和定义的关系" class="headerlink" title="变量声明和定义的关系"></a>变量声明和定义的关系</h2><p>C++支持分离式编译<br>声明使得名字为程序所知，而定义复制创建与名字关联的实体。</p>
+<p>变量声明规定了变量的类型和名字，这一点上定义与之相同，但除此之外，定义还申请存储空间，也可能会为变量赋初始值。</p>
+<p>如果想声明一个变量而非定义它，就在变量前添加关键字extern，而且不要显示地初始化变量。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">extern</span> <span class="keyword">int</span> i; <span class="comment">//声明而非定义i</span></span><br><span class="line"><span class="keyword">int</span> j;        <span class="comment">//声明并定义j</span></span><br><span class="line"></span><br><span class="line">任何包含了显示初始化的声明即成为定义</span><br><span class="line">```c</span><br><span class="line"><span class="keyword">extern</span> <span class="keyword">double</span> pi=<span class="number">3.1415</span> <span class="comment">//定义</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>变量能且只能被定义一次，但是可以被多次声明</strong><br>如果要在多个文件中使用同一个变量，那么其他用到该变量的文件都必须对其声明，但不能重复定义。</p>
+<p><strong>C++是一种静态类型（statically typed)语言，意思就是在编译阶段检查类型。其中，检查类型的过程称为类型检查（type checking)</strong></p>
+<h2 id="引用和指针"><a href="#引用和指针" class="headerlink" title="引用和指针"></a>引用和指针</h2><p>引用本身不是一个对象，没有实际地址。一旦定义了引用，就无法令其再绑定到另外的对象了，之后每次使用这个引用都是访问它最初绑定的那个对象。</p>
+<p>指针本身是个对象<br>不能定义指向引用的指针</p>
+<p>所有指针的类型要和它所指向的对象严格匹配：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">double</span> dval;</span><br><span class="line"><span class="keyword">double</span> *pd=&amp;dval;   <span class="comment">//正确：初始值是指向double对象的指针</span></span><br><span class="line"><span class="keyword">double</span> *pd2=pd;     <span class="comment">// 正确：初始值是指向double对象的指针</span></span><br><span class="line"><span class="keyword">int</span> *pi=pd;         <span class="comment">//错误：指针pi的类型和pd的类型不匹配</span></span><br><span class="line">在声明时，指针的类型实际上被用于指定它所指向对象的类型，所以二者必须匹配</span><br></pre></td></tr></table></figure>
+
+<p><strong>空指针</strong></p>
+<p>空指针不指向任何对象，在试图使用一个指针之前代码可以先检查它是否为空<br>生成空指针的方法：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> *p1=<span class="literal">nullptr</span>;  <span class="comment">//C++11新标准推荐使用的方式</span></span><br><span class="line"><span class="keyword">int</span> *p2=<span class="number">0</span>;</span><br><span class="line"><span class="comment">//需要#include cstdlib</span></span><br><span class="line"><span class="keyword">int</span> *p3=<span class="literal">NULL</span>;</span><br></pre></td></tr></table></figure>
+
+<p><strong>void* 指针</strong></p>
+<p>void*是一种特殊的指针类型，可以用于存放任意对象的地址。一个void*指针存放这一个地址，这一点和普通指针一样，但是并不知道这个地址中到底是个什么类型的对象。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">double</span> obj=<span class="number">3.14</span>,*pd=&amp;obj;</span><br><span class="line"><span class="keyword">void</span> *pv=&amp;obj; <span class="comment">//正确</span></span><br><span class="line">pv=pd; <span class="comment">//正确</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>理解复合类型的声明</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> i=<span class="number">1024</span>,*p=&amp;i,&amp;r=i;</span><br></pre></td></tr></table></figure>
+
+<p>在同一条定义语句中，虽然基本数据类型只有一个，但是声明符的形式却可以不同。<br>注意： int* p;中的<em>是修饰p的，而非int</em></p>
+<p><strong>指向指针的指针</strong><br>指针也是内存中的对象，像其他对象一样有自己的地址，因此允许把指针的地址存放到另一个指针当中。</p>
+<p>**表示执行指针的指针</p>
+<p>***表示执行指针的指针的指针</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> ival=<span class="number">1024</span>;</span><br><span class="line"><span class="keyword">int</span> *pi=&amp;ival;  <span class="comment">//pi是指向int型数据的指针</span></span><br><span class="line"><span class="keyword">int</span> **ppi=&amp;pi;  <span class="comment">//ppi是指向int型指针的指针</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>指向指针的引用</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> i=<span class="number">42</span>;</span><br><span class="line"><span class="keyword">int</span> *p;</span><br><span class="line"><span class="keyword">int</span> *&amp;r=p;  <span class="comment">//r是一个对指针p的引用</span></span><br><span class="line">r=&amp;i;       <span class="comment">//r引用了一个指针，因为给r赋值&amp;i就是令p指向i</span></span><br><span class="line">*r=<span class="number">0</span>;       <span class="comment">//解引用r得到i，也就是p指向的对象，将i的值改为0</span></span><br></pre></td></tr></table></figure>
+
+<p>要理解r的类型到底是什么？可以从右往左来理解。&amp;r表示一个r是一个引用，*&amp;r表示引用的类型是一个指针，最后声明的基本类型int指出r引用的指针是一个int指针。</p>
+<p><strong>常量</strong><br>默认情况下，const对象仅在文件内有效。但通常情况下，需要在多个文件中使用同个常量，解决如下：<br>对于const变量不管是声明还是定义都添加extern关键字，这样只需要定义一次就可以了：</p>
+<blockquote>
+<p>//file_1.cc定义并初始化了一个常量，该常量能被其他文件访问</p>
+<p>extern const int bufSize=1024</p>
+<p>//file_1.h声明 这个extern指明bufSize并非本文件所独有，它的定义将在别处出现</p>
+<p>extern const int bufSize</p>
+</blockquote>
+<p><strong>指针和const</strong><br>要想存放常量对象的地址，只能使用指向常量的指针</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="keyword">double</span> pi=<span class="number">3.14</span>; </span><br><span class="line"><span class="keyword">double</span> *ptr=&amp;pi;   <span class="comment">//错误，ptr是一个普通指针</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">double</span> *cptr=&amp;pi;   <span class="comment">//正确</span></span><br><span class="line">*cptr=<span class="number">42</span>;    <span class="comment">//错误：不能给*cptr赋值</span></span><br></pre></td></tr></table></figure>
+
+<p>允许指向常量的指针指向一个非常量的对象：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="keyword">double</span> *cptr;   </span><br><span class="line"><span class="keyword">double</span> dval=<span class="number">3.14</span>;    <span class="comment">//dval是一个双精度浮点数，它的值可以改变</span></span><br><span class="line">cptr=&amp;dval;   <span class="comment">//正确：但不能通过cptr改变dval的值</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>const指针</strong><br>const指针必须初始化，而且一旦初始化完成，则它的值（也就是存放在指针中的那个值）就不能再改变了。把*放在const关键字之前用以说明指针是一个常量，即不变的是指针本身而不是指向的那个值。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> errNum=<span class="number">0</span>;</span><br><span class="line"><span class="keyword">int</span> *<span class="keyword">const</span> curErr=&amp;eerNUm; </span><br><span class="line">*curErr=<span class="number">8</span>;     <span class="comment">//正确，指针本身不能变，但其指向的对象的值可以更改</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">double</span> pi=<span class="number">3.14</span>;</span><br><span class="line"><span class="keyword">const</span> <span class="keyword">double</span> *<span class="keyword">const</span> pip=&amp;pi; <span class="comment">//pip是一个指向常量对象的常量指针</span></span><br></pre></td></tr></table></figure>
+
+<p>用top-level const表示指针本身是个常量，low-level const表示指针所指对象是一个常量</p>
+<h2 id="2-5处理类别"><a href="#2-5处理类别" class="headerlink" title="2.5处理类别"></a>2.5处理类别</h2><h3 id="2-5-1类型别名"><a href="#2-5-1类型别名" class="headerlink" title="2.5.1类型别名"></a>2.5.1类型别名</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">double</span> wages;</span><br><span class="line"><span class="keyword">typedef</span> wages base,*p ;<span class="comment">//base是double的同义词，p是double*的同义词</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">char</span> *pstring;</span><br><span class="line"><span class="keyword">const</span> pstring cstr=<span class="number">0</span>; <span class="comment">//cstr是指向char的常量指针</span></span><br><span class="line"><span class="keyword">const</span> pstring *ps;   <span class="comment">//ps是一个指针，它的对象是指向char的常量指针</span></span><br></pre></td></tr></table></figure>
+
+<p>如果把typedef 直接带入理解: const char * cstr=0;<br>这样是错误的，这样就理解成了cstr是一个指向char常量的指针，这里的一定要注意，理解pstring是一个指针。</p>
+<h3 id="2-5-2-auto类型说明符"><a href="#2-5-2-auto类型说明符" class="headerlink" title="2.5.2 auto类型说明符"></a>2.5.2 auto类型说明符</h3><p>auto声明的变量，会通过编译器替我们去分析表达式所属的类型<br>同一条auto声明中，各个变量的初始基本数据必须一样</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> i=<span class="number">0</span>,*p=&amp;i; <span class="comment">//正确</span></span><br><span class="line"><span class="keyword">auto</span> sz=<span class="number">0</span>,pi=<span class="number">3.14</span>; <span class="comment">//错误，sz和pi的类型不一致</span></span><br></pre></td></tr></table></figure>
+
+<p>编译器推断出来的auto类型有时和初始值并不一样，编译器会适当地改变结果类型使其更符合初始化规则。</p>
+<p>注意当初始值为引用的情况</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> i=<span class="number">0</span>,&amp;r=i;</span><br><span class="line"><span class="keyword">auto</span> a=r; <span class="comment">//a是一个整数（r是i的别名，而i是一个整数</span></span><br></pre></td></tr></table></figure>
+
+<p>真正参与初始化的其实是引用对象的值</p>
+<h3 id="2-5-3-decltype类型指示符"><a href="#2-5-3-decltype类型指示符" class="headerlink" title="2.5.3 decltype类型指示符"></a>2.5.3 decltype类型指示符</h3><p>希望从表达式的类型推断出要定义的变量的类型，但是不希望用该表达式的值作为初始化变量。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">decltype</span>(f()) sum=x; <span class="comment">//sum的类型就是函数f的返回类型</span></span><br></pre></td></tr></table></figure>
+
+<p>编译器并不实际调用函数f，而是当调用哦个发送时f的返回值类型作为sum的类型。</p>
+<p>如果decltype使用的表达式是一个变量，则decltype返回该变量的类型（包括顶层const和引用在内），这点和auto的区别要注意。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> ci=<span class="number">0</span>,&amp;cj=ci;</span><br><span class="line"><span class="keyword">decltype</span>(ci) x=<span class="number">0</span>;  <span class="comment">//x的类型是const int</span></span><br><span class="line"><span class="keyword">decltype</span>(cj) y=x;  <span class="comment">//y的类型是const int &amp;,y绑定到变量x</span></span><br><span class="line"><span class="keyword">decltype</span>(cj) z;   <span class="comment">//错误：z是一个引用，必须初始化</span></span><br></pre></td></tr></table></figure>
+
+<p>引用从来都是作为其所指对象的同义词出现，只有用在decltype处是一个例外。</p>
+<p><strong>decltype和引用</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> i=<span class="number">42</span>,*p=&amp;i,&amp;r=i;</span><br><span class="line"><span class="keyword">decltype</span>(r+<span class="number">0</span>) b; <span class="comment">//正确，加法的结果是int，因为b是一个（未初始化的）int</span></span><br><span class="line"><span class="keyword">decltype</span>(*p) c;   <span class="comment">//错误：c是int&amp;,必须初始化</span></span><br></pre></td></tr></table></figure>
+
+<p>因为r是一个引用类型，所以decltype(r)的结果是引用类型，如果想让结果类型是r所指的类型，可以把r作为表达式的一部分，如r+0,那么这个表达式的结果将是一个具体值而非一个引用。<br>如果表达式的内容是解引用操作，则decltype将得到引用类型</p>
+<blockquote>
+<p>注意！</p>
+<p>decltype((var))的结果永远是引用，而decltype(var)结果只有当var本事就是一个引用时才是引用.</p>
+<p>举例</p>
+<p>decltype((i)) d ; //错误，d是int &amp;,必须初始化</p>
+</blockquote>
+<h2 id="标准库类型string"><a href="#标准库类型string" class="headerlink" title="标准库类型string"></a>标准库类型string</h2><p>使用getline读取一整行</p>
+<p>如果n是一个具有负值的int，那么：<br>s.size()&lt;n 无疑是是true，因为size()返回的是无符号的</p>
+<h2 id="迭代器类型"><a href="#迭代器类型" class="headerlink" title="迭代器类型"></a>迭代器类型</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;:: iterator it;   <span class="comment">//it能读写vector&lt;int&gt;的元素</span></span><br><span class="line"><span class="built_in">string</span>::iterator it2;        <span class="comment">//it2能读写string对象中的字符</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;::const_iterator it3;  <span class="comment">//it3只能读取元素，不能写元素</span></span><br><span class="line"><span class="built_in">string</span>::const_iterator it4;       <span class="comment">//it4只能读取字符，不能写元素</span></span><br></pre></td></tr></table></figure>
+
+<p>const_iterator能读取但不能修改它所指的元素值。如果vector对象或者string对象是一个常量，只能使用const_iterator;如果vector对象或者string对象不是常量，那么即能使用iterator也能使用const_iterator。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> cit=v.cbegin() ;</span><br><span class="line"><span class="keyword">auto</span> it=v.begin();</span><br><span class="line"><span class="keyword">auto</span> cit=v.cend();  <span class="comment">//返回尾部元素的下一个位置，且是const_iterator</span></span><br><span class="line"><span class="keyword">auto</span> cit=v.end();   <span class="comment">//返回尾部元素的下一个位置</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>结合解引用和成员访问操作</strong><br>解引用迭代器可获得迭代器所指的对象，如果该对象的类型恰好是类，就有可能希望进一步访问它的成员。例如，对于一个由字符串组成的vector对象来说，要想检查其元素是否为空，令it是该vector对象的迭代器</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(*it).empty()</span><br></pre></td></tr></table></figure>
+
+<p>注意（*it)的括号比不可少</p>
+<blockquote>
+<p>为了简化上述表达式，C++语言定义了箭头运算符(-&gt;)。箭头运算符把解引用和成员访问两个操作结合在一起，也就是说，it-&gt;mem和（*it).mem表达的意思一样。</p>
+</blockquote>
+<p>不能在范围for循环中向vector对象添加元素？？？？？？？？</p>
+<p>任何一种可能改变vector对象容量的操作，比如push_back，都会使该vector对象的迭代器失效。？？？？？？？？？<br>所以但凡是使用了迭代器的循环体，都不要想迭代器所属的容器添加元素。</p>
+<h2 id="3-5数组"><a href="#3-5数组" class="headerlink" title="3.5数组"></a>3.5数组</h2><p>数组大小确定不变，相对vector来说运行时性能较好，但是相应地损失了一些灵活性。</p>
+<p>编译时数组的维度是已知的，因为维度必须是一个常量表达式。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">unsigned</span> cnt=<span class="number">42</span>;<span class="comment">//不是常量表达式</span></span><br><span class="line"><span class="keyword">constexpr</span> <span class="keyword">unsigned</span> sz=<span class="number">42</span> ;<span class="comment">// 常量表达式</span></span><br><span class="line"><span class="keyword">int</span> arr[<span class="number">10</span>];</span><br><span class="line"><span class="keyword">int</span>  *parr[sz]; <span class="comment">//含有42个整型指针的数组</span></span><br><span class="line"><span class="built_in">string</span> bad[cnt]; <span class="comment">//错误：cnt不是常量表达式</span></span><br><span class="line"><span class="built_in">string</span> strs[get_size()];<span class="comment">//如果get_size是constexpr时正确，否则错误</span></span><br></pre></td></tr></table></figure>
+
+<p>字符数组的特殊性</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">char</span> a1[]=&#123;<span class="string">'c'</span>,<span class="string">'+'</span>,<span class="string">'='</span>&#125;;<span class="comment">//列表初始化，没有空字符</span></span><br><span class="line"><span class="keyword">char</span> a2[]=&#123;<span class="string">'c'</span>,<span class="string">'+'</span>,<span class="string">'='</span>&#125;;<span class="comment">//列表初始化，含有显示的空字符</span></span><br><span class="line"><span class="keyword">char</span> a3[]=<span class="string">"C++"</span>; <span class="comment">//长度为4，最后有个空字符</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">char</span> a4[<span class="number">6</span>]=<span class="string">"yujuan"</span>; <span class="comment">//错误，没有空间可以存放空字符</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>不允许拷贝和赋值</p>
+<p>不能将数组的内容拷贝给其他数组作为其初始值，也不能将数组为其他数组赋值</p>
+</blockquote>
+<h3 id="理解复杂的数组声明"><a href="#理解复杂的数组声明" class="headerlink" title="理解复杂的数组声明"></a>理解复杂的数组声明</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> *ptrs[<span class="number">10</span>];</span><br><span class="line"><span class="keyword">int</span> &amp;refs[<span class="number">10</span>]=<span class="comment">/*?*/</span> ;<span class="comment">//错误，不存在引用的数组</span></span><br><span class="line"><span class="keyword">int</span> (*Parray)[<span class="number">10</span>]=&amp;arr; <span class="comment">//Parry指向一个含有10个整数的数组</span></span><br><span class="line"><span class="keyword">int</span> (&amp;arrRef)[<span class="number">10</span>]=arr;  <span class="comment">//arrRef引用一个含有10个整数的数组</span></span><br><span class="line"><span class="keyword">int</span> *(&amp;arrP)[<span class="number">10</span>]=parr; <span class="comment">//arrP引用一个含有10个整型指针的数组</span></span><br></pre></td></tr></table></figure>
+
+<p>对于后三个，从内向外来理解。</p>
+<h3 id="指针和数组"><a href="#指针和数组" class="headerlink" title="指针和数组"></a>指针和数组</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">string</span> *p=&amp;nums[<span class="number">0</span>];<span class="comment">//指针p指向nums数组的第一个元素</span></span><br><span class="line"><span class="built_in">string</span> *p=nums;<span class="comment">//编译器会自动将数组名称替换为第一个指向数组首元素的指针</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="控制语句"><a href="#控制语句" class="headerlink" title="控制语句"></a>控制语句</h2><p>if else语句的匹配：</p>
+<p>如果if else 没有交花括号很多地去控制，C++中规定与离它最近的尚未匹配的if匹配，从而消除了程序的二义性。</p>
+<h2 id="异常处理"><a href="#异常处理" class="headerlink" title="异常处理"></a>异常处理</h2><ul>
+<li>throw表达式：throw 会抛出异常</li>
+<li>try语句块：try语句块以try开始，并以一个或多个catch子句结束。try语句块中代码抛出的异常通常会被某个catch子句处理，catch子句又叫异常处理代码。</li>
+<li>异常类：用于在throw表达式和相关catch子句之间传递异常的具体信息。</li>
+</ul>
+<h2 id="局部静态对象"><a href="#局部静态对象" class="headerlink" title="局部静态对象"></a>局部静态对象</h2><p>局部静态对象（local static object)在程序的执行路径第一次经过对象定义语句时初始化，并且直到程序终止才能被销毁，在此期间即使对象所在的函数结束执行也不会对它有影响。<br>比如下面的例子，统计它自己被调用了多少次。</p>
+<p>这段程序将输出1到10的数字。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">size_t</span> count_calls()&#123;</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">size_t</span> ctr=<span class="number">0</span>;  <span class="comment">//调用结束后，这个值仍然有效</span></span><br><span class="line">    <span class="keyword">return</span> ++ctr;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">size_t</span> i=<span class="number">0</span>;i!=<span class="number">10</span>;i++)</span><br><span class="line">        count&lt;&lt;count_calls()&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="内联函数"><a href="#内联函数" class="headerlink" title="内联函数"></a>内联函数</h2><ol>
+<li>一次函数调用开销较大包含一系列操作，调用前要先保存寄存器，并在返回时恢复；可能需要拷贝实参等待；</li>
+<li>内联函数可避免函数调用的开销；将函数指定为内联函数，通常就是将它在每个调用点上“内联地”展开<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">inline</span> <span class="keyword">const</span> <span class="built_in">string</span> &amp;</span><br><span class="line">shorterString(<span class="keyword">const</span> <span class="built_in">string</span> &amp;s1,<span class="keyword">const</span> <span class="built_in">string</span> &amp;s2)&#123;</span><br><span class="line">    <span class="keyword">return</span> s1.size()&lt;=s2.size()?s1:s2;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<p>那么在调用中如：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cout</span>&lt;&lt;shorterString(s1,s2)&lt;&lt;<span class="built_in">endl</span>;</span><br></pre></td></tr></table></figure>
+
+<p>就会被展开为</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cout</span>&lt;&lt;(s1.size()&lt;s2.size?s1:s2)&lt;&lt;<span class="built_in">endl</span>;</span><br></pre></td></tr></table></figure>
+
+<p><strong>内联函数一般用于优化规模较小，流程直接，频繁调用的函数。很多编译器都不支持内联递归函数，而且一个75行的函数也不太可能在调用点内联地展开。</strong></p>
+<blockquote>
+<p>内联说明只是向编译器发出的一个请求，编译器可以选择忽略这个请求</p>
+</blockquote>
+<h2 id="constexpr函数"><a href="#constexpr函数" class="headerlink" title="constexpr函数"></a>constexpr函数</h2><p>constexpr函数是指能用于常量表达式的函数，定义constexpr函数的方法与其他函数类似，不过需要遵循以下约定：</p>
+<ol>
+<li>函数的返回值类型及所有行参的类型都是字面值类型</li>
+<li>函数体内必须有且只有一条return语句<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">constexpr</span> <span class="keyword">int</span> <span class="title">new_sz</span><span class="params">()</span> </span>&#123;<span class="keyword">return</span> <span class="number">42</span>;&#125;</span><br><span class="line"><span class="keyword">constexpr</span> <span class="keyword">int</span> foo=new_sz(); <span class="comment">//正确：foo是一个常量表达式</span></span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<p>为了能在编译时随时展开，constexpr函数被隐式地指定为内联函数。</p>
+<p>实际上，允许constexpr函数的返回值是非常量。</p>
+<blockquote>
+<p>内联函数和constexpr函数可以在程序中多次定义。因为，编译器要想展开函数仅有函数声明是不够的，还需要函数的定义。对于某个给定的内联函数或者constexpr函数来说，它的多个定义必须完全一致，所以内联函数和constexpr函数通常定义在头文件中。</p>
+</blockquote>
+<h2 id="函数指针"><a href="#函数指针" class="headerlink" title="函数指针"></a>函数指针</h2><p>函数指针指向的是函数而非对象，和其他指针一样，函数指针指向某种特定类型。<br><strong>函数的类型由它的返回类型和形参类型共同决定，与函数名无关</strong><br>例如：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//比较两个string对象的长度</span></span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">lengthCompare</span><span class="params">(<span class="keyword">const</span> <span class="built_in">string</span> &amp;,<span class="keyword">const</span> <span class="built_in">string</span> &amp;)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>该函数的类型是bool (const string &amp;,const string &amp;)。声明一个指向该函数的指针：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">bool</span> (*pr)(<span class="keyword">const</span> <span class="built_in">string</span> &amp;,<span class="keyword">const</span> <span class="built_in">string</span> &amp;);<span class="comment">//未初始化</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>使用函数指针</strong><br>当把函数名作为一个值使用时，该函数自动地转换成指针，例如：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pf=lengthCompare; <span class="comment">//pf指向名为lengthCompare的函数</span></span><br><span class="line">pf=&amp;lengthCompare; <span class="comment">//与上面等价的赋值语句，取地址符是可选的</span></span><br></pre></td></tr></table></figure>
+
+<p>此外，我们还能直接使用指向函数的指针调用该函数，无需提前解引用指针：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">bool</span> b1=pf(<span class="string">"hello"</span>,<span class="string">"goodbye"</span>);</span><br><span class="line"><span class="keyword">bool</span> b2=pf(*pf)(<span class="string">"hello"</span>,<span class="string">"goodbye"</span>); <span class="comment">//等价于上面的调用</span></span><br><span class="line"><span class="keyword">bool</span> b3=lengthCompare(<span class="string">"hello"</span>,<span class="string">"goodbyte"</span>); <span class="comment">//另一个等价的调用</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>函数指针形参</strong><br>虽然不能定义函数类型的形参，但是形参可以是指向函数的指针。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//第三个形参是函数类型，它会自动地转换成指向函数的指针</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">useBigger</span><span class="params">(<span class="keyword">const</span> <span class="built_in">string</span> &amp;s1,<span class="keyword">const</span> <span class="built_in">string</span> &amp;s2,<span class="keyword">bool</span> pf(<span class="keyword">const</span> <span class="built_in">string</span> &amp;,<span class="keyword">const</span> <span class="built_in">string</span> &amp;))</span></span>;</span><br><span class="line"><span class="comment">//等价的声明：显示地将形参定义成指向函数的指针</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">useBigger</span><span class="params">(<span class="keyword">const</span> <span class="built_in">string</span> &amp;s1,<span class="keyword">const</span> <span class="built_in">string</span> &amp;s2,<span class="keyword">bool</span> (*pf)(<span class="keyword">const</span> <span class="built_in">string</span> &amp;,<span class="keyword">const</span> <span class="built_in">string</span> &amp;))</span></span>;</span><br><span class="line"><span class="comment">//也可以直接把函数作为实参使用，此时它会自动转换成指针</span></span><br><span class="line">useBigger(s1,s2,lengthCompare)</span><br></pre></td></tr></table></figure>
+
+<p>直接使用函数指针类型显得冗长而繁琐。类型别名可以使得代码更加简洁</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Func和Func2是函数类型</span></span><br><span class="line"><span class="function"><span class="keyword">typedef</span> <span class="keyword">bool</span> <span class="title">Func</span><span class="params">(<span class="keyword">const</span> <span class="built_in">string</span> &amp;,<span class="keyword">const</span> <span class="built_in">string</span> &amp;)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">typedef</span> <span class="title">decltype</span><span class="params">(lengthCompare)</span> Func2</span>;    <span class="comment">//等价的类型</span></span><br><span class="line"><span class="comment">//FuncP和FuncP2是指向函数的指针</span></span><br><span class="line"><span class="function"><span class="keyword">typedef</span> <span class="title">bool</span><span class="params">(*FuncP)</span> <span class="params">(<span class="keyword">const</span> <span class="built_in">string</span> &amp;,<span class="keyword">const</span> <span class="built_in">string</span> &amp;)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">typedef</span> <span class="title">decltype</span><span class="params">(lengthCompare)</span> *FuncP2</span>;<span class="comment">//等价的类型</span></span><br></pre></td></tr></table></figure>
+
+<p>借助上面的类型别名，可以将useBigger的声明修改如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">useBigger</span><span class="params">(<span class="keyword">const</span> <span class="built_in">string</span> &amp;,<span class="keyword">const</span> <span class="built_in">string</span> &amp;,Func)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">useBigger</span><span class="params">(<span class="keyword">const</span> <span class="built_in">string</span> &amp;,<span class="keyword">const</span> <span class="built_in">string</span> &amp;,FuncP2)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p><strong>返回执行函数的指针</strong><br>要想声明一个返回函数指针的函数，最简单的办法就是使用类型别名：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> F=<span class="keyword">int</span>(<span class="keyword">int</span>*,<span class="keyword">int</span>);   <span class="comment">//F是函数类型，不是指针</span></span><br><span class="line"><span class="keyword">using</span> PF=<span class="keyword">int</span>(*)(<span class="keyword">int</span>*,<span class="keyword">int</span>); <span class="comment">//PF是指针类型</span></span><br></pre></td></tr></table></figure>
+
+<p>声明返回函数指针的函数:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">PF <span class="title">f1</span><span class="params">(<span class="keyword">int</span>)</span></span>; <span class="comment">//正确，PF是指向函数的指针，f1返回指向函数的指针</span></span><br><span class="line"><span class="function">F <span class="title">f1</span><span class="params">(<span class="keyword">int</span>)</span></span>;  <span class="comment">//错误，F是函数类型，函数不能返回一个函数类型</span></span><br><span class="line"><span class="function">F *<span class="title">f1</span><span class="params">(<span class="keyword">int</span>)</span></span>;  <span class="comment">//正确，显示地指定返回类型是指向函数的指针</span></span><br></pre></td></tr></table></figure>
+
+<p>当然也可以不借助类型别名，直接声明：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> (*f1(<span class="keyword">int</span>))(<span class="keyword">int</span>*,<span class="keyword">int</span>);</span><br><span class="line"><span class="comment">//从内向外理解：f1有形参列表，所以f1是个函数，f1前面有*，所以f1的返回值是指针；</span></span><br><span class="line"><span class="comment">//该指针本身也包含形参列表，所以该指针指向函数，且该函数的返回值时int</span></span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/09/13/编程基础/c++基础/" data-id="ck0hncd8b009mfyxx1g9vir0t" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/c/">c++</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/编程基础/">编程基础</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/09/13/编程基础/c++面向对象/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          C++面向对象
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/09/13/区块链/比特币原理/比特币交易脚本及交易数据(一)/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">比特币交易脚本及交易数据(一)</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/GPU/">GPU</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Spark/">Spark</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/docker/">docker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/go/">go</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/golang/">golang</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/linux/">linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/node/">node</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/书中自有黄金屋/">书中自有黄金屋</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/人生苦短我用python/">人生苦短我用python</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/人生苦短我用python/linux环境配置/">linux环境配置</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/其他/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/">分布式</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/分布式共识算法/">分布式共识算法</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式基本理论/">分布式基本理论</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/">区块链</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/Hyperledger-Fabric/">Hyperledger Fabric</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/《区块链：从数字货币到信用社会》/">《区块链：从数字货币到信用社会》</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/以太坊开发/">以太坊开发</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/区块链基本原理/">区块链基本原理</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/比特币原理/">比特币原理</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/大数据/">大数据</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/工具/">工具</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/编程基础/">编程基础</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/问题记录/">问题记录</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ACID/">ACID</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CAP/">CAP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ECDSA/">ECDSA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GO/">GO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GPU/">GPU</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Hyperledger-Fabric/">Hyperledger Fabric</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PBFT/">PBFT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spark/">Spark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blockchain/">blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/c/">c++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/centos/">centos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/centos7/">centos7</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cuda/">cuda</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dockerfile/">dockerfile</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/eos/">eos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gas/">gas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go/">go</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hadoop/">hadoop</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hyperledger-fabric/">hyperledger fabric</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/">js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/leveldb/">leveldb</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/node/">node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nvcc/">nvcc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/paxos/">paxos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pos/">pos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pow/">pow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python3/">python3</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spv/">spv</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/yaml/">yaml</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zab/">zab</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/以太坊/">以太坊</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式共识算法/">分布式共识算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式数据库/">分布式数据库</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式理论/">分布式理论</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/区块链/">区块链</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/地址生成/">地址生成</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/大数据/">大数据</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/密码学/">密码学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/挖矿/">挖矿</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/比特币/">比特币</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/编程基础/">编程基础</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/错误记录/">错误记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/问题记录/">问题记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/阅读/">阅读</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ACID/" style="font-size: 11.67px;">ACID</a> <a href="/tags/CAP/" style="font-size: 10px;">CAP</a> <a href="/tags/ECDSA/" style="font-size: 15px;">ECDSA</a> <a href="/tags/GO/" style="font-size: 13.33px;">GO</a> <a href="/tags/GPU/" style="font-size: 11.67px;">GPU</a> <a href="/tags/Hyperledger-Fabric/" style="font-size: 16.67px;">Hyperledger Fabric</a> <a href="/tags/PBFT/" style="font-size: 10px;">PBFT</a> <a href="/tags/Spark/" style="font-size: 10px;">Spark</a> <a href="/tags/blockchain/" style="font-size: 20px;">blockchain</a> <a href="/tags/c/" style="font-size: 11.67px;">c++</a> <a href="/tags/centos/" style="font-size: 11.67px;">centos</a> <a href="/tags/centos7/" style="font-size: 15px;">centos7</a> <a href="/tags/cuda/" style="font-size: 10px;">cuda</a> <a href="/tags/docker/" style="font-size: 18.33px;">docker</a> <a href="/tags/dockerfile/" style="font-size: 11.67px;">dockerfile</a> <a href="/tags/eos/" style="font-size: 10px;">eos</a> <a href="/tags/gas/" style="font-size: 10px;">gas</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/go/" style="font-size: 15px;">go</a> <a href="/tags/hadoop/" style="font-size: 10px;">hadoop</a> <a href="/tags/hyperledger-fabric/" style="font-size: 10px;">hyperledger fabric</a> <a href="/tags/js/" style="font-size: 10px;">js</a> <a href="/tags/leveldb/" style="font-size: 10px;">leveldb</a> <a href="/tags/linux/" style="font-size: 13.33px;">linux</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/node/" style="font-size: 10px;">node</a> <a href="/tags/nvcc/" style="font-size: 10px;">nvcc</a> <a href="/tags/paxos/" style="font-size: 10px;">paxos</a> <a href="/tags/pos/" style="font-size: 10px;">pos</a> <a href="/tags/pow/" style="font-size: 10px;">pow</a> <a href="/tags/python/" style="font-size: 13.33px;">python</a> <a href="/tags/python3/" style="font-size: 15px;">python3</a> <a href="/tags/spv/" style="font-size: 11.67px;">spv</a> <a href="/tags/yaml/" style="font-size: 10px;">yaml</a> <a href="/tags/zab/" style="font-size: 10px;">zab</a> <a href="/tags/以太坊/" style="font-size: 10px;">以太坊</a> <a href="/tags/分布式共识算法/" style="font-size: 15px;">分布式共识算法</a> <a href="/tags/分布式数据库/" style="font-size: 10px;">分布式数据库</a> <a href="/tags/分布式理论/" style="font-size: 13.33px;">分布式理论</a> <a href="/tags/区块链/" style="font-size: 11.67px;">区块链</a> <a href="/tags/地址生成/" style="font-size: 10px;">地址生成</a> <a href="/tags/大数据/" style="font-size: 11.67px;">大数据</a> <a href="/tags/密码学/" style="font-size: 10px;">密码学</a> <a href="/tags/挖矿/" style="font-size: 10px;">挖矿</a> <a href="/tags/比特币/" style="font-size: 11.67px;">比特币</a> <a href="/tags/编程基础/" style="font-size: 11.67px;">编程基础</a> <a href="/tags/错误记录/" style="font-size: 10px;">错误记录</a> <a href="/tags/问题记录/" style="font-size: 10px;">问题记录</a> <a href="/tags/阅读/" style="font-size: 11.67px;">阅读</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">December 2017</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/09/13/玩转linux/linux使用/">linux使用</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/13/区块链/比特币原理/比特币交易脚本及交易数据(二)/">比特币交易脚本及交易数据(二)</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/13/编程基础/c++面向对象/">C++面向对象</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/13/编程基础/c++基础/">C++基础</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/13/区块链/比特币原理/比特币交易脚本及交易数据(一)/">比特币交易脚本及交易数据(一)</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

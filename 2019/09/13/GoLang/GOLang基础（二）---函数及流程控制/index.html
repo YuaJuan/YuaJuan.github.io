@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>GOLang基础（二）---函数及流程控制.md | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="1流程控制1.1条件语句if a &amp;lt; 5 {   return 0  } else {   return 1  } 关于条件语句，需要注意以下几点：">
+<meta name="keywords" content="go">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GOLang基础（二）---函数及流程控制.md">
+<meta property="og:url" content="http://yoursite.com/2019/09/13/GoLang/GOLang基础（二）---函数及流程控制/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="1流程控制1.1条件语句if a &amp;lt; 5 {   return 0  } else {   return 1  } 关于条件语句，需要注意以下几点：">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2019-03-03T13:21:12.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="GOLang基础（二）---函数及流程控制.md">
+<meta name="twitter:description" content="1流程控制1.1条件语句if a &amp;lt; 5 {   return 0  } else {   return 1  } 关于条件语句，需要注意以下几点：">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-GoLang/GOLang基础（二）---函数及流程控制" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/09/13/GoLang/GOLang基础（二）---函数及流程控制/" class="article-date">
+  <time datetime="2019-09-13T04:49:44.000Z" itemprop="datePublished">2019-09-13</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Go/">Go</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      GOLang基础（二）---函数及流程控制.md
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1流程控制"><a href="#1流程控制" class="headerlink" title="1流程控制"></a>1流程控制</h1><h2 id="1-1条件语句"><a href="#1-1条件语句" class="headerlink" title="1.1条件语句"></a>1.1条件语句</h2><pre><code>if a &lt; 5 { 
+ return 0 
+} else { 
+ return 1 
+} </code></pre><p>关于条件语句，需要注意以下几点：</p>
+<a id="more"></a>
+
+<ol>
+<li><p>条件语句不需要使用括号将条件包含起来()；  无论语句体内有几条语句，花括号{}都是必须存在的； </p>
+</li>
+<li><p>左花括号{必须与if或者else处于同一行；  在if之后，条件语句之前，可以添加变量初始化语句，使用;间隔；</p>
+</li>
+<li><p>在有返回值的函数中，不允许将“最终的”return语句包含在if…else…结构中，否则会编译失败：<br>function ends without a return statement。<br>失败的原因在于，Go编译器无法找到终止该函数的return语句。编译失败的案例如下：</p>
+<p>func example(x int) int { </p>
+<pre><code> if x == 0 { 
+     return 5 
+ } else { 
+     return x 
+ } 
+}</code></pre></li>
+</ol>
+<p> （可我在go1.9.5下测试了，并不会报错呀）</p>
+<h2 id="1-2选择语句"><a href="#1-2选择语句" class="headerlink" title="1.2选择语句"></a>1.2选择语句</h2><pre><code>switch i { 
+    case 0: 
+         fmt.Printf(&quot;0&quot;) 
+     case 1: 
+         fmt.Printf(&quot;1&quot;) 
+         case 2: 
+         fallthrough 
+     case 3: 
+             fmt.Printf(&quot;3&quot;) 
+         case 4, 5, 6: 
+             fmt.Printf(&quot;4, 5, 6&quot;) 
+     default: 
+         fmt.Printf(&quot;Default&quot;) 
+} </code></pre><p>比较有意思的是，switch后面的表达式甚至不是必需的，比如下面的例子：</p>
+<pre><code>switch { 
+     case 0 &lt;= Num &amp;&amp; Num &lt;= 3: 
+             fmt.Printf(&quot;0-3&quot;) 
+     case 4 &lt;= Num &amp;&amp; Num &lt;= 6: 
+         fmt.Printf(&quot;4-6&quot;) 
+         case 7 &lt;= Num &amp;&amp; Num &lt;= 9: 
+         fmt.Printf(&quot;7-9&quot;) 
+} </code></pre><p>在使用switch结构时，我们需要注意以下几点：</p>
+<ol>
+<li>左花括号{必须与switch处于同一行；  条件表达式不限制为常量或者整数；  单个case中，可以出现多个结果选项；</li>
+<li>与C语言等规则相反，<strong>Go语言不需要用break来明确退出一个case</strong>； </li>
+<li>只有在case中明确添加fallthrough关键字，才会继续执行紧跟的下一个case；</li>
+<li>可以不设定switch之后的条件表达式，在此种情况下，整个switch结构与多个 if…else…的逻辑作用等同。</li>
+</ol>
+<h2 id="1-3循环"><a href="#1-3循环" class="headerlink" title="1.3循环"></a>1.3循环</h2><p>与多数语言不同的是，<strong>Go语言中的循环语句只支持for关键字，而不支持while和do-while结构</strong>。</p>
+<pre><code>sum := 0 
+for i := 0; i &lt; 10; i++ { 
+    sum += i 
+} </code></pre><p>简化为如下的写法：</p>
+<pre><code>sum := 0 
+for { 
+       sum++
+         if sum &gt; 100 { 
+         break 
+     } 
+} </code></pre><p>在条件表达式中也支持多重赋值，如下所示：</p>
+<pre><code>a := []int{1, 2, 3, 4, 5, 6} 
+for i, j := 0, len(a) – 1; i &lt; j; i, j = i + 1, j – 1 { 
+         a[i], a[j] = a[j], a[i] 
+} </code></pre><p>使用循环语句时，需要注意的有以下几点。</p>
+<ol>
+<li>左花括号{必须与for处于同一行。</li>
+<li>Go语言中的for循环与C语言一样，都允许在循环条件中定义和初始化变量，唯一的区别是，Go语言不支持以逗号为间隔的多个赋值语句，必须使用平行赋值的方式来初始化多 个变量。</li>
+<li>Go语言的for循环同样支持continue和break来控制循环，但是它提供了一个更高级的<br>break，可以选择中断哪一个循环，如下例：</li>
+</ol>
+<pre><code>for j := 0; j &lt; 5; j++ { 
+     for i := 0; i &lt; 10; i++ { 
+     if i &gt; 5 { 
+         break JLoop 
+     } 
+             fmt.Println(i) 
+     } </code></pre><p>   }<br>        JLoop:<br>        // … </p>
+<h2 id="1-4-跳转语句"><a href="#1-4-跳转语句" class="headerlink" title="1.4 跳转语句"></a>1.4 跳转语句</h2><p>goto语句的语义非常简单，就是跳转到本函数内的某个标签，如：</p>
+<pre><code>func myfunc() { 
+      i := 0 
+    HERE: 
+        fmt.Println(i) 
+      i++ 
+         if i &lt; 10 { 
+         goto HERE 
+   } 
+} </code></pre><h1 id="2-函数"><a href="#2-函数" class="headerlink" title="2 函数"></a>2 函数</h1><h2 id="2-1函数定义"><a href="#2-1函数定义" class="headerlink" title="2.1函数定义"></a>2.1函数定义</h2><pre><code> func Add(a int, b int) (ret int, err error) { 
+              if a &lt; 0 || b &lt; 0 { // 假设这个函数只支持两个非负数字的加法
+          err= errors.New(&quot;Should be non-negative numbers!&quot;) 
+         return 
+     } 
+
+         return a + b, nil // 支持多重返回值
+} </code></pre><p>如果参数列表中若干个相邻的参数类型的相同，比如上面例子中的a和b，则可以在参数列表<br>中省略前面变量的类型声明，如下所示：</p>
+<pre><code>func Add(a, b int)(ret int, err error) { 
+ // ... 
+} </code></pre><p>如果返回值列表中多个返回值的类型相同，也可以用同样的方式合并。<br>如果函数只有一个返回值，也可以这么写：</p>
+<pre><code>func Add(a, b int) int { 
+ // ... 
+} </code></pre><p><strong>小写字母开头的函数只在本包内可见，大写字母开头的函数才能被其他包使用。</strong></p>
+<h2 id="2-2不定参数"><a href="#2-2不定参数" class="headerlink" title="2.2不定参数"></a>2.2不定参数</h2><pre><code>func myfunc(args ...int){
+    for i,arg := range args{
+        fmt.Println(i,&quot; &quot;,arg)
+    }   
+}
+
+func main(){
+    fmt.Println(&quot;three params&quot;)
+    myfunc(1,2,3)
+    fmt.Println(&quot;four params&quot;)
+    myfunc(1,2,3,4)
+}</code></pre><p><strong>形如…type格式的类型只能作为函数的参数类型存在，并且必须是最后一个参数。</strong><br><strong>从内部实现机理上来说，类型…type本质上是一个数组切片，也就是[]type</strong><br>如果没有…type，则需要这么写</p>
+<pre><code>func myfunc(args []int){
+    for _,args:= range args{
+           fmt.Println(i,&quot; &quot;,arg)
+    }
+}</code></pre><p>   这看起来和上面并没有什么不同，但是调用却必须传入一个数组切片。</p>
+<pre><code>myfunc2([]int{1, 3, 7, 13}) </code></pre><h3 id="1-6-1不定参数传参"><a href="#1-6-1不定参数传参" class="headerlink" title="1.6.1不定参数传参"></a>1.6.1不定参数传参</h3><p>   假设有另一个变参函数叫做myfunc3(args …int)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">func myfunc(args ...int)&#123;</span><br><span class="line">	//按原样传递</span><br><span class="line">	myfunc3(args...)</span><br><span class="line">	//传递片段，实际上任意的int slice都可以传递</span><br><span class="line">	myfunc3(args[1:]...)</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-3任意类型的不定参数"><a href="#2-3任意类型的不定参数" class="headerlink" title="2.3任意类型的不定参数"></a>2.3任意类型的不定参数</h3><p>下面是Go语言标准库中fmt.Printf()的函数原型：</p>
+<pre><code>func Printf(format string,args ...interface{}){
+    //...
+}</code></pre><p>自己写个Printf</p>
+<pre><code>  func MyPrintf(args ...interface{}) { 
+     for _, arg := range args { 
+     switch arg.(type) { 
+         case int: 
+             fmt.Println(arg, &quot;is an int value.&quot;) 
+         case string: 
+             fmt.Println(arg, &quot;is a string value.&quot;) 
+         case int64: 
+             fmt.Println(arg, &quot;is an int64 value.&quot;) 
+         default: 
+             fmt.Println(arg, &quot;is an unknown type.&quot;) 
+         } 
+     } 
+} </code></pre><h3 id="2-4函数多返回值"><a href="#2-4函数多返回值" class="headerlink" title="2.4函数多返回值"></a>2.4函数多返回值</h3><p>Go语言的函数可以返回多个值，如File.Read()函数<br>func (file *File) Read(b []byte) (n int,err Error)<br>从上面的方法原型可以看到，可以给返回值命名，就像函数的输入参数一样。返回值被命名之后，它们的值在函数开始的时候被自动初始化为空。在函数中执行不带任何参数的return语句时，会返回对应的返回值变量的值。也可以不给返回值命名。</p>
+<h3 id="2-5匿名函数与闭包"><a href="#2-5匿名函数与闭包" class="headerlink" title="2.5匿名函数与闭包"></a>2.5匿名函数与闭包</h3><h3 id="2-5-1匿名函数"><a href="#2-5-1匿名函数" class="headerlink" title="2.5.1匿名函数"></a>2.5.1匿名函数</h3><p>在Go中，函数可以像一般的变量一样被传递或使用，类似C中的回调函数。但在Go中匿名函数可以随时在代码中被定义。<br>匿名函数可以直接赋值给一个变量或者直接执行：</p>
+<pre><code>package main
+
+import (
+    &quot;fmt&quot;
+)
+
+func main() {
+    var v func(a int) int 
+    v = func(a int) int {
+        return a * a 
+    }   
+    fmt.Println(v(6))
+//两种写法
+    v1 := func(i int) int {
+        return i * i 
+
+    }   
+    fmt.Println(v1(7))
+
+    func(i int) int{
+        fmt.Println(i,&quot;我是一个可以直接执行的匿名函数哦&quot;)
+        return i*i 
+    }(3)//后面加括号表示直接执行
+}</code></pre><h3 id="2-5-1闭包"><a href="#2-5-1闭包" class="headerlink" title="2.5.1闭包"></a>2.5.1闭包</h3><p>Go的匿名函数是一个闭包。<br><strong>基本概念</strong></p>
+<p>没看懂！！！！待会再看看！！！！</p>
+<h2 id="2-6错误处理"><a href="#2-6错误处理" class="headerlink" title="2.6错误处理"></a>2.6错误处理</h2><h3 id="2-6-1-error接口"><a href="#2-6-1-error接口" class="headerlink" title="2.6.1 error接口"></a>2.6.1 error接口</h3><p>Go语言引入了一个关于错误处理的标准模式，即error接口</p>
+<pre><code>type error interface { 
+     Error() string
+} </code></pre><p>对于大多数函数，如果要返回错误，则通常将error放在返回值的最后一个。</p>
+<p><strong>如何使用自定义的error类型</strong></p>
+<pre><code>type PathError struct {
+        Op string
+        Path string
+        Err error
+    }</code></pre><p>编译器怎能知道PathError可以当一个error来传递呢？关键在于下面的代码实现了Error()方法：</p>
+<pre><code>func (e *PathError) Error() string{
+    return e.Op + &quot; &quot; + e.Path + &quot;: &quot; + e.Err.Error()
+}
+
+func Stat(name string) (fi FileInfo,err error){
+    var stat syscall.Stat_t
+    err=syscall.Stat(name,&amp;stat)
+    if err!=nil{
+        return nil,&amp;PathError{&quot;stat&quot;,name,err}
+    }
+    return fileInfoFromStat(&amp;stat, name), nil
+}</code></pre><h3 id="2-6-2-defer"><a href="#2-6-2-defer" class="headerlink" title="2.6.2 defer"></a>2.6.2 defer</h3><pre><code>func CopyFile(dst, src string) (w int64, err error) { 
+ srcFile, err := os.Open(src) 
+ if err != nil { 
+ return 
+ } 
+ defer srcFile.Close() 
+ dstFile, err := os.Create(dstName) 
+ if err != nil { 
+ return 
+ } 
+ defer dstFile.Close() 
+ return io.Copy(dstFile, srcFile) 
+} </code></pre><p>也可以使用在defer后加一个匿名函数的做法：</p>
+<pre><code>defer func() { 
+ // 做你复杂的清理工作
+} () </code></pre><p><strong>defer语句的调用是遵照先进后出的原则，即最后一个defer语句将最先被执行。</strong></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/09/13/GoLang/GOLang基础（二）---函数及流程控制/" data-id="ck0hncd7s008hfyxxtc3dhali" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/go/">go</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/09/13/GoLang/Go千万级消息推送/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Go千万级消息推送
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/09/13/docker/docker-networking/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">docker--网络配置</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/GPU/">GPU</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Spark/">Spark</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/docker/">docker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/go/">go</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/golang/">golang</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/linux/">linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/node/">node</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/书中自有黄金屋/">书中自有黄金屋</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/人生苦短我用python/">人生苦短我用python</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/人生苦短我用python/linux环境配置/">linux环境配置</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/其他/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/">分布式</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/分布式共识算法/">分布式共识算法</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式基本理论/">分布式基本理论</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/">区块链</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/Hyperledger-Fabric/">Hyperledger Fabric</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/《区块链：从数字货币到信用社会》/">《区块链：从数字货币到信用社会》</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/以太坊开发/">以太坊开发</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/区块链基本原理/">区块链基本原理</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/比特币原理/">比特币原理</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/大数据/">大数据</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/工具/">工具</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/编程基础/">编程基础</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/问题记录/">问题记录</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ACID/">ACID</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CAP/">CAP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ECDSA/">ECDSA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GO/">GO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GPU/">GPU</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Hyperledger-Fabric/">Hyperledger Fabric</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PBFT/">PBFT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spark/">Spark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blockchain/">blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/c/">c++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/centos/">centos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/centos7/">centos7</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cuda/">cuda</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dockerfile/">dockerfile</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/eos/">eos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gas/">gas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go/">go</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hadoop/">hadoop</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hyperledger-fabric/">hyperledger fabric</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/">js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/leveldb/">leveldb</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/node/">node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nvcc/">nvcc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/paxos/">paxos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pos/">pos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pow/">pow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python3/">python3</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spv/">spv</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/yaml/">yaml</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zab/">zab</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/以太坊/">以太坊</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式共识算法/">分布式共识算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式数据库/">分布式数据库</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式理论/">分布式理论</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/区块链/">区块链</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/地址生成/">地址生成</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/大数据/">大数据</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/密码学/">密码学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/挖矿/">挖矿</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/比特币/">比特币</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/编程基础/">编程基础</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/错误记录/">错误记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/问题记录/">问题记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/阅读/">阅读</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ACID/" style="font-size: 11.67px;">ACID</a> <a href="/tags/CAP/" style="font-size: 10px;">CAP</a> <a href="/tags/ECDSA/" style="font-size: 15px;">ECDSA</a> <a href="/tags/GO/" style="font-size: 13.33px;">GO</a> <a href="/tags/GPU/" style="font-size: 11.67px;">GPU</a> <a href="/tags/Hyperledger-Fabric/" style="font-size: 16.67px;">Hyperledger Fabric</a> <a href="/tags/PBFT/" style="font-size: 10px;">PBFT</a> <a href="/tags/Spark/" style="font-size: 10px;">Spark</a> <a href="/tags/blockchain/" style="font-size: 20px;">blockchain</a> <a href="/tags/c/" style="font-size: 11.67px;">c++</a> <a href="/tags/centos/" style="font-size: 11.67px;">centos</a> <a href="/tags/centos7/" style="font-size: 15px;">centos7</a> <a href="/tags/cuda/" style="font-size: 10px;">cuda</a> <a href="/tags/docker/" style="font-size: 18.33px;">docker</a> <a href="/tags/dockerfile/" style="font-size: 11.67px;">dockerfile</a> <a href="/tags/eos/" style="font-size: 10px;">eos</a> <a href="/tags/gas/" style="font-size: 10px;">gas</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/go/" style="font-size: 15px;">go</a> <a href="/tags/hadoop/" style="font-size: 10px;">hadoop</a> <a href="/tags/hyperledger-fabric/" style="font-size: 10px;">hyperledger fabric</a> <a href="/tags/js/" style="font-size: 10px;">js</a> <a href="/tags/leveldb/" style="font-size: 10px;">leveldb</a> <a href="/tags/linux/" style="font-size: 13.33px;">linux</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/node/" style="font-size: 10px;">node</a> <a href="/tags/nvcc/" style="font-size: 10px;">nvcc</a> <a href="/tags/paxos/" style="font-size: 10px;">paxos</a> <a href="/tags/pos/" style="font-size: 10px;">pos</a> <a href="/tags/pow/" style="font-size: 10px;">pow</a> <a href="/tags/python/" style="font-size: 13.33px;">python</a> <a href="/tags/python3/" style="font-size: 15px;">python3</a> <a href="/tags/spv/" style="font-size: 11.67px;">spv</a> <a href="/tags/yaml/" style="font-size: 10px;">yaml</a> <a href="/tags/zab/" style="font-size: 10px;">zab</a> <a href="/tags/以太坊/" style="font-size: 10px;">以太坊</a> <a href="/tags/分布式共识算法/" style="font-size: 15px;">分布式共识算法</a> <a href="/tags/分布式数据库/" style="font-size: 10px;">分布式数据库</a> <a href="/tags/分布式理论/" style="font-size: 13.33px;">分布式理论</a> <a href="/tags/区块链/" style="font-size: 11.67px;">区块链</a> <a href="/tags/地址生成/" style="font-size: 10px;">地址生成</a> <a href="/tags/大数据/" style="font-size: 11.67px;">大数据</a> <a href="/tags/密码学/" style="font-size: 10px;">密码学</a> <a href="/tags/挖矿/" style="font-size: 10px;">挖矿</a> <a href="/tags/比特币/" style="font-size: 11.67px;">比特币</a> <a href="/tags/编程基础/" style="font-size: 11.67px;">编程基础</a> <a href="/tags/错误记录/" style="font-size: 10px;">错误记录</a> <a href="/tags/问题记录/" style="font-size: 10px;">问题记录</a> <a href="/tags/阅读/" style="font-size: 11.67px;">阅读</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">December 2017</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/09/13/玩转linux/linux使用/">linux使用</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/13/区块链/比特币原理/比特币交易脚本及交易数据(二)/">比特币交易脚本及交易数据(二)</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/13/编程基础/c++面向对象/">C++面向对象</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/13/编程基础/c++基础/">C++基础</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/13/区块链/比特币原理/比特币交易脚本及交易数据(一)/">比特币交易脚本及交易数据(一)</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

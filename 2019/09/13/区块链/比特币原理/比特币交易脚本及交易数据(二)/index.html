@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>比特币交易脚本及交易数据(二) | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="1. 比特币交易的数据结构1.1比特币区块的结构每个区块包含5个结构：none,区块大小，区块头信息，交易数据，交易详情  魔法数 什么意思？？？？占4个字节   正式网络中魔法数：0xD9B48EF9(实际区块中存储为小头位序，显示为F9 BE B4 D9) 正式网络中魔法数：0x709110B(实际区块中存储为小头位序，显示为0B 11 09 07) 正式网络中魔法数：0xDAB5BFFA(实">
+<meta name="keywords" content="blockchain,ECDSA">
+<meta property="og:type" content="article">
+<meta property="og:title" content="比特币交易脚本及交易数据(二)">
+<meta property="og:url" content="http://yoursite.com/2019/09/13/区块链/比特币原理/比特币交易脚本及交易数据(二)/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="1. 比特币交易的数据结构1.1比特币区块的结构每个区块包含5个结构：none,区块大小，区块头信息，交易数据，交易详情  魔法数 什么意思？？？？占4个字节   正式网络中魔法数：0xD9B48EF9(实际区块中存储为小头位序，显示为F9 BE B4 D9) 正式网络中魔法数：0x709110B(实际区块中存储为小头位序，显示为0B 11 09 07) 正式网络中魔法数：0xDAB5BFFA(实">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2019-02-23T00:48:34.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="比特币交易脚本及交易数据(二)">
+<meta name="twitter:description" content="1. 比特币交易的数据结构1.1比特币区块的结构每个区块包含5个结构：none,区块大小，区块头信息，交易数据，交易详情  魔法数 什么意思？？？？占4个字节   正式网络中魔法数：0xD9B48EF9(实际区块中存储为小头位序，显示为F9 BE B4 D9) 正式网络中魔法数：0x709110B(实际区块中存储为小头位序，显示为0B 11 09 07) 正式网络中魔法数：0xDAB5BFFA(实">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-区块链/比特币原理/比特币交易脚本及交易数据(二)" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/09/13/区块链/比特币原理/比特币交易脚本及交易数据(二)/" class="article-date">
+  <time datetime="2019-09-13T04:50:00.000Z" itemprop="datePublished">2019-09-13</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/区块链/">区块链</a>►<a class="article-category-link" href="/categories/区块链/比特币原理/">比特币原理</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      比特币交易脚本及交易数据(二)
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1-比特币交易的数据结构"><a href="#1-比特币交易的数据结构" class="headerlink" title="1. 比特币交易的数据结构"></a>1. 比特币交易的数据结构</h1><h2 id="1-1比特币区块的结构"><a href="#1-1比特币区块的结构" class="headerlink" title="1.1比特币区块的结构"></a>1.1比特币区块的结构</h2><p>每个区块包含5个结构：none,区块大小，区块头信息，交易数据，交易详情</p>
+<ol>
+<li>魔法数 <strong>什么意思？？？？</strong><br>占4个字节</li>
+</ol>
+<ul>
+<li>正式网络中魔法数：0xD9B48EF9(实际区块中存储为小头位序，显示为F9 BE B4 D9)</li>
+<li>正式网络中魔法数：0x709110B(实际区块中存储为小头位序，显示为0B 11 09 07)</li>
+<li>正式网络中魔法数：0xDAB5BFFA(实际区块中存储为小头位序，显示为FA FB B4 DA)</li>
+</ul>
+<ol start="2">
+<li><p>区块大小<br>占4个字节</p>
+</li>
+<li><p>区块头</p>
+<a id="more"></a>
+<p>包含6个数据项，共占80字节</p>
+<ul>
+<li>区块版本号（Version),4字节</li>
+<li>前一区块Hash(hashPrevBlock),占32字节</li>
+<li>Merkle根hash,占32字节</li>
+<li>时间戳(Timestamp),占4字节</li>
+<li>难度目标hash (bits),占4字节</li>
+<li>随机数（nonce),占4字节</li>
+</ul>
+</li>
+<li><p>交易数量（Transaction counter)<br>占1-9字节</p>
+</li>
+<li><p>交易详情<br>包含6个数据项，字节大小取决了交易中输入和输出的数量</p>
+</li>
+</ol>
+<h2 id="1-2比特币交易的数据结构-以P2PKH为例"><a href="#1-2比特币交易的数据结构-以P2PKH为例" class="headerlink" title="1.2比特币交易的数据结构(以P2PKH为例)"></a>1.2比特币交易的数据结构(以P2PKH为例)</h2><ol>
+<li>交易数据格式的版本号（version)<ul>
+<li>占4个字节</li>
+</ul>
+</li>
+<li>交易中输入的数量(tx_in count)<ul>
+<li>占1-9字节</li>
+</ul>
+</li>
+<li>交易中输入的列表信息(tx_in)<ul>
+<li>最少占41字节</li>
+<li>标准的P2PKH交易的输入包含8项信息<ul>
+<li>上笔交易的hash，32字节</li>
+<li>该交易是上一笔交易的输出的第几条，4字节（索引小标从0开始）</li>
+<li>解锁脚本总长度，占106~108字节 （私钥签名+压缩公钥长度+2字节标记)<ul>
+<li>私钥签名长度，1字节</li>
+<li>私钥签名的DER编码格式，71~73字节</li>
+<li>压缩公钥长度，1字节</li>
+<li>压缩公钥，32字节</li>
+<li>发送者定义的交易版本，就是JSON格式中的sequence,4字节，常用来识别交易的一个输入结束</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>交易中输出的数量（tx_out count)<ul>
+<li>占1~9字节</li>
+</ul>
+</li>
+<li>交易中输出的列表信息<ul>
+<li>最少占8字节</li>
+<li>交易输出包含3项信息<ol>
+<li>交易金额，8字节</li>
+<li>锁定脚本长度，1字节</li>
+<li>锁定脚本内容，不定长度，根据脚本复杂程度而可变长度。</li>
+</ol>
+</li>
+</ul>
+</li>
+<li>锁定时间（lock_time)<ul>
+<li>占4个字节</li>
+<li>锁定时间表示在某个高度的区块诞生之前或某个时间点之前，该交易处于锁定状态而不能被收录进区块链中，只有在满足锁定条件后才能被打包上链。<ul>
+<li>lock_time==0 ,表示该交易可以立即被打包</li>
+<li>lock_time &gt;= 500 00 0000,lock_time表示unix时间戳，就是说这笔交易只能等待当前时间大于等于lock_time才能被打包进区块</li>
+<li>lock_time &lt; 500 00 0000 ,lock_time 表示区块高度，就是说只能打包进高度大于lock_time的区块</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<p><strong>交易的16进制形式</strong><br>浏览器中输入下面地址可以看到以下结果<br><a href="https://blockchain.info/rawtx/32b0f0d04f0e5eef454d94489081c7ff9faa5c1fbe89135eddd436b9da738559?format=hex" target="_blank" rel="noopener">https://blockchain.info/rawtx/32b0f0d04f0e5eef454d94489081c7ff9faa5c1fbe89135eddd436b9da738559?format=hex</a></p>
+<blockquote>
+<p>0100000001a59371498d99730fd15969aa38d5eb115cf158bc4431661c64bddd349db1744c020000006a473044022054c7e4b0d50da0f9964ee881a9ee8f35a5e5532a2fd7cb41b7ed919c67aa1904022066bad005f4076e5b13199676436648ea9a934778ae6c82f553e4e56af9814ec7012102b1344441f90de9ee5cabeb4b265d9dc947855816117d5405bc5640dc2502f8c1ffffffff02c81405000000000017a9140e3f675d1d9efac6d590e662dc5f6d96c5e526cf8790ce3e01000000001976a914d5c7c9940467fe8a319f89b22254a8b6d9f1f21988ac00000000</p>
+</blockquote>
+<blockquote>
+<p>01000000</p>
+</blockquote>
+<blockquote>
+<p>注明：计算机存储的16进制数据是小头位序排列格式，即低位在前，高位在后，区块链浏览器中16进制数值显示的是大头位序排列形式。</p>
+</blockquote>
+<ul>
+<li><p>版本号<br>000000010</p>
+</li>
+<li><p>交易中输入的数量<br>01</p>
+</li>
+</ul>
+<p><strong>交易输入</strong></p>
+<ul>
+<li>a59371498d99730fd15969aa38d5eb115cf158bc4431661c64bddd349db1744c //上笔交易的hash,32字节。</li>
+<li>02000000 //固定4字节，表示该输入是上一笔交易的第1个输出</li>
+<li>6a //签名数据的总长度为（16*6+10=106）106字节</li>
+<li>47 //私钥签名的数据长度为71字节（4*16+7=71)</li>
+<li>3044022054c7e4b0d50da0f9964ee881a9ee8f35a5e5532a2fd7cb41b7ed919c67aa1904022066bad005f4076e5b13199676436648ea9a934778ae6c82f553e4e56af9814ec701 //72字节的私钥签名DER编码格式，以“30”开头，常以”01”结尾</li>
+<li>21  //对应压缩公钥长度为33<pre><code>&gt; 特别注明：
+&gt; * 非压缩公钥共65字节，第一个字节是0x04,32字节为x坐标，32字节为y坐标，一共是130位16进制数字。
+&gt; * 压缩公钥共33字节，第一个字节是0x02或0x03，只包含x坐标的32字节，不包含坐标。</code></pre></li>
+<li>02b1344441f90de9ee5cabeb4b265d9dc947855816117d5405bc5640dc2502f8c1 //压缩公钥</li>
+<li>ffffffff //发送者定义的交易版本，占4个字节对，应对json格式中的sequence,常用于识别交易的输入结束<br><strong>交易输出</strong></li>
+<li>02 //交易中输出的数量<br>（第一笔交易不太懂，这里我就只写了第二笔交易）</li>
+</ul>
+<p>第二笔交易</p>
+<ul>
+<li>19 //输出脚本总长度 （25字节）</li>
+<li>76 //OP_DUP</li>
+<li>a9 //HASH_160</li>
+<li>14 //PUSHDATA(20)将下面20字节压入堆栈</li>
+<li>d5c7c9940467fe8a319f89b22254a8b6d9f1f219 //压入堆栈的压缩公钥HASH160</li>
+<li>88 //OP_EQUALVERIFY</li>
+<li>ac //OP_CHECKSIG</li>
+<li>00000000 锁定时间</li>
+</ul>
+<p>将这个16进制码作分割，那么如下：（<strong>不太理解第一个输出的指令为什么不太一样？？？？</strong>）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">01</span><br><span class="line">a59371498d99730fd15969aa38d5eb115cf158bc4431661c64bddd349db1744c</span><br><span class="line">02000000</span><br><span class="line">6a</span><br><span class="line">47</span><br><span class="line">3044022054c7e4b0d50da0f9964ee881a9ee8f35a5e5532a2fd7cb41b7ed919c67aa1904022066bad005f4076e5b13199676436648ea9a934778ae6c82f553e4e56af9814ec701</span><br><span class="line">21</span><br><span class="line">02b1344441f90de9ee5cabeb4b265d9dc947855816117d5405bc5640dc2502f8c1</span><br><span class="line">ffffffff</span><br><span class="line">02</span><br><span class="line">c814050000000000 (16进制514c8，转换成16进制就是514c8)</span><br><span class="line">17 </span><br><span class="line">a9</span><br><span class="line">14</span><br><span class="line">0e3f675d1d9efac6d590e662dc5f6d96c5e526cf87</span><br><span class="line">90ce3e0100000000(16进制13ece90，转换成10进值就是20893328)</span><br><span class="line">19  </span><br><span class="line">76</span><br><span class="line">a9</span><br><span class="line">14d5c7c9940467fe8a319f89b22254a8b6d9f1f219</span><br><span class="line">88</span><br><span class="line">ac</span><br><span class="line">00000000</span><br></pre></td></tr></table></figure>
+
+<p>下面两个链接的页面完全一样，其中tx-index就是json中tx-index<br><a href="https://www.blockchain.com/btc/tx/32b0f0d04f0e5eef454d94489081c7ff9faa5c1fbe89135eddd436b9da738559" target="_blank" rel="noopener">https://www.blockchain.com/btc/tx/32b0f0d04f0e5eef454d94489081c7ff9faa5c1fbe89135eddd436b9da738559</a><br><a href="https://blockchain.info/tx-index/418301952" target="_blank" rel="noopener">https://blockchain.info/tx-index/418301952</a></p>
+<p>交易的json格式</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">   <span class="attr">"ver"</span>:<span class="number">1</span>,</span><br><span class="line">   <span class="attr">"inputs"</span>:[</span><br><span class="line">      &#123;</span><br><span class="line">         <span class="attr">"sequence"</span>:<span class="number">4294967295</span>,</span><br><span class="line">         <span class="attr">"witness"</span>:<span class="string">""</span>,</span><br><span class="line">         <span class="attr">"prev_out"</span>:&#123;</span><br><span class="line">            <span class="attr">"spent"</span>:<span class="literal">true</span>,</span><br><span class="line">            <span class="attr">"spending_outpoints"</span>:[</span><br><span class="line">               &#123;</span><br><span class="line">                  <span class="attr">"tx_index"</span>:<span class="number">418301952</span>,</span><br><span class="line">                  <span class="attr">"n"</span>:<span class="number">0</span></span><br><span class="line">               &#125;</span><br><span class="line">            ],</span><br><span class="line">            <span class="attr">"tx_index"</span>:<span class="number">418296606</span>,</span><br><span class="line">            <span class="attr">"type"</span>:<span class="number">0</span>,</span><br><span class="line">            <span class="attr">"addr"</span>:<span class="string">"18gzeGKaFikAFZhDE2P5bzfzDXEoJcQWU7"</span>,</span><br><span class="line">            <span class="attr">"value"</span>:<span class="number">21230486</span>,</span><br><span class="line">            <span class="attr">"n"</span>:<span class="number">2</span>,</span><br><span class="line">            <span class="attr">"script"</span>:<span class="string">"76a91454593873fa83c7ed77a64f5ef8e230bd055a430888ac"</span></span><br><span class="line">         &#125;,</span><br><span class="line">         <span class="attr">"script"</span>:<span class="string">"473044022054c7e4b0d50da0f9964ee881a9ee8f35a5e5532a2fd7cb41b7ed919c67aa1904022066bad005f4076e5b13199676436648ea9a934778ae6c82f553e4e56af9814ec7012102b1344441f90de9ee5cabeb4b265d9dc947855816117d5405bc5640dc2502f8c1"</span></span><br><span class="line">      &#125;</span><br><span class="line">   ],</span><br><span class="line">   <span class="attr">"weight"</span>:<span class="number">892</span>,</span><br><span class="line">   <span class="attr">"block_height"</span>:<span class="number">564016</span>,</span><br><span class="line">   <span class="attr">"relayed_by"</span>:<span class="string">"127.0.0.1"</span>,</span><br><span class="line">   <span class="attr">"out"</span>:[</span><br><span class="line">      &#123;</span><br><span class="line">         <span class="attr">"spent"</span>:<span class="literal">true</span>,</span><br><span class="line">         <span class="attr">"spending_outpoints"</span>:[</span><br><span class="line">            &#123;</span><br><span class="line">               <span class="attr">"tx_index"</span>:<span class="number">418542089</span>,</span><br><span class="line">               <span class="attr">"n"</span>:<span class="number">40</span></span><br><span class="line">            &#125;</span><br><span class="line">         ],</span><br><span class="line">         <span class="attr">"tx_index"</span>:<span class="number">418301952</span>,</span><br><span class="line">         <span class="attr">"type"</span>:<span class="number">0</span>,</span><br><span class="line">         <span class="attr">"addr"</span>:<span class="string">"32zMLbmErXhf81SgTHGETJPUPtEcxcudai"</span>,</span><br><span class="line">         <span class="attr">"value"</span>:<span class="number">333000</span>,</span><br><span class="line">         <span class="attr">"n"</span>:<span class="number">0</span>,</span><br><span class="line">         <span class="attr">"script"</span>:<span class="string">"a9140e3f675d1d9efac6d590e662dc5f6d96c5e526cf87"</span></span><br><span class="line">      &#125;,</span><br><span class="line">      &#123;</span><br><span class="line">         <span class="attr">"spent"</span>:<span class="literal">true</span>,</span><br><span class="line">         <span class="attr">"spending_outpoints"</span>:[</span><br><span class="line">            &#123;</span><br><span class="line">               <span class="attr">"tx_index"</span>:<span class="number">418309541</span>,</span><br><span class="line">               <span class="attr">"n"</span>:<span class="number">0</span></span><br><span class="line">            &#125;</span><br><span class="line">         ],</span><br><span class="line">         <span class="attr">"tx_index"</span>:<span class="number">418301952</span>,</span><br><span class="line">         <span class="attr">"type"</span>:<span class="number">0</span>,</span><br><span class="line">         <span class="attr">"addr"</span>:<span class="string">"1LVNGLJc1zT4Gf9aLWFs8rawehvtLG2yuW"</span>,</span><br><span class="line">         <span class="attr">"value"</span>:<span class="number">20893328</span>,</span><br><span class="line">         <span class="attr">"n"</span>:<span class="number">1</span>,</span><br><span class="line">         <span class="attr">"script"</span>:<span class="string">"76a914d5c7c9940467fe8a319f89b22254a8b6d9f1f21988ac"</span></span><br><span class="line">      &#125;</span><br><span class="line">   ],</span><br><span class="line">   <span class="attr">"lock_time"</span>:<span class="number">0</span>,</span><br><span class="line">   "size":223, //交易总大小223字节</span><br><span class="line">   "double_spend":false, //是否双花</span><br><span class="line">   "block_index":1751284,</span><br><span class="line">   "time":1550748324,</span><br><span class="line">   "tx_index":418301952, //交易索引号</span><br><span class="line">   "vin_sz":1,</span><br><span class="line">   "hash":"32b0f0d04f0e5eef454d94489081c7ff9faa5c1fbe89135eddd436b9da738559",</span><br><span class="line">   "vout_sz":2</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/09/13/区块链/比特币原理/比特币交易脚本及交易数据(二)/" data-id="ck0hncd8t00btfyxxya5nnmnn" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ECDSA/">ECDSA</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/blockchain/">blockchain</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/09/13/玩转linux/linux使用/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          linux使用
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/09/13/编程基础/c++面向对象/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">C++面向对象</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/GPU/">GPU</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Spark/">Spark</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/docker/">docker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/go/">go</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/golang/">golang</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/linux/">linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/node/">node</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/书中自有黄金屋/">书中自有黄金屋</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/人生苦短我用python/">人生苦短我用python</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/人生苦短我用python/linux环境配置/">linux环境配置</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/其他/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/">分布式</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/分布式共识算法/">分布式共识算法</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式基本理论/">分布式基本理论</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/">区块链</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/Hyperledger-Fabric/">Hyperledger Fabric</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/《区块链：从数字货币到信用社会》/">《区块链：从数字货币到信用社会》</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/以太坊开发/">以太坊开发</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/区块链基本原理/">区块链基本原理</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/比特币原理/">比特币原理</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/大数据/">大数据</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/工具/">工具</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/编程基础/">编程基础</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/问题记录/">问题记录</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ACID/">ACID</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CAP/">CAP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ECDSA/">ECDSA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GO/">GO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GPU/">GPU</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Hyperledger-Fabric/">Hyperledger Fabric</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PBFT/">PBFT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spark/">Spark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blockchain/">blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/c/">c++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/centos/">centos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/centos7/">centos7</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cuda/">cuda</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dockerfile/">dockerfile</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/eos/">eos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gas/">gas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go/">go</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hadoop/">hadoop</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hyperledger-fabric/">hyperledger fabric</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/">js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/leveldb/">leveldb</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/node/">node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nvcc/">nvcc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/paxos/">paxos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pos/">pos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pow/">pow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python3/">python3</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spv/">spv</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/yaml/">yaml</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zab/">zab</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/以太坊/">以太坊</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式共识算法/">分布式共识算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式数据库/">分布式数据库</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式理论/">分布式理论</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/区块链/">区块链</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/地址生成/">地址生成</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/大数据/">大数据</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/密码学/">密码学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/挖矿/">挖矿</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/比特币/">比特币</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/编程基础/">编程基础</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/错误记录/">错误记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/问题记录/">问题记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/阅读/">阅读</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ACID/" style="font-size: 11.67px;">ACID</a> <a href="/tags/CAP/" style="font-size: 10px;">CAP</a> <a href="/tags/ECDSA/" style="font-size: 15px;">ECDSA</a> <a href="/tags/GO/" style="font-size: 13.33px;">GO</a> <a href="/tags/GPU/" style="font-size: 11.67px;">GPU</a> <a href="/tags/Hyperledger-Fabric/" style="font-size: 16.67px;">Hyperledger Fabric</a> <a href="/tags/PBFT/" style="font-size: 10px;">PBFT</a> <a href="/tags/Spark/" style="font-size: 10px;">Spark</a> <a href="/tags/blockchain/" style="font-size: 20px;">blockchain</a> <a href="/tags/c/" style="font-size: 11.67px;">c++</a> <a href="/tags/centos/" style="font-size: 11.67px;">centos</a> <a href="/tags/centos7/" style="font-size: 15px;">centos7</a> <a href="/tags/cuda/" style="font-size: 10px;">cuda</a> <a href="/tags/docker/" style="font-size: 18.33px;">docker</a> <a href="/tags/dockerfile/" style="font-size: 11.67px;">dockerfile</a> <a href="/tags/eos/" style="font-size: 10px;">eos</a> <a href="/tags/gas/" style="font-size: 10px;">gas</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/go/" style="font-size: 15px;">go</a> <a href="/tags/hadoop/" style="font-size: 10px;">hadoop</a> <a href="/tags/hyperledger-fabric/" style="font-size: 10px;">hyperledger fabric</a> <a href="/tags/js/" style="font-size: 10px;">js</a> <a href="/tags/leveldb/" style="font-size: 10px;">leveldb</a> <a href="/tags/linux/" style="font-size: 13.33px;">linux</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/node/" style="font-size: 10px;">node</a> <a href="/tags/nvcc/" style="font-size: 10px;">nvcc</a> <a href="/tags/paxos/" style="font-size: 10px;">paxos</a> <a href="/tags/pos/" style="font-size: 10px;">pos</a> <a href="/tags/pow/" style="font-size: 10px;">pow</a> <a href="/tags/python/" style="font-size: 13.33px;">python</a> <a href="/tags/python3/" style="font-size: 15px;">python3</a> <a href="/tags/spv/" style="font-size: 11.67px;">spv</a> <a href="/tags/yaml/" style="font-size: 10px;">yaml</a> <a href="/tags/zab/" style="font-size: 10px;">zab</a> <a href="/tags/以太坊/" style="font-size: 10px;">以太坊</a> <a href="/tags/分布式共识算法/" style="font-size: 15px;">分布式共识算法</a> <a href="/tags/分布式数据库/" style="font-size: 10px;">分布式数据库</a> <a href="/tags/分布式理论/" style="font-size: 13.33px;">分布式理论</a> <a href="/tags/区块链/" style="font-size: 11.67px;">区块链</a> <a href="/tags/地址生成/" style="font-size: 10px;">地址生成</a> <a href="/tags/大数据/" style="font-size: 11.67px;">大数据</a> <a href="/tags/密码学/" style="font-size: 10px;">密码学</a> <a href="/tags/挖矿/" style="font-size: 10px;">挖矿</a> <a href="/tags/比特币/" style="font-size: 11.67px;">比特币</a> <a href="/tags/编程基础/" style="font-size: 11.67px;">编程基础</a> <a href="/tags/错误记录/" style="font-size: 10px;">错误记录</a> <a href="/tags/问题记录/" style="font-size: 10px;">问题记录</a> <a href="/tags/阅读/" style="font-size: 11.67px;">阅读</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">December 2017</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/09/13/玩转linux/linux使用/">linux使用</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/13/区块链/比特币原理/比特币交易脚本及交易数据(二)/">比特币交易脚本及交易数据(二)</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/13/编程基础/c++面向对象/">C++面向对象</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/13/编程基础/c++基础/">C++基础</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/13/区块链/比特币原理/比特币交易脚本及交易数据(一)/">比特币交易脚本及交易数据(一)</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>区块链基础 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="“双重支付”+可复用工作量验证 → 解决拜占庭问题 戴伟事后评价说：“要想开发出比特币，必须：①对货币有非常深入的思考；②要了解密码学；③认为比特币这样的系统从理论上是可行的；④要有足够的动力将这个理念开发成实际产品；⑤编程能力出色，能保证产品安全；⑥有足够的社交技巧，才能围绕这个产品建立一个成功的社区。密码学圈子能符合前三个条件的人就已是凤毛麟角。”">
+<meta name="keywords" content="blockchain">
+<meta property="og:type" content="article">
+<meta property="og:title" content="区块链基础">
+<meta property="og:url" content="http://yoursite.com/2019/09/13/区块链/《区块链：从数字货币到信用社会》-基础篇/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="“双重支付”+可复用工作量验证 → 解决拜占庭问题 戴伟事后评价说：“要想开发出比特币，必须：①对货币有非常深入的思考；②要了解密码学；③认为比特币这样的系统从理论上是可行的；④要有足够的动力将这个理念开发成实际产品；⑤编程能力出色，能保证产品安全；⑥有足够的社交技巧，才能围绕这个产品建立一个成功的社区。密码学圈子能符合前三个条件的人就已是凤毛麟角。”">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2019-02-23T02:54:08.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="区块链基础">
+<meta name="twitter:description" content="“双重支付”+可复用工作量验证 → 解决拜占庭问题 戴伟事后评价说：“要想开发出比特币，必须：①对货币有非常深入的思考；②要了解密码学；③认为比特币这样的系统从理论上是可行的；④要有足够的动力将这个理念开发成实际产品；⑤编程能力出色，能保证产品安全；⑥有足够的社交技巧，才能围绕这个产品建立一个成功的社区。密码学圈子能符合前三个条件的人就已是凤毛麟角。”">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-区块链/《区块链：从数字货币到信用社会》-基础篇" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/09/13/区块链/《区块链：从数字货币到信用社会》-基础篇/" class="article-date">
+  <time datetime="2019-09-13T04:49:54.000Z" itemprop="datePublished">2019-09-13</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/区块链/">区块链</a>►<a class="article-category-link" href="/categories/区块链/《区块链：从数字货币到信用社会》/">《区块链：从数字货币到信用社会》</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      区块链基础
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>“双重支付”+可复用工作量验证 → 解决拜占庭问题</p>
+<p>戴伟事后评价说：“要想开发出比特币，必须：①对货币有非常深入的思考；②要了解密码学；③认为比特币这样的系统从理论上是可行的；④要有足够的动力将这个理念开发成实际产品；⑤编程能力出色，能保证产品安全；⑥有足够的社交技巧，才能围绕这个产品建立一个成功的社区。密码学圈子能符合前三个条件的人就已是凤毛麟角。”</p>
+<a id="more"></a>
+
+<p><strong>币天（CoinDays）销毁</strong><br>顾名思义，币天销毁等于每笔交易的金额（币）乘以这笔交易的币在账上留存的时间（天），比如你花了一笔100天以前收到的10比特币，这笔交易的币天销毁就是1000币天。</p>
+<p>区块链研究者并没有注意到币天销毁的意义所在，因为它不像时间戳、难度、随机数等字段一样，在区块链中有明确的作用。只有少数对币价敏感的人群关注这个指标，他们认为区块链的币天销毁累积的变动，可以揭示市场走向。在市场处于下跌通道时，币天销毁的峰值意味着市场中的弱手，因为代表着大户可能要抛币。当市场处于上涨通道时，币天销毁的峰值意味着市场中的强手，表明市场可能会走强。与传统股票市场不同，在比特币等数字货币交易市场中，币天销毁比每日交易量这个指标更能准确地显示市场的资金流动。因为如果一个人开两个账户（比特币地址），用100个比特币来回转账，这样可以把交易量做到很大，但币天销毁却几乎维持不变。</p>
+<h1 id="区块链基础"><a href="#区块链基础" class="headerlink" title="#区块链基础"></a>#区块链基础</h1><p><strong>区块链基本技术</strong><br>比特币的区块链毕竟是为比特币体系的设计而定制，因此比特币的区块链技术并不等于区块链技术。区块链技术应该是可以有更多种形态、更多种体系、更多种用途、更多种规格的技术，其概念为：区块链是一个去中心化的分布式数据库，该数据库由一串使用密码学方法产生的数据区块有序链接而成，区块中包含有一定时间内产生的无法被篡改的数据记录信息。</p>
+<p><strong>区块链分类</strong></p>
+<blockquote>
+<p>公共区块链 Public Blockchain<br>公共区块链（Public Blockchain）：是指全世界任何人都可读取、可发送交易进行有效性确认，任何人都能参与其共识过程的区块链（共识过程是维持区块链这种分布式数据库一致性、准确性的关键技术，将在后续章节详细介绍）。<br>区块链上的数据记录公开，所有人都可以访问，都可以发出交易请求，并通过验证被写入区块链。<br>共识过程的参与者通过密码学技术共同维护公共区块链数据的安全、透明、不可篡改。<br>公共区块链是完全分布式的区块链，区块链数据公开，用户参与程度高，同时易于产生网络效应，便于应用推广<br>。然而，系统的运行需要依赖于内建的激励机制。<br>公共区块链上试图保存的数据越有价值，越要审视其安全性以及安全性带来的交易成本、系统可扩展性问题。<br>公共区块链的典型应用包括比特币、以太坊等。</p>
+</blockquote>
+<blockquote>
+<p>共同体区块链（Consortium Blockchains）：又称联盟链<br>是指参与区块链的节点是事先选择好的，节点间通常有良好的网络连接等合作关系，区块链上的数据可以是公开的也可以是内部的，为部分意义上的分布式，可视为“部分去中心化”。比如有若干家金融机构之间建立了某个共同体区块链，每个机构都运行着一个节点，而且为了使每个区块生效需要获得至少其中10个机构的确认。区块链可以允许每个机构可读取，或者只受限于共识验证参与者，或走混合型路线，例如区块的根哈希及应用程序接口对外公开，允许外界用来进行区块链数据和区块链状态信息查询等。其典型应用包括超级账本（Hyperledger）、区块链联盟R3CEV等.</p>
+</blockquote>
+<p>共同体区块链的参与节点间的连接状态较好、验证效率较高，只需较低的成本即可维持运行，提供高速交易处理的同时降低交易费用，有很好的扩展性，数据可以保持一定的隐私性。但是这也意味着在共识达成的前提下，参与节点可以一起篡改数据。</p>
+<blockquote>
+<p>私有区块链（Private Blockchain）<br>参与的节点只有有限的范围，比如特定机构的自身用户等，数据的访问及使用有严格的权限管理。完全私有的区块链中写入权限仅在参与者手里，读取权限可以对外开放，也可以进行任意程度的限制。相关的应用囊括数据库管理、数据库审计甚至公司管理，尽管在有些情况下希望私有区块链可以具有公共的可审计性，但在更多的情况下，没有公共的可读性。由于是私有用户说了算，里面的数据没有无法篡改的特性，对于第三方的保障力度大大降低。因此，目前很多私有区块链会通过依附在比特币等已有区块链的方式存在，定期将系统快照数据记录到比特币等系统中。其典型应用如Eris Industries。</p>
+</blockquote>
+<p>私有区块链交易成本更低。交易只需被几个受信的高算力节点验证即可，而不是需要数万个节点的确认，因此交易成本会低。但从长远来看，随着区块链技术的进步，公共区块链的成本将可能降低1~2个数量级，大致与高效的私有区块链系统类似。私有区块链节点间连接情况好、故障可以迅速通过人工干预来修复，从而提升交易速度并可以更好地保护隐私。</p>
+<p><strong>区块链工作原理</strong></p>
+<p><strong>区块链共识机制</strong><br>当前主流的共识机制包括：工作量证明、权益证明、工作量证明与权益证明混合（PoS+PoW）、股份授权证明、瑞波共识协议等。</p>
+<blockquote>
+<p>工作量证明 Proof of Work<br>POW工作流程：1节点监听全网数据记录，通过基本合法性验证的数据记录将进行暂存；2节点消耗自身算力尝试不同的随机数，进行指定哈希计算，并不断重复该过程直至找到合理的随机数；③找到合理的随机数后，生成区块信息，首先输入区块头信息，然后是数据记录信息；3接单对外部广播出新产生的区块，其他节点验证通过后，连接至区块链中，主链高度加一，然后所有节点切换至新区块后面继续进行工作量证明和区块生产。</p>
+</blockquote>
+<p>1097</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/09/13/区块链/《区块链：从数字货币到信用社会》-基础篇/" data-id="ck0hncd6n0031fyxxbtxofl9k" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/blockchain/">blockchain</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/09/13/区块链/以太坊开发/Gas,GasPrice,GasLimit/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Gas,Gas Price,GasLimit
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/09/13/区块链/简单支付交易验证SPV/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">SPV节点</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/GPU/">GPU</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Spark/">Spark</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/docker/">docker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/go/">go</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/golang/">golang</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/linux/">linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/node/">node</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/书中自有黄金屋/">书中自有黄金屋</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/人生苦短我用python/">人生苦短我用python</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/人生苦短我用python/linux环境配置/">linux环境配置</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/其他/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/">分布式</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/分布式共识算法/">分布式共识算法</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式基本理论/">分布式基本理论</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/">区块链</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/Hyperledger-Fabric/">Hyperledger Fabric</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/《区块链：从数字货币到信用社会》/">《区块链：从数字货币到信用社会》</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/以太坊开发/">以太坊开发</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/区块链基本原理/">区块链基本原理</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/比特币原理/">比特币原理</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/大数据/">大数据</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/工具/">工具</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/编程基础/">编程基础</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/问题记录/">问题记录</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ACID/">ACID</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CAP/">CAP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ECDSA/">ECDSA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GO/">GO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GPU/">GPU</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Hyperledger-Fabric/">Hyperledger Fabric</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PBFT/">PBFT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spark/">Spark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blockchain/">blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/c/">c++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/centos/">centos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/centos7/">centos7</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cuda/">cuda</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dockerfile/">dockerfile</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/eos/">eos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gas/">gas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go/">go</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hadoop/">hadoop</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hyperledger-fabric/">hyperledger fabric</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/">js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/leveldb/">leveldb</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/node/">node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nvcc/">nvcc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/paxos/">paxos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pos/">pos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pow/">pow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python3/">python3</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spv/">spv</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/yaml/">yaml</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zab/">zab</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/以太坊/">以太坊</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式共识算法/">分布式共识算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式数据库/">分布式数据库</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式理论/">分布式理论</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/区块链/">区块链</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/地址生成/">地址生成</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/大数据/">大数据</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/密码学/">密码学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/挖矿/">挖矿</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/比特币/">比特币</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/编程基础/">编程基础</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/错误记录/">错误记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/问题记录/">问题记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/阅读/">阅读</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ACID/" style="font-size: 11.67px;">ACID</a> <a href="/tags/CAP/" style="font-size: 10px;">CAP</a> <a href="/tags/ECDSA/" style="font-size: 15px;">ECDSA</a> <a href="/tags/GO/" style="font-size: 13.33px;">GO</a> <a href="/tags/GPU/" style="font-size: 11.67px;">GPU</a> <a href="/tags/Hyperledger-Fabric/" style="font-size: 16.67px;">Hyperledger Fabric</a> <a href="/tags/PBFT/" style="font-size: 10px;">PBFT</a> <a href="/tags/Spark/" style="font-size: 10px;">Spark</a> <a href="/tags/blockchain/" style="font-size: 20px;">blockchain</a> <a href="/tags/c/" style="font-size: 11.67px;">c++</a> <a href="/tags/centos/" style="font-size: 11.67px;">centos</a> <a href="/tags/centos7/" style="font-size: 15px;">centos7</a> <a href="/tags/cuda/" style="font-size: 10px;">cuda</a> <a href="/tags/docker/" style="font-size: 18.33px;">docker</a> <a href="/tags/dockerfile/" style="font-size: 11.67px;">dockerfile</a> <a href="/tags/eos/" style="font-size: 10px;">eos</a> <a href="/tags/gas/" style="font-size: 10px;">gas</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/go/" style="font-size: 15px;">go</a> <a href="/tags/hadoop/" style="font-size: 10px;">hadoop</a> <a href="/tags/hyperledger-fabric/" style="font-size: 10px;">hyperledger fabric</a> <a href="/tags/js/" style="font-size: 10px;">js</a> <a href="/tags/leveldb/" style="font-size: 10px;">leveldb</a> <a href="/tags/linux/" style="font-size: 13.33px;">linux</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/node/" style="font-size: 10px;">node</a> <a href="/tags/nvcc/" style="font-size: 10px;">nvcc</a> <a href="/tags/paxos/" style="font-size: 10px;">paxos</a> <a href="/tags/pos/" style="font-size: 10px;">pos</a> <a href="/tags/pow/" style="font-size: 10px;">pow</a> <a href="/tags/python/" style="font-size: 13.33px;">python</a> <a href="/tags/python3/" style="font-size: 15px;">python3</a> <a href="/tags/spv/" style="font-size: 11.67px;">spv</a> <a href="/tags/yaml/" style="font-size: 10px;">yaml</a> <a href="/tags/zab/" style="font-size: 10px;">zab</a> <a href="/tags/以太坊/" style="font-size: 10px;">以太坊</a> <a href="/tags/分布式共识算法/" style="font-size: 15px;">分布式共识算法</a> <a href="/tags/分布式数据库/" style="font-size: 10px;">分布式数据库</a> <a href="/tags/分布式理论/" style="font-size: 13.33px;">分布式理论</a> <a href="/tags/区块链/" style="font-size: 11.67px;">区块链</a> <a href="/tags/地址生成/" style="font-size: 10px;">地址生成</a> <a href="/tags/大数据/" style="font-size: 11.67px;">大数据</a> <a href="/tags/密码学/" style="font-size: 10px;">密码学</a> <a href="/tags/挖矿/" style="font-size: 10px;">挖矿</a> <a href="/tags/比特币/" style="font-size: 11.67px;">比特币</a> <a href="/tags/编程基础/" style="font-size: 11.67px;">编程基础</a> <a href="/tags/错误记录/" style="font-size: 10px;">错误记录</a> <a href="/tags/问题记录/" style="font-size: 10px;">问题记录</a> <a href="/tags/阅读/" style="font-size: 11.67px;">阅读</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">December 2017</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/09/13/玩转linux/linux使用/">linux使用</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/13/区块链/比特币原理/比特币交易脚本及交易数据(二)/">比特币交易脚本及交易数据(二)</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/13/编程基础/c++面向对象/">C++面向对象</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/13/编程基础/c++基础/">C++基础</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/13/区块链/比特币原理/比特币交易脚本及交易数据(一)/">比特币交易脚本及交易数据(一)</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

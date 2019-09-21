@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>GO并发编程 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Go搭建了特有的两级线程模型Go语言不推荐用共享内存的方式传递数据，而推荐使用channel。channel用来在多个goroutine之间传递数据，并且还保证了整个过程的并发安全性。不过作为可选方法，Go依然提供了一些传统的同步方法（比如互斥量，条件变量等） 1.并发的主流实现模型">
+<meta name="keywords" content="GO">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GO并发编程">
+<meta property="og:url" content="http://yoursite.com/2019/09/13/GoLang/Go的并发机制/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="Go搭建了特有的两级线程模型Go语言不推荐用共享内存的方式传递数据，而推荐使用channel。channel用来在多个goroutine之间传递数据，并且还保证了整个过程的并发安全性。不过作为可选方法，Go依然提供了一些传统的同步方法（比如互斥量，条件变量等） 1.并发的主流实现模型">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2019-03-03T13:16:18.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="GO并发编程">
+<meta name="twitter:description" content="Go搭建了特有的两级线程模型Go语言不推荐用共享内存的方式传递数据，而推荐使用channel。channel用来在多个goroutine之间传递数据，并且还保证了整个过程的并发安全性。不过作为可选方法，Go依然提供了一些传统的同步方法（比如互斥量，条件变量等） 1.并发的主流实现模型">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-GoLang/Go的并发机制" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/09/13/GoLang/Go的并发机制/" class="article-date">
+  <time datetime="2019-09-13T04:49:46.000Z" itemprop="datePublished">2019-09-13</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Go/">Go</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      GO并发编程
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Go搭建了特有的<strong>两级线程模型</strong><br>Go语言不推荐用共享内存的方式传递数据，而推荐使用channel。channel用来在多个goroutine之间传递数据，并且还保证了整个过程的并发安全性。<br>不过作为可选方法，Go依然提供了一些传统的同步方法（比如互斥量，条件变量等）</p>
+<h2 id="1-并发的主流实现模型"><a href="#1-并发的主流实现模型" class="headerlink" title="1.并发的主流实现模型"></a>1.并发的主流实现模型</h2><a id="more"></a>
+<ol>
+<li>多进程：多进程是在操作系统层面进行的并发的基本模式，也是开销最大的模式。在linux平台上，很多工具链正是采用这种模式在工作。比如某个web服务器，它会有专门的进程负责网络端口的监听和链接管理，还会有专门的进程负责事务和运算。这种方法的好处在于简单，进程间互不影响，坏处在于系统开销很大，所有的进程都是由内核管理的。</li>
+<li>多线程：</li>
+<li>基于回调的非阻塞、异步IO:这种架构的诞生实际上来源于多线程模式的危机。在很多高并发服务器开发实践中，使用多线程模式会很快耗尽服务器的内存和CPU资源。而这种模式通过事件驱动的方式使用异步IO，使服务器持续运转，且尽可能地少用线程，降低开销，它目前在Node.js中得到了很好的实践。但是使用这种模式，编程比多线程要复杂，因为它把流程做了分割，对于问题本身的反应不够自然。</li>
+<li>协程：协程（Coroutine）本质上是一种用户态线程，不需要操作系统来进行抢占式调度，且在真正的实现中寄存于线程中，因此，系统开销极小，可以有效提高线程的任务并发性，而避免多线程的缺点。使用协程的优点是编程简单，结构清晰；缺点是需要语言的支持，如果不支持，则需要用户在程序中自行实现调度器。目前，原生支持协程的语言还很少。</li>
+</ol>
+<p><strong>线程之间通信只能采用共享内存的方式</strong>,但存在众多使用上的问题，所以有了一种新的系统模型，“消息传递系统”。对线程间共享状态的各种操作都被封装在线程之间传递的消息中，这通常要求：发送消息时对状态进行复制，并且在消息传递的边界上交出这个状态的所有权。从从逻辑上来看，这个操作与共享内存系统中执行的原子更新操作相同，但从物理上来看则非常不同。由于需要执行复制操作，所以大多数消息传递的实现在性能上并不优越，但线程中的状态管理工作通常会变得更<br>为简单。</p>
+<h2 id="2-协程"><a href="#2-协程" class="headerlink" title="2. 协程"></a>2. 协程</h2><p>协程也叫作轻量级线程，与<br>传统的系统级线程和进程相比，协程的最大优势在于其“轻量级”，可以轻松创建上百万个而不会导致系统资源衰竭，而线程和进程通常最多也不能超过1万个。这也是协程也叫轻量级线程的原因。<br>多数语言在语法层面并不直接支持协程，而是通过库的方式支持，但用库的方式支持的功能也并不完整，比如仅仅提供轻量级线程的创建、销毁与切换等能力。如果在这样的轻量级线程中调用一个同步IO 操作，比如网络通信、本地文件读写，都会阻塞其他的并发执行轻量级线程，从而无法真正达到轻量级线程本身期望达到的目标。<br>Go 语言在语言级别支持轻量级线程，叫goroutine。Go 语言标准库提供的所有系统调用操作（当然也包括所有同步 IO 操作），都会出让 CPU 给其他goroutine。这让事情变得非常简单，让轻量级线程的切换管理不依赖于系统的线程和进程，也不依赖于CPU的核心数量。</p>
+<h2 id="3-goroutine"><a href="#3-goroutine" class="headerlink" title="3.goroutine"></a>3.goroutine</h2><p>func Add(x, y int) {<br> z := x + y<br> fmt.Println(z)<br>} </p>
+<p>go Add(3,4)<br>在一个函数调用前加上go关键字，这次调用就会在一个新的goroutine中并发执行。当被调用<br>的函数返回时，这个goroutine也自动结束了。需要注意的是，如果这个函数有返回值，那么这个<br>返回值会被丢弃。</p>
+<blockquote>
+<p>package main<br>import “fmt”<br>func Add(x, y int) {<br>z := x + y<br>fmt.Println(z)<br>}<br>func main() {<br>for i := 0; i &lt; 10; i++ {<br>go Add(i, i)<br>}<br>}<br>上面的代码执行完成后，不会有任何的输出。为什么呢？<br>Go程序从初始化main package并执行main()函数开始，当main()函数返回时，程序退出，且程序并不等待其他goroutine（非主goroutine）结束。</p>
+</blockquote>
+<p>要让主函数等待所有goroutine退出后再返回，如何知道goroutine都退出了呢?这就引出了多个<br>goroutine之间通信的问题。</p>
+<h1 id="1-并发通信"><a href="#1-并发通信" class="headerlink" title="1.并发通信"></a>1.并发通信</h1><p>channel是Go语言在语言级别提供的goroutine间的通信方式。我们可以使用channel在两个或多个goroutine之间传递消息。channel是进程内的通信方式，因此通过channel传递对象的过程和调用函数时的参数传递行为比较一致，比如也可以传递指针等。<br>如果channel之前没有写入数据，那么从channel中读取数据也会导致程序阻塞，直到channel<br>中被写入数据为止。</p>
+<h2 id="1-1-select"><a href="#1-1-select" class="headerlink" title="1.1 select"></a>1.1 select</h2><p>通过调用select()函数来监控一系列的文件句柄，一旦其中一个文件句柄发生了IO动作，该select()调用就会被返回。后来该机制也被用于实现高并发的Socket服务器程序。Go语言直接在语言级别支持select关键字，用于处理异步IO问题。<br>每个case语句里必须是一个IO操作</p>
+<blockquote>
+<p>select {<br> case &lt;-chan1:<br> // 如果chan1成功读到数据，则进行该case处理语句<br> case chan2 &lt;- 1:<br> // 如果成功向chan2写入数据，则进行该case处理语句<br> default:<br> // 如果上面都没有成功，则进入default处理流程<br>}</p>
+</blockquote>
+<h2 id="1-2带缓冲的channel"><a href="#1-2带缓冲的channel" class="headerlink" title="1.2带缓冲的channel"></a>1.2带缓冲的channel</h2><p>要创建一个带缓冲的channel，其实非常容易：</p>
+<blockquote>
+<p>c := make(chan int, 1024)<br>上面这个例子就创建了一个大小为1024的int类型channel，即使没有读取方，写入方也可以一直往channel里写入，在缓冲区被填完之前都不会阻塞。</p>
+</blockquote>
+<p>从带缓冲的channel中读取数据可以使用与常规非缓冲channel完全一致的方法，但我们也可<br>以使用range关键来实现更为简便的循环读取：</p>
+<blockquote>
+<p>for i := range c {<br>  fmt.Println(“Received:”, i)<br>} </p>
+</blockquote>
+<h2 id="1-3单向channel"><a href="#1-3单向channel" class="headerlink" title="1.3单向channel"></a>1.3单向channel</h2><p>单向channel只能用于发送或者接收数据。<br>单向channel变量的声明非常简单，如下：</p>
+<blockquote>
+<p>var ch1 chan int // ch1是一个正常的channel，不是单向的<br>var ch2 chan&lt;- float64// ch2是单向channel，只用于写float64数据<br>var ch3 &lt;-chan int // ch3是单向channel，只用于读取int数据</p>
+</blockquote>
+<p>那么单向的channel如何做初始化呢？<br>channel是一个原生类型，因此不仅支持被传递，还支持类型转换。</p>
+<blockquote>
+<p>ch4 := make(chan int)<br>ch5 := &lt;-chan int(ch4) // ch5就是一个单向的读取channel<br>ch6 := chan&lt;- int(ch4) // ch6 是一个单向的写入channel</p>
+</blockquote>
+<h2 id="1-4关闭channel"><a href="#1-4关闭channel" class="headerlink" title="1.4关闭channel"></a>1.4关闭channel</h2><p>关闭channel非常简单，直接使用Go语言内置的close()函数即可：</p>
+<blockquote>
+<p>close(ch)<br>在介绍了如何关闭channel之后，我们就多了一个问题：如何判断一个channel是否已经被关闭？我们可以在读取的时候使用多重返回值的方式：<br>x, ok := &lt;-ch<br>这个用法与map中的按键获取value的过程比较类似，只需要看第二个bool返回值即可，如果返回值是false则表示ch已经被关闭。</p>
+</blockquote>
+<h1 id="2-多核并行化"><a href="#2-多核并行化" class="headerlink" title="2.多核并行化"></a>2.多核并行化</h1><p>需要了解CPU核心的数量，并针对性地分解计算任务到多个goroutine中去并行运行。<br>下面来模拟一个完全可以并行的计算任务：计算N个整型数的总和。我们可以将所有整<br>型数分成M份，M即CPU的个数。让每个CPU开始计算分给它的那份计算任务，最后将每个CPU<br>的计算结果再做一次累加，这样就可以得到所有N个整型数的总和：</p>
+<h1 id="3-同步"><a href="#3-同步" class="headerlink" title="3.同步"></a>3.同步</h1><p>Go语言包中的sync包提供了两种锁类型：sync.Mutex和sync.RWMutex。Mutex是最简单的一种锁类型，同时也比较暴力，当一个goroutine获得了Mutex后，其他goroutine就只能乖乖等到这个goroutine释放该Mutex。RWMutex相对友好些，是经典的单写多读模型。在读锁占用的情况下，会阻止写，但不阻止读，也就是多个goroutine可同时获取读锁（调用RLock()方法；而写锁（调用Lock()方法）会阻止任何其他goroutine（无论读和写）进来，整个锁相当于由该goroutine独占。从RWMutex的实现看，RWMutex类型其实组合了Mutex：</p>
+<h1 id="4-全局唯一性操作"><a href="#4-全局唯一性操作" class="headerlink" title="4.全局唯一性操作"></a>4.全局唯一性操作</h1><p>var a string<br>var once sync.Once<br>func setup() {<br> a = “hello, world”<br>}<br>func doprint() {<br> once.Do(setup)<br> print(a)<br>}<br>func twoprint() {<br> go doprint()<br> go doprint()<br>} </p>
+<p>如果这段代码没有引入Once，setup()将会被每一个goroutine先调用一次，这至少对于这个例子是多余的。在现实中，我们也经常会遇到这样的情况。Go语言标准库为我们引入了Once类型以解决这个问题。once的Do()方法可以保证在全局范围内只调用指定的函数一次（这里指setup()函数），而且所有其他goroutine在调用到此语句时，将会先被阻塞，直至全局唯一的once.Do()调用结束后才继续。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/09/13/GoLang/Go的并发机制/" data-id="ck0hncd7u008kfyxxi14irwco" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/GO/">GO</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/09/13/GoLang/Go并发编程/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          GO并发编程
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/09/13/GPU/GPU内存/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">GPU内存详解</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/GPU/">GPU</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Spark/">Spark</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/docker/">docker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/go/">go</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/golang/">golang</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/linux/">linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/node/">node</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/书中自有黄金屋/">书中自有黄金屋</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/人生苦短我用python/">人生苦短我用python</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/人生苦短我用python/linux环境配置/">linux环境配置</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/其他/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/">分布式</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/分布式共识算法/">分布式共识算法</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式基本理论/">分布式基本理论</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/">区块链</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/Hyperledger-Fabric/">Hyperledger Fabric</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/《区块链：从数字货币到信用社会》/">《区块链：从数字货币到信用社会》</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/以太坊开发/">以太坊开发</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/区块链基本原理/">区块链基本原理</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/比特币原理/">比特币原理</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/大数据/">大数据</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/工具/">工具</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/编程基础/">编程基础</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/问题记录/">问题记录</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ACID/">ACID</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CAP/">CAP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ECDSA/">ECDSA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GO/">GO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GPU/">GPU</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Hyperledger-Fabric/">Hyperledger Fabric</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PBFT/">PBFT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spark/">Spark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blockchain/">blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/c/">c++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/centos/">centos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/centos7/">centos7</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cuda/">cuda</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dockerfile/">dockerfile</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/eos/">eos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gas/">gas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go/">go</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hadoop/">hadoop</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hyperledger-fabric/">hyperledger fabric</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/">js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/leveldb/">leveldb</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/node/">node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nvcc/">nvcc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/paxos/">paxos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pos/">pos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pow/">pow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python3/">python3</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spv/">spv</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/yaml/">yaml</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zab/">zab</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/以太坊/">以太坊</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式共识算法/">分布式共识算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式数据库/">分布式数据库</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式理论/">分布式理论</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/区块链/">区块链</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/地址生成/">地址生成</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/大数据/">大数据</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/密码学/">密码学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/挖矿/">挖矿</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/比特币/">比特币</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/编程基础/">编程基础</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/错误记录/">错误记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/问题记录/">问题记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/阅读/">阅读</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ACID/" style="font-size: 11.67px;">ACID</a> <a href="/tags/CAP/" style="font-size: 10px;">CAP</a> <a href="/tags/ECDSA/" style="font-size: 15px;">ECDSA</a> <a href="/tags/GO/" style="font-size: 13.33px;">GO</a> <a href="/tags/GPU/" style="font-size: 11.67px;">GPU</a> <a href="/tags/Hyperledger-Fabric/" style="font-size: 16.67px;">Hyperledger Fabric</a> <a href="/tags/PBFT/" style="font-size: 10px;">PBFT</a> <a href="/tags/Spark/" style="font-size: 10px;">Spark</a> <a href="/tags/blockchain/" style="font-size: 20px;">blockchain</a> <a href="/tags/c/" style="font-size: 11.67px;">c++</a> <a href="/tags/centos/" style="font-size: 11.67px;">centos</a> <a href="/tags/centos7/" style="font-size: 15px;">centos7</a> <a href="/tags/cuda/" style="font-size: 10px;">cuda</a> <a href="/tags/docker/" style="font-size: 18.33px;">docker</a> <a href="/tags/dockerfile/" style="font-size: 11.67px;">dockerfile</a> <a href="/tags/eos/" style="font-size: 10px;">eos</a> <a href="/tags/gas/" style="font-size: 10px;">gas</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/go/" style="font-size: 15px;">go</a> <a href="/tags/hadoop/" style="font-size: 10px;">hadoop</a> <a href="/tags/hyperledger-fabric/" style="font-size: 10px;">hyperledger fabric</a> <a href="/tags/js/" style="font-size: 10px;">js</a> <a href="/tags/leveldb/" style="font-size: 10px;">leveldb</a> <a href="/tags/linux/" style="font-size: 13.33px;">linux</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/node/" style="font-size: 10px;">node</a> <a href="/tags/nvcc/" style="font-size: 10px;">nvcc</a> <a href="/tags/paxos/" style="font-size: 10px;">paxos</a> <a href="/tags/pos/" style="font-size: 10px;">pos</a> <a href="/tags/pow/" style="font-size: 10px;">pow</a> <a href="/tags/python/" style="font-size: 13.33px;">python</a> <a href="/tags/python3/" style="font-size: 15px;">python3</a> <a href="/tags/spv/" style="font-size: 11.67px;">spv</a> <a href="/tags/yaml/" style="font-size: 10px;">yaml</a> <a href="/tags/zab/" style="font-size: 10px;">zab</a> <a href="/tags/以太坊/" style="font-size: 10px;">以太坊</a> <a href="/tags/分布式共识算法/" style="font-size: 15px;">分布式共识算法</a> <a href="/tags/分布式数据库/" style="font-size: 10px;">分布式数据库</a> <a href="/tags/分布式理论/" style="font-size: 13.33px;">分布式理论</a> <a href="/tags/区块链/" style="font-size: 11.67px;">区块链</a> <a href="/tags/地址生成/" style="font-size: 10px;">地址生成</a> <a href="/tags/大数据/" style="font-size: 11.67px;">大数据</a> <a href="/tags/密码学/" style="font-size: 10px;">密码学</a> <a href="/tags/挖矿/" style="font-size: 10px;">挖矿</a> <a href="/tags/比特币/" style="font-size: 11.67px;">比特币</a> <a href="/tags/编程基础/" style="font-size: 11.67px;">编程基础</a> <a href="/tags/错误记录/" style="font-size: 10px;">错误记录</a> <a href="/tags/问题记录/" style="font-size: 10px;">问题记录</a> <a href="/tags/阅读/" style="font-size: 11.67px;">阅读</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">December 2017</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/09/13/玩转linux/linux使用/">linux使用</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/13/区块链/比特币原理/比特币交易脚本及交易数据(二)/">比特币交易脚本及交易数据(二)</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/13/编程基础/c++面向对象/">C++面向对象</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/13/编程基础/c++基础/">C++基础</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/13/区块链/比特币原理/比特币交易脚本及交易数据(一)/">比特币交易脚本及交易数据(一)</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

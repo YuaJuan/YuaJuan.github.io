@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>GOLang基础（三）---面向对象编程 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="参考书籍:书籍《go语言编程》 在Java语言中，存在两套完全独立的类型系统：一套是值类型系统，主要是基本类型，如byte、int、boolean、char、double等，这些类型基于值语义；一套是以Object类型为根的对象类型系统，这些类型可以定义成员变量和成员方法，可以有虚函数，基于引用语义，只允许在堆上创建（通过使用关键字new）。Java语言中的Any类型就是整个对象类型系统的根——j">
+<meta name="keywords" content="go">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GOLang基础（三）---面向对象编程">
+<meta property="og:url" content="http://yoursite.com/2019/09/13/GoLang/GOLang基础（三）---面向对象编程/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="参考书籍:书籍《go语言编程》 在Java语言中，存在两套完全独立的类型系统：一套是值类型系统，主要是基本类型，如byte、int、boolean、char、double等，这些类型基于值语义；一套是以Object类型为根的对象类型系统，这些类型可以定义成员变量和成员方法，可以有虚函数，基于引用语义，只允许在堆上创建（通过使用关键字new）。Java语言中的Any类型就是整个对象类型系统的根——j">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2019-03-03T11:43:14.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="GOLang基础（三）---面向对象编程">
+<meta name="twitter:description" content="参考书籍:书籍《go语言编程》 在Java语言中，存在两套完全独立的类型系统：一套是值类型系统，主要是基本类型，如byte、int、boolean、char、double等，这些类型基于值语义；一套是以Object类型为根的对象类型系统，这些类型可以定义成员变量和成员方法，可以有虚函数，基于引用语义，只允许在堆上创建（通过使用关键字new）。Java语言中的Any类型就是整个对象类型系统的根——j">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-GoLang/GOLang基础（三）---面向对象编程" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/09/13/GoLang/GOLang基础（三）---面向对象编程/" class="article-date">
+  <time datetime="2019-09-13T04:49:44.000Z" itemprop="datePublished">2019-09-13</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Go/">Go</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      GOLang基础（三）---面向对象编程
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>参考书籍:书籍《go语言编程》</p>
+<p>在Java语言中，存在两套完全独立的类型系统：一套是值类型系统，主要是基本类型，如byte、int、boolean、char、double等，这些类型基于值语义；一套是以Object类型为根的对象类型系统，这些类型可以定义成员变量和成员方法，可以有虚函数，基于引用语义，只允许在堆上创建（通过使用关键字new）。Java语言中的Any类型就是整个对象类型系统的根——java.lang.Object类型，只有对象类型系统中的实例才可以被Any类型引用。值类型想要被Any类型引用，需要装箱（boxing）过程，比如int类型需要装箱成为Integer类型。另外，只有对象类型系统中的类型才可以实现接口，具体方法是让该类型从要实现的接口继承。</p>
+<a id="more"></a>
+<p>相比之下，Go语言中的大多数类型都是值语义，并且都可以包含对应的操作方法。在需要<br>的时候，你可以给任何类型（包括内置类型）“增加”新方法。而在实现某个接口时，无需从<br>该接口继承（事实上，Go语言根本就不支持面向对象思想中的继承语法），只需要实现该接口<br>要求的所有方法即可。任何类型都可以被Any类型引用。Any类型就是空接口，即interface{}。<br>在Go语言中，可以给任意类型（包括内置类型，但不包括指针类型）添加相应的方法<br>例如：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Integer <span class="keyword">int</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(a Integer)</span> <span class="title">Less</span><span class="params">(b Interger)</span> <span class="title">bool</span></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> a&lt;b</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样实现了Integer后，就可以让整型像一个普通的类一样使用：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123; </span><br><span class="line">	<span class="keyword">var</span> a Integer = <span class="number">1</span> </span><br><span class="line">	<span class="keyword">if</span> a.Less(<span class="number">2</span>) &#123; </span><br><span class="line">	fmt.Println(a, <span class="string">"Less 2"</span>) </span><br><span class="line">	&#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看出，面向对象只是换了一种语法形式来表达。C++语言的面向对象之所以让有些人迷惑的一大原因就在于其隐藏的this指针。一旦把隐藏的this指针显露出来，大家看到的就是一个面向过程编程。感兴趣的读者可以去查阅《深度探索C++对象模型》这本书，看看C++语言是如何对应到C语言的。而Java和C#其实都是遵循着C++语言的惯例而设计的，它们的成员方法中都带有一个隐藏的this指针。如果读者了解Python语法，就会知道Python的成员方法中会有一个self参数，它和this指针的作用是完全一样的</p>
+<p>如果要求对象必须以指针传递，这有时会是个额外成本，因为对象有时很小（比如4字节），用指针传递并不划算。<br>只有在你需要修改对象的时候，才必须用指针。它不是Go语言的约束，而是一种自然约束。<br>举个例子：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(a *Integer)</span> <span class="title">Add</span><span class="params">(b Integer)</span></span>&#123;</span><br><span class="line">	*a+=b</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+<p>由于Add()方法需要修改对象的值，所以需要用指<br>针引用。调用如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">	<span class="keyword">var</span> a Interger=<span class="number">1</span></span><br><span class="line">	a.Add(<span class="number">2</span>)</span><br><span class="line">	fmt.Println(a)<span class="comment">//值为3</span></span><br></pre></td></tr></table></figure>
+
+<p>如果不用指针，那么a的值不会改变，原因就在于Go语言和C语言一样，类型都是基于值传递的。要想修改变量，智能传递指针。</p>
+<p>http包中关于HTTP头部信息的Header类型（参见<br>$GOROOT/src/pkg/http/header.go）就是通过Go内置的map类型赋予新的语义来实现的。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Header <span class="keyword">map</span>[<span class="keyword">string</span>][]<span class="keyword">string</span></span><br><span class="line"><span class="comment">// Add()方法用于添加一个键值对到HTTP头部</span></span><br><span class="line"><span class="comment">// 如果该键已存在，则会将值添加到已存在的值后面</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(h Header)</span> <span class="title">Add</span><span class="params">(key, value <span class="keyword">string</span>)</span></span> &#123; </span><br><span class="line"> textproto.MIMEHeader(h).Add(key, value) </span><br><span class="line">&#125; </span><br><span class="line"><span class="comment">// Set()方法用于设置某个键对应的值，如果该键已存在，则替换已存在的值</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(h Header)</span> <span class="title">Set</span><span class="params">(key, value <span class="keyword">string</span>)</span></span> &#123; </span><br><span class="line"> textproto.MIMEHeader(h).Set(key, value) </span><br><span class="line">&#125; </span><br><span class="line"><span class="comment">// 还有更多其他方法</span></span><br></pre></td></tr></table></figure>
+
+<p>Header类型其实就是一个map，但通过为map起一个Header别名并增加了一系列方法，它就变成了一个全新的类型，但这个新类型又完全拥有map的功能。</p>
+<p><strong>值语义和引用语义</strong><br>值语义和引用语义的差别在于赋值，比如下面的例子：<br>b = a<br>b.Modify()<br>如果b的修改不会影响a的值，那么此类型属于值类型。如果会影响a的值，那么此类型是引用类型。<br>Go语言中的大多数类型都基于值语义，包括：</p>
+<blockquote>
+<p>基本类型，如byte、int、bool、float32、float64和string等；<br>复合类型，如数组（array）、结构体（struct）和指针（pointer）等。</p>
+</blockquote>
+<p>C语言中的数组比较特别。通过函数传递一个数组的时候基于引用语义，但是在结构体中定义数组变量的时候基于值语义（表现在为结构体赋值的时候，该数组会被完整地复制）。</p>
+<p>GO中的四种类型看起来比较像引用类型</p>
+<blockquote>
+<ol>
+<li>数组切片：实际是指向数组（array）的一个区间</li>
+<li>map：及其常见的数据结构，提供键值查询能力</li>
+<li>channel:执行体间的通信设施</li>
+<li>接口(interface):对一组满足某个契约的类型的抽象</li>
+</ol>
+</blockquote>
+<p>数组切片本质上是一个区间，可以大致将[]T表示为：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> slice <span class="keyword">struct</span> &#123; </span><br><span class="line">	first *T </span><br><span class="line"> 	<span class="built_in">len</span> <span class="keyword">int</span> </span><br><span class="line"> 	<span class="built_in">cap</span> <span class="keyword">int</span> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>因为数组切片内部是指向数组的指针，所以可以改变所指向的数组元素并不奇怪。<br>map本质上是一个字典指针，你可以大致将map[K]V表示为：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Map_K_V <span class="keyword">struct</span> &#123; </span><br><span class="line"> <span class="comment">// ... </span></span><br><span class="line">&#125; </span><br><span class="line"><span class="keyword">type</span> <span class="keyword">map</span>[K]V <span class="keyword">struct</span> &#123; </span><br><span class="line"> 	impl *Map_K_V </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在Go语言中，未进行显式初始化的变量都会被初始化为该类型的零值，例如bool类型的零值为false，int类型的零值为0，string类型的零值为空字符串。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/09/13/GoLang/GOLang基础（三）---面向对象编程/" data-id="ck0hncd5s000pfyxxw134ik4c" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/go/">go</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/09/13/node/node使用遇到的问题/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          node使用遇到的问题
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/09/13/GoLang/GoLang基础（一）---变量/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">GOLang基础（一）---变量.md</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/GPU/">GPU</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Spark/">Spark</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/docker/">docker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/go/">go</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/golang/">golang</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/linux/">linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/node/">node</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/书中自有黄金屋/">书中自有黄金屋</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/人生苦短我用python/">人生苦短我用python</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/人生苦短我用python/linux环境配置/">linux环境配置</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/其他/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/">分布式</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/分布式共识算法/">分布式共识算法</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式基本理论/">分布式基本理论</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/">区块链</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/Hyperledger-Fabric/">Hyperledger Fabric</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/《区块链：从数字货币到信用社会》/">《区块链：从数字货币到信用社会》</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/以太坊开发/">以太坊开发</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/区块链基本原理/">区块链基本原理</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/比特币原理/">比特币原理</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/大数据/">大数据</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/工具/">工具</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/编程基础/">编程基础</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/问题记录/">问题记录</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ACID/">ACID</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CAP/">CAP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ECDSA/">ECDSA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GO/">GO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GPU/">GPU</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Hyperledger-Fabric/">Hyperledger Fabric</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PBFT/">PBFT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spark/">Spark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blockchain/">blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/c/">c++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/centos/">centos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/centos7/">centos7</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cuda/">cuda</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dockerfile/">dockerfile</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/eos/">eos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gas/">gas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go/">go</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hadoop/">hadoop</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hyperledger-fabric/">hyperledger fabric</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/">js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/leveldb/">leveldb</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/node/">node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nvcc/">nvcc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/paxos/">paxos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pos/">pos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pow/">pow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python3/">python3</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spv/">spv</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/yaml/">yaml</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zab/">zab</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/以太坊/">以太坊</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式共识算法/">分布式共识算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式数据库/">分布式数据库</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式理论/">分布式理论</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/区块链/">区块链</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/地址生成/">地址生成</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/大数据/">大数据</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/密码学/">密码学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/挖矿/">挖矿</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/比特币/">比特币</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/编程基础/">编程基础</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/错误记录/">错误记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/问题记录/">问题记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/阅读/">阅读</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ACID/" style="font-size: 11.67px;">ACID</a> <a href="/tags/CAP/" style="font-size: 10px;">CAP</a> <a href="/tags/ECDSA/" style="font-size: 15px;">ECDSA</a> <a href="/tags/GO/" style="font-size: 13.33px;">GO</a> <a href="/tags/GPU/" style="font-size: 11.67px;">GPU</a> <a href="/tags/Hyperledger-Fabric/" style="font-size: 16.67px;">Hyperledger Fabric</a> <a href="/tags/PBFT/" style="font-size: 10px;">PBFT</a> <a href="/tags/Spark/" style="font-size: 10px;">Spark</a> <a href="/tags/blockchain/" style="font-size: 20px;">blockchain</a> <a href="/tags/c/" style="font-size: 11.67px;">c++</a> <a href="/tags/centos/" style="font-size: 11.67px;">centos</a> <a href="/tags/centos7/" style="font-size: 15px;">centos7</a> <a href="/tags/cuda/" style="font-size: 10px;">cuda</a> <a href="/tags/docker/" style="font-size: 18.33px;">docker</a> <a href="/tags/dockerfile/" style="font-size: 11.67px;">dockerfile</a> <a href="/tags/eos/" style="font-size: 10px;">eos</a> <a href="/tags/gas/" style="font-size: 10px;">gas</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/go/" style="font-size: 15px;">go</a> <a href="/tags/hadoop/" style="font-size: 10px;">hadoop</a> <a href="/tags/hyperledger-fabric/" style="font-size: 10px;">hyperledger fabric</a> <a href="/tags/js/" style="font-size: 10px;">js</a> <a href="/tags/leveldb/" style="font-size: 10px;">leveldb</a> <a href="/tags/linux/" style="font-size: 13.33px;">linux</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/node/" style="font-size: 10px;">node</a> <a href="/tags/nvcc/" style="font-size: 10px;">nvcc</a> <a href="/tags/paxos/" style="font-size: 10px;">paxos</a> <a href="/tags/pos/" style="font-size: 10px;">pos</a> <a href="/tags/pow/" style="font-size: 10px;">pow</a> <a href="/tags/python/" style="font-size: 13.33px;">python</a> <a href="/tags/python3/" style="font-size: 15px;">python3</a> <a href="/tags/spv/" style="font-size: 11.67px;">spv</a> <a href="/tags/yaml/" style="font-size: 10px;">yaml</a> <a href="/tags/zab/" style="font-size: 10px;">zab</a> <a href="/tags/以太坊/" style="font-size: 10px;">以太坊</a> <a href="/tags/分布式共识算法/" style="font-size: 15px;">分布式共识算法</a> <a href="/tags/分布式数据库/" style="font-size: 10px;">分布式数据库</a> <a href="/tags/分布式理论/" style="font-size: 13.33px;">分布式理论</a> <a href="/tags/区块链/" style="font-size: 11.67px;">区块链</a> <a href="/tags/地址生成/" style="font-size: 10px;">地址生成</a> <a href="/tags/大数据/" style="font-size: 11.67px;">大数据</a> <a href="/tags/密码学/" style="font-size: 10px;">密码学</a> <a href="/tags/挖矿/" style="font-size: 10px;">挖矿</a> <a href="/tags/比特币/" style="font-size: 11.67px;">比特币</a> <a href="/tags/编程基础/" style="font-size: 11.67px;">编程基础</a> <a href="/tags/错误记录/" style="font-size: 10px;">错误记录</a> <a href="/tags/问题记录/" style="font-size: 10px;">问题记录</a> <a href="/tags/阅读/" style="font-size: 11.67px;">阅读</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">December 2017</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/09/13/玩转linux/linux使用/">linux使用</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/13/区块链/比特币原理/比特币交易脚本及交易数据(二)/">比特币交易脚本及交易数据(二)</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/13/编程基础/c++面向对象/">C++面向对象</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/13/编程基础/c++基础/">C++基础</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/13/区块链/比特币原理/比特币交易脚本及交易数据(一)/">比特币交易脚本及交易数据(一)</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

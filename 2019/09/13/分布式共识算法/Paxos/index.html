@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>分布式共识算法：Paxos | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="1.paxos应用场景没有恶意节点，但可能由于网络延迟或crash导致某些节点不能正常收到消息。paxos要解决的问题是：将所有节点都写入同一个值，且被写入后不再更改。paxos需要满足的两个条件  Safety只有一个值可能被选中。 服务器永远不会知道一个值被选中，除非它真的被选中。">
+<meta name="keywords" content="blockchain,分布式共识算法,paxos">
+<meta property="og:type" content="article">
+<meta property="og:title" content="分布式共识算法：Paxos">
+<meta property="og:url" content="http://yoursite.com/2019/09/13/分布式共识算法/Paxos/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="1.paxos应用场景没有恶意节点，但可能由于网络延迟或crash导致某些节点不能正常收到消息。paxos要解决的问题是：将所有节点都写入同一个值，且被写入后不再更改。paxos需要满足的两个条件  Safety只有一个值可能被选中。 服务器永远不会知道一个值被选中，除非它真的被选中。">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://yoursite.com/2019/09/13/分布式共识算法/Paxos/paxos.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/13/分布式共识算法/Paxos/majorityAccept.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/13/分布式共识算法/Paxos/minority.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/13/分布式共识算法/Paxos/cannotSeeAccept.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/13/分布式共识算法/Paxos/livelock.png">
+<meta property="og:updated_time" content="2019-02-21T03:17:30.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="分布式共识算法：Paxos">
+<meta name="twitter:description" content="1.paxos应用场景没有恶意节点，但可能由于网络延迟或crash导致某些节点不能正常收到消息。paxos要解决的问题是：将所有节点都写入同一个值，且被写入后不再更改。paxos需要满足的两个条件  Safety只有一个值可能被选中。 服务器永远不会知道一个值被选中，除非它真的被选中。">
+<meta name="twitter:image" content="http://yoursite.com/2019/09/13/分布式共识算法/Paxos/paxos.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-分布式共识算法/Paxos" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/09/13/分布式共识算法/Paxos/" class="article-date">
+  <time datetime="2019-09-13T04:49:48.000Z" itemprop="datePublished">2019-09-13</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/分布式/">分布式</a>►<a class="article-category-link" href="/categories/分布式/分布式共识算法/">分布式共识算法</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      分布式共识算法：Paxos
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1-paxos应用场景"><a href="#1-paxos应用场景" class="headerlink" title="1.paxos应用场景"></a>1.paxos应用场景</h1><p>没有恶意节点，但可能由于网络延迟或crash导致某些节点不能正常收到消息。<br>paxos要解决的问题是：<br><strong>将所有节点都写入同一个值，且被写入后不再更改。</strong><br>paxos需要满足的两个条件</p>
+<ol>
+<li>Safety<pre><code>只有一个值可能被选中。
+服务器永远不会知道一个值被选中，除非它真的被选中。</code></pre><a id="more"></a></li>
+<li>Liveness <pre><code>一些提议的值最终有一个会被选中 。</code></pre>   如果一个值被选中，最终会被其他服务器知道 。 </li>
+</ol>
+<h1 id="2-节点种类"><a href="#2-节点种类" class="headerlink" title="2.节点种类"></a>2.节点种类</h1><ul>
+<li>proposers:提出提案，提案信息包括提案编号和提议的value</li>
+<li>acceptor:收到提案后可以接受提案，若提案获得多数派的acceptor的接受，则提案被称为被批准（chosen)</li>
+<li>learners: 只能“学习”chosen的提案</li>
+</ul>
+<p>在paxos算法中，有以下几点需要注意：</p>
+<ul>
+<li>value只有在被proposers提出后才能被批准（未被批准的决议称为“提案”proposal)</li>
+<li>在一次Paoxs算法执行实例中，只chosen一个value</li>
+<li>learners只能学习chosen的value</li>
+</ul>
+<h1 id="3-算法的基本理论"><a href="#3-算法的基本理论" class="headerlink" title="3.算法的基本理论"></a>3.算法的基本理论</h1><p>(这部分非常难以理解，可以先看后面的章节，再回过来理解这一章的内容)</p>
+<p>主要有3个约束</p>
+<blockquote>
+<p>条件1：Acceptor必须accept它接收到的第一个决议<br>条件2：如果一个提案（n,v)chosen，那么之后所有chosen的提案（编号更高）包含的value都是v。</p>
+</blockquote>
+<p>acceptor有多个，proposer向一组acceptor提出提案（提案是&lt; 编号，value &gt;对）。</p>
+<ul>
+<li>promise: Acceptor对proposer承诺，如果没有比你提出的提案的编号更大的提案，我就accpet你提出的提案</li>
+<li>accept: acceptor没有发现比之前的提案编号更大的提案，就会accept之前的提案</li>
+<li>chosen: 当多数的acceptor都accept一个提案时，那么该提案就是chosen的</li>
+</ul>
+<p><strong>条件1：Acceptor必须accept它接收到的第一个决议</strong><br>但是条件1不完备。假如有两个提案提出，一半acceptor先收到提案1然后accept了，一半acceptor先收到提案2然后accept了，无法达成多数派，就无法达成决议。<br>条件1强调了第一个提出的提案被promise。但是还未考虑第二个。<br>那么条件2还需要考虑：</p>
+<blockquote>
+<p>1.如何解决条件1中无法形成多数派的情况<br>2.第二个提案如何选择</p>
+</blockquote>
+<p><strong>条件2：如果一个提案（n,v)chosen，那么之后所有chosen的提案（编号更高）包含的value都是v。</strong><br>条件2讨论的是一旦chosen，之后的选择应该不变。<br>为了保证每次选出一个value,条件2规定在一个value被选出的情况下，如果还有其他的proposer提交value，那之前chosen的value应该跟前一个一致，就是在事实上已经选定一个value时，之后的proposer不能提出不一样的value。条件2称为“safety property ”</p>
+<p>下面的讨论都基于“If a proposal with value v is chosen”,如何保证”then every higher-numbered proposal is chosen has value v”</p>
+<p>具体实现通过逐步增强条件的方式</p>
+<blockquote>
+<p>1.对整个结果提出要求（p2)<br>2.对Acceptor提出要求(p2a)<br>3.对Proposer提出要求(p2b)<br>4.对acceptor与proposer同时提出要求(p2c)</p>
+</blockquote>
+<p>具体如下：</p>
+<blockquote>
+<p><strong>p2a:If a proposal with value v is chosen,then every higher-numbered proposal issued by any proposer  has value v</strong></p>
+</blockquote>
+<p>p2a是在限制proposer，如果对proposer有了这样的限制，那么当然acceptor的限制也能被满足，因为限制了proposer必须提交value v，也就保证了P1。</p>
+<p>但是对于p2b难以实现，因为多个proposer可以提交任意value的proposal，无法限制proposer不能提交某个value，所以需要找到与p2b等价的约束：</p>
+<blockquote>
+<p><strong>p2c:For any v and n ,if a proposal with value v and number n is issued,then there is a set S consisting of a majority of acceptors such that either :</strong><br><strong>(a)no acceptor in S has accepted any proposal numbered less than n,or</strong><br><strong>(b)v is the value of the highest-numbered proposal among all proposals numbered less than n accepted by the acceptors in S</strong></p>
+</blockquote>
+<p>结果R：“:For any v and n ,if a proposal with value v and number n is issued”<br>条件C：“then there is a set S consisting of a majority of acceptors such that either ……”</p>
+<p>如果一个编号为n的提案具有value v,要么存在一个多数派，那么他们中所有acceptor都没有accept编号小于n的提案，要么他们已经接受(accept)的所有编号小于n的提案中最大的那个提案具有value v。</p>
+<p><strong>证明：条件C满足，那么结果R成立。</strong></p>
+<ul>
+<li><p>(a)no acceptor in S has accepted any proposal numbered less than n<br>那么n是S中的第一个提案，根据条件1,必须接受，所以结果R成立。</p>
+</li>
+<li><p>(b)v is the value of the highest-numbered proposal among all proposals numbered less than n accepted by the acceptors in S</p>
+</li>
+</ul>
+<p>假设编号为n的提案具有value X被选择，肯定存在一个多数派集合C，其中每个acceptor都接受了value X,集合S中都接受了value V,因为S,C都是多数派，所以必然存在一个公共的成员集合U，即接受了X又接受V，为了保证选择的唯一性，导出矛盾从而推翻假设，证明必然有X=V。</p>
+<h1 id="4-算法描述"><a href="#4-算法描述" class="headerlink" title="4.算法描述"></a>4.算法描述</h1><p>分成两阶段进行：prepare和accept<br><strong>phase1:prepare</strong></p>
+<ol>
+<li>Proposer选择一个proposal编号n，向acceptor发送编号为n的prepare请求</li>
+<li>如果Acceptor接收到的prepare请求的编号大于它已经回应过的prepare请求，它就回应已经accept的编号最高的议案（如果有的话），并承诺不再回应任何编号小于n的议案。<br><strong>phase2:accept</strong></li>
+<li>Proposer:如果收到了多数acceptor对prepare请求（编号为n）的回应，它就像这些acceptor发送提案(n,v),其中v是所有回应中编号最高的议案的value。<br><img src="paxos.png" alt="avatar"></li>
+</ol>
+<h1 id="5-具体情况分析"><a href="#5-具体情况分析" class="headerlink" title="5.具体情况分析"></a>5.具体情况分析</h1><p>在整个paxos两阶段过程中，有三个特别重要的值 : AcceptedN,AcceptedV,MaxN。每次发起提议都会用到这三个值，并根据这三个值的不同情况做不同的判定。所以，<strong>这三个值每次产生之后都需要持久化到磁盘上</strong>。这样，才能在服务器restart或者故障情况下，能够正确的执行paxos的二阶段来保证强一致性.</p>
+<p>整个Lifecycle，每次去提交一个值(Accept)之前，需要先检查集群中大多数节点是否之前已经通过对这个值的提议。一旦有某一个节点反馈这个值之前被接受，那我们认为之前对这个值发起过提议，并被某个节点接受。因此，选择返回的提议号最大的值替换当前的值，也就是最后一次Accept的值来作为当前发起Accept 请求的值。</p>
+<p>接下来，列举几种可能出现的情况，并看看Basic Paxos 协议是如何来进行实际处理的。</p>
+<ul>
+<li><p><strong>1.如果一个提议发起之前，对应的值已经被大多数Accept，那么这个提议必须使用已经被Accept的值。</strong><br><img src="majorityAccept.png" alt="avatar"></p>
+</li>
+<li><p><strong>2.如果之前提议的值已经被部少分节点Accept，但是没有chosen。新的提议可以看到之前少部分节点Accept的值。则这个Accept的值会作为新的提议Accept请求的值。</strong><br><img src="minority.png" alt="avatar"><br>在S5发起编号为4.5的提议之后，Accept之前，S1的Accept 请求并未被大多数接受。此时，只有S3接受了S1编号为3.1的Accept 请求。在这种情况下，S5的Parepare提议返回AcceptValue为X并将X作为Accept的请求值进行提交。 </p>
+</li>
+<li><p><strong>3.如果之前的提议被部分节点Accept，但是没有chosen。且新的提议看不到之前提议的Accept的值。则新的提议的Accept的请求会使用自己的值。</strong><br><img src="cannotSeeAccept.png" alt="avatar"><br>S1的编号为3.1的Accept请求到了S3服务器，但是S3服务器接收到Accept请求后，发现已经存在其他的Prepare请求，且编号为4.5 &gt; 3.1,所以拒绝了S1的Accept的请求。所以S1收到S3返回的minProposal,发现minProposal（4.5） &gt; 3.1，所以调整自己的Proposal Number，重新发起提议。</p>
+</li>
+<li><p><strong>4.出现livelock</strong><br><img src="livelock.png" alt="avatar"><br>每次服务器接收到Accept请求后，发现有比Accept 编号大的提议已经Prepare了，所以Proposer（这里为S1,S5）不断的重新发起提议。这种情况被称之为Livelock。</p>
+<p>那么，如何避免这种情况的发生呢 ？ </p>
+<ol>
+<li>每次失败后，重新发起提议前，随机delay一段时间。</li>
+<li>通过Leader选举，只有Leader有权发起提议。 </li>
+</ol>
+</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/09/13/分布式共识算法/Paxos/" data-id="ck0hncd7w008pfyxx7s2lgtvw" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/blockchain/">blockchain</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/paxos/">paxos</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/分布式共识算法/">分布式共识算法</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/09/13/分布式共识算法/pos and pow/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          分布式共识算法：pos and pow
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/09/13/分布式共识算法/PBFT/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">分布式共识算法：PBFT</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/GPU/">GPU</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Spark/">Spark</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/docker/">docker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/go/">go</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/golang/">golang</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/linux/">linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/node/">node</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/书中自有黄金屋/">书中自有黄金屋</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/人生苦短我用python/">人生苦短我用python</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/人生苦短我用python/linux环境配置/">linux环境配置</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/其他/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/">分布式</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/分布式共识算法/">分布式共识算法</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式基本理论/">分布式基本理论</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/">区块链</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/Hyperledger-Fabric/">Hyperledger Fabric</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/《区块链：从数字货币到信用社会》/">《区块链：从数字货币到信用社会》</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/以太坊开发/">以太坊开发</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/区块链基本原理/">区块链基本原理</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/比特币原理/">比特币原理</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/大数据/">大数据</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/工具/">工具</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/编程基础/">编程基础</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/问题记录/">问题记录</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ACID/">ACID</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CAP/">CAP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ECDSA/">ECDSA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GO/">GO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GPU/">GPU</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Hyperledger-Fabric/">Hyperledger Fabric</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PBFT/">PBFT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spark/">Spark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blockchain/">blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/c/">c++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/centos/">centos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/centos7/">centos7</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cuda/">cuda</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dockerfile/">dockerfile</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/eos/">eos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gas/">gas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go/">go</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hadoop/">hadoop</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hyperledger-fabric/">hyperledger fabric</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/">js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/leveldb/">leveldb</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/node/">node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nvcc/">nvcc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/paxos/">paxos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pos/">pos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pow/">pow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python3/">python3</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spv/">spv</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/yaml/">yaml</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zab/">zab</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/以太坊/">以太坊</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式共识算法/">分布式共识算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式数据库/">分布式数据库</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式理论/">分布式理论</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/区块链/">区块链</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/地址生成/">地址生成</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/大数据/">大数据</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/密码学/">密码学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/挖矿/">挖矿</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/比特币/">比特币</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/编程基础/">编程基础</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/错误记录/">错误记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/问题记录/">问题记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/阅读/">阅读</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/ACID/" style="font-size: 11.67px;">ACID</a> <a href="/tags/CAP/" style="font-size: 10px;">CAP</a> <a href="/tags/ECDSA/" style="font-size: 15px;">ECDSA</a> <a href="/tags/GO/" style="font-size: 13.33px;">GO</a> <a href="/tags/GPU/" style="font-size: 11.67px;">GPU</a> <a href="/tags/Hyperledger-Fabric/" style="font-size: 16.67px;">Hyperledger Fabric</a> <a href="/tags/PBFT/" style="font-size: 10px;">PBFT</a> <a href="/tags/Spark/" style="font-size: 10px;">Spark</a> <a href="/tags/blockchain/" style="font-size: 20px;">blockchain</a> <a href="/tags/c/" style="font-size: 11.67px;">c++</a> <a href="/tags/centos/" style="font-size: 11.67px;">centos</a> <a href="/tags/centos7/" style="font-size: 15px;">centos7</a> <a href="/tags/cuda/" style="font-size: 10px;">cuda</a> <a href="/tags/docker/" style="font-size: 18.33px;">docker</a> <a href="/tags/dockerfile/" style="font-size: 11.67px;">dockerfile</a> <a href="/tags/eos/" style="font-size: 10px;">eos</a> <a href="/tags/gas/" style="font-size: 10px;">gas</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/go/" style="font-size: 15px;">go</a> <a href="/tags/hadoop/" style="font-size: 10px;">hadoop</a> <a href="/tags/hyperledger-fabric/" style="font-size: 10px;">hyperledger fabric</a> <a href="/tags/js/" style="font-size: 10px;">js</a> <a href="/tags/leveldb/" style="font-size: 10px;">leveldb</a> <a href="/tags/linux/" style="font-size: 13.33px;">linux</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/node/" style="font-size: 10px;">node</a> <a href="/tags/nvcc/" style="font-size: 10px;">nvcc</a> <a href="/tags/paxos/" style="font-size: 10px;">paxos</a> <a href="/tags/pos/" style="font-size: 10px;">pos</a> <a href="/tags/pow/" style="font-size: 10px;">pow</a> <a href="/tags/python/" style="font-size: 13.33px;">python</a> <a href="/tags/python3/" style="font-size: 15px;">python3</a> <a href="/tags/spv/" style="font-size: 11.67px;">spv</a> <a href="/tags/yaml/" style="font-size: 10px;">yaml</a> <a href="/tags/zab/" style="font-size: 10px;">zab</a> <a href="/tags/以太坊/" style="font-size: 10px;">以太坊</a> <a href="/tags/分布式共识算法/" style="font-size: 15px;">分布式共识算法</a> <a href="/tags/分布式数据库/" style="font-size: 10px;">分布式数据库</a> <a href="/tags/分布式理论/" style="font-size: 13.33px;">分布式理论</a> <a href="/tags/区块链/" style="font-size: 11.67px;">区块链</a> <a href="/tags/地址生成/" style="font-size: 10px;">地址生成</a> <a href="/tags/大数据/" style="font-size: 11.67px;">大数据</a> <a href="/tags/密码学/" style="font-size: 10px;">密码学</a> <a href="/tags/挖矿/" style="font-size: 10px;">挖矿</a> <a href="/tags/比特币/" style="font-size: 11.67px;">比特币</a> <a href="/tags/编程基础/" style="font-size: 11.67px;">编程基础</a> <a href="/tags/错误记录/" style="font-size: 10px;">错误记录</a> <a href="/tags/问题记录/" style="font-size: 10px;">问题记录</a> <a href="/tags/阅读/" style="font-size: 11.67px;">阅读</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">December 2017</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/09/13/玩转linux/linux使用/">linux使用</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/13/区块链/比特币原理/比特币交易脚本及交易数据(二)/">比特币交易脚本及交易数据(二)</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/13/编程基础/c++面向对象/">C++面向对象</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/13/编程基础/c++基础/">C++基础</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/13/区块链/比特币原理/比特币交易脚本及交易数据(一)/">比特币交易脚本及交易数据(一)</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>
