@@ -1,138 +1,734 @@
 <!DOCTYPE html>
-<html>
-<head><meta name="generator" content="Hexo 3.9.0">
-  <meta charset="utf-8">
-  
 
-  
-  <title>Hexo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.4.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: 'Copy',
+      copy_success: 'Copied',
+      copy_failure: 'Copy failed'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
   <meta property="og:type" content="website">
-<meta property="og:title" content="Hexo">
-<meta property="og:url" content="http://yoursite.com/index.html">
-<meta property="og:site_name" content="Hexo">
+<meta property="og:title" content="发现问题并解决问题">
+<meta property="og:url" content="https://yuajuan.github.io/index.html">
+<meta property="og:site_name" content="发现问题并解决问题">
 <meta property="og:locale" content="en">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Hexo">
+<meta name="twitter:title" content="发现问题并解决问题">
+  <link rel="canonical" href="https://yuajuan.github.io/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: true,
+    isPost: false,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>发现问题并解决问题</title>
   
-    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
-  
-  
-    <link rel="icon" href="/favicon.png">
-  
-  
-    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
-  
-  <link rel="stylesheet" href="/css/style.css">
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
 </head>
-</html>
-<body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/" id="logo">Hexo</a>
-      </h1>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">发现问题并解决问题</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">心之所向，不慌不忙</p>
       
-    </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"></a>
-        
-          <a class="main-nav-link" href="/">Home</a>
-        
-          <a class="main-nav-link" href="/archives">Archives</a>
-        
-      </nav>
-      <nav id="sub-nav">
-        
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
-        
-        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
-      </div>
-    </div>
-  </div>
-</header>
-      <div class="outer">
-        <section id="main">
-  
-    <article id="post-玩转linux/linux使用" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/09/13/玩转linux/linux使用/" class="article-date">
-  <time datetime="2019-09-13T04:50:00.000Z" itemprop="datePublished">2019-09-13</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/linux/">linux</a>
   </div>
 
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
   </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/09/13/玩转linux/linux使用/">linux使用</a>
-    </h1>
-  
+</div>
 
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-about">
+      
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>About</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>Tags</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>Categories</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-commonweal">
+      
+    
+
+    <a href="/404/" rel="section"><i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br>Commonweal 404</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+  <div id="posts" class="posts-expand">
+        <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block home">
+    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/10/10/分布式论文阅读/GFS/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="阿娟">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="发现问题并解决问题">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+            
+            <a href="/2019/10/10/分布式论文阅读/GFS/" class="post-title-link" itemprop="url">The google File System 论文理解</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              
+                
+              
+
+              <time title="Created: 2019-10-10 15:08:00 / Modified: 16:00:38" itemprop="dateCreated datePublished" datetime="2019-10-10T15:08:00+08:00">2019-10-10</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/分布式基本理论/" itemprop="url" rel="index"><span itemprop="name">分布式基本理论</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
       </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p><strong>cpu个数:</strong><br>cat /proc/cpuinfo | grep name | cut -f2 -d: | uniq -c</p>
-<p><strong>cpu核心数:</strong><br>cat /proc/cpuinfo| grep “physical id”| sort| uniq| wc -l</p>
 
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="1-设计上的考虑"><a href="#1-设计上的考虑" class="headerlink" title="1. 设计上的考虑"></a>1. 设计上的考虑</h1><ul>
+<li>1.1 组件失败是常见的</li>
+<li>1.2 文件很大<blockquote>
+<p>文件很大且都包含很很多application的数据。直接管理成百上&gt; 千kb大小的文件并不明知。所以采用block的方式来管理。</p>
+</blockquote>
+</li>
+<li>1.3 多数应用场景是append 数据，而不是重写已有的数据</li>
+<li>1.4合作设计application以及file system api有利于整个系统<blockquote>
+<p>为了简化系统牺牲了一定的一致性。<br>设计了原子的append操作所以application可以同时进行append.</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="2-设计概述"><a href="#2-设计概述" class="headerlink" title="2.设计概述"></a>2.设计概述</h1><h2 id="2-1-Assumptions"><a href="#2-1-Assumptions" class="headerlink" title="2.1 Assumptions"></a>2.1 Assumptions</h2><ul>
+<li>系统由一些便宜的组件构成，这些组件容易出现failure.所以必须持续地监控，detect,容错，恢复。</li>
+<li>Multi-GB files是常见的情况，应该被高效地管理。小文件也支持，但是不做优化。</li>
+<li>read主要有两种：<ul>
+<li>large streaming reads</li>
+<li>small random reads</li>
+</ul>
+</li>
+<li>大量序列的append数据到文件的写操作,小量任意的写操作也支持，但不提供优化。</li>
+<li>高效处理client同时append数据到同一文件。</li>
+<li>高带宽比低延迟更加重要。</li>
+</ul>
+<h2 id="2-2-Interface"><a href="#2-2-Interface" class="headerlink" title="2.2 Interface"></a>2.2 Interface</h2><p>支持常见的create,delete,open,close,read,wrtie files.还支持snapshot,以及record append操作。</p>
+<h2 id="2-3-架构设计"><a href="#2-3-架构设计" class="headerlink" title="2.3 架构设计"></a>2.3 架构设计</h2><ul>
+<li>一个master和多个chunkServers.</li>
+<li>master维护所有系统文件的元数据。</li>
+<li>为了可靠性，一个chunk会复制多份，默认复制3份。</li>
+<li>master用心跳来与server交流，收集他们的状态。</li>
+<li>client通过与master通信，获取元数据。和数据相关的操作，client则直接与chunkServers通信。</li>
+<li>文件被分成固定大小的chunk来存储。<blockquote>
+<p>client是chunkserver都不需要缓存数据</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="2-4-Single-Master"><a href="#2-4-Single-Master" class="headerlink" title="2.4 Single Master"></a>2.4 Single Master</h2><p>只有一个master大大地简化了设计。</p>
+<p>client从master那儿得到应该到哪个chunkserver上获取数据，然后client直接与chunkserver交互。</p>
+<p>注意需要最小化master的读写，避免master成为性能瓶颈。<br><img src="/.io//gfs-architecture.jpg" alt="avatar"></p>
+
+        
       
     </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/09/13/玩转linux/linux使用/" data-id="ck0hncd6s003ifyxxbumv1ehw" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/linux/">linux</a></li></ul>
 
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-区块链/比特币原理/比特币交易脚本及交易数据(二)" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/09/13/区块链/比特币原理/比特币交易脚本及交易数据(二)/" class="article-date">
-  <time datetime="2019-09-13T04:50:00.000Z" itemprop="datePublished">2019-09-13</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/区块链/">区块链</a>►<a class="article-category-link" href="/categories/区块链/比特币原理/">比特币原理</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
     
     
-      <header class="article-header">
+    
+      <footer class="post-footer">
+          <div class="post-eof"></div>
         
+      </footer>
+  </div>
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/09/13/区块链/比特币原理/比特币交易脚本及交易数据(二)/">比特币交易脚本及交易数据(二)</a>
-    </h1>
   
+  
+  </article>
 
-      </header>
     
-    <div class="article-entry" itemprop="articleBody">
+        <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block home">
+    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/09/21/编程基础/go/go-rpc/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="阿娟">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="发现问题并解决问题">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+            
+            <a href="/2019/09/21/编程基础/go/go-rpc/" class="post-title-link" itemprop="url">Untitled</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              
+                
+              
+
+              <time title="Created: 2019-09-21 19:59:48 / Modified: 21:55:59" itemprop="dateCreated datePublished" datetime="2019-09-21T19:59:48+08:00">2019-09-21</time>
+            </span>
+          
+            
+
+            
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
-        <h1 id="1-比特币交易的数据结构"><a href="#1-比特币交易的数据结构" class="headerlink" title="1. 比特币交易的数据结构"></a>1. 比特币交易的数据结构</h1><h2 id="1-1比特币区块的结构"><a href="#1-1比特币区块的结构" class="headerlink" title="1.1比特币区块的结构"></a>1.1比特币区块的结构</h2><p>每个区块包含5个结构：none,区块大小，区块头信息，交易数据，交易详情</p>
+          
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+          <div class="post-eof"></div>
+        
+      </footer>
+  </div>
+  
+  
+  
+  </article>
+
+    
+        <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block home">
+    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/09/21/编程基础/c++/c++面向对象/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="阿娟">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="发现问题并解决问题">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+            
+            <a href="/2019/09/21/编程基础/c++/c++面向对象/" class="post-title-link" itemprop="url">C++面向对象</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              
+                
+              
+
+              <time title="Created: 2019-09-21 19:40:49" itemprop="dateCreated datePublished" datetime="2019-09-21T19:40:49+08:00">2019-09-21</time>
+            </span>
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/编程基础/" itemprop="url" rel="index"><span itemprop="name">编程基础</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <blockquote>
+<p>类的基本思想是数据抽象和封装。</p>
+<p>数据抽象是一种依赖于接口和实现分离的编程技术。类的接口包括用户所能执行的操作；类的实现则包括类的数据成员，负责接口实现的函数以及定义类所需的各种私有函数。</p>
+<p>封装后的类隐藏了它的实现细节，类的用户只能使用接口而无法访问实现部分.</p>
+</blockquote>
+<h2 id="类的声明"><a href="#类的声明" class="headerlink" title="类的声明"></a>类的声明</h2><p>就像把可以把函数的声明和定义分开来一样，我们也可以仅声明类而不去定义它。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">screen</span>;</span></span><br></pre></td></tr></table></figure>
+
+<p>这种声明有时被称作前向声明。它向程序中引用了名字screen并且指明它是一种类类型。scree在声明之后定义之前属于不完全类型。<br>对于一个类类型来说，在创建它的对象之前必须要先定义它。因为之后定义之后，编译器才能知道这个类应该分配的空间大小。</p>
+<p>但是类允许包含只想它自身类型的引用或者指针；</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">screen</span>&#123;</span></span><br><span class="line">    screen *next;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="const成员函数"><a href="#const成员函数" class="headerlink" title="const成员函数"></a>const成员函数</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="function"><span class="built_in">string</span> <span class="title">isbn</span><span class="params">()</span> <span class="title">const</span><span class="params">(<span class="keyword">return</span> <span class="keyword">this</span>-&gt;bookNo)</span></span></span><br></pre></td></tr></table></figure>
+
+<p>如上即是一个const成员函数。表示this是一个常量指针。<br>这样的函数可以访问访问所有成员变量，但不能修改他们的值。</p>
+<h2 id="友元"><a href="#友元" class="headerlink" title="友元"></a>友元</h2><p>如果想要访问类的私有成员或私有成员函数，那么需要将访问它的类或者函数声明为友元。</p>
+<p>友元的定义需要在类内部<br>一般来说在类的开头或者结尾来声明友元</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Sales_data</span>&#123;</span></span><br><span class="line">    <span class="comment">//友元声明</span></span><br><span class="line">    <span class="function"><span class="keyword">friend</span> Sales_data <span class="title">add</span><span class="params">(Sales_data &amp;i,Sales_data &amp;j)</span></span>;</span><br><span class="line">    <span class="keyword">friend</span> <span class="built_in">std</span>::<span class="function">istream &amp;<span class="title">read</span><span class="params">(<span class="built_in">std</span>::istream&amp;,Sales_data&amp;)</span></span>;</span><br><span class="line">    <span class="comment">//类的成员及函数定义</span></span><br><span class="line">    <span class="comment">//........</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//在类中的友元声明仅仅是说明访问权限</span></span><br><span class="line"><span class="comment">//还需要在类外真正地声明友元</span></span><br><span class="line"><span class="comment">//通常需要把这些函数的声明和类的声明放在同一个头文件中</span></span><br><span class="line"><span class="function"><span class="keyword">friend</span> Sales_data <span class="title">add</span><span class="params">(Sales_data &amp;i,Sales_data &amp;j)</span></span>;</span><br><span class="line"><span class="keyword">friend</span> <span class="built_in">std</span>::<span class="function">istream &amp;<span class="title">read</span><span class="params">(<span class="built_in">std</span>::istream&amp;,Sales_data&amp;)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p><strong>类友元</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">srceen</span>&#123;</span></span><br><span class="line">    <span class="keyword">friend</span> <span class="class"><span class="keyword">class</span> <span class="title">window_mgr</span>;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>window_mgr类作为srceen的友元类，那么window_mgr的成员函数也可以访问screen的所有成员,包括私有的。</p>
+<p><strong>令成员函数为友元</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">srceen</span>&#123;</span></span><br><span class="line">    <span class="keyword">friend</span> window_mgr::clear(<span class="keyword">char</span> *c);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>将window_mgr的成员函数clear作为友元，那么只有这个clear函数有权访问windwo_mgr的私有成员。</p>
+<h2 id="返回-this的成员函数"><a href="#返回-this的成员函数" class="headerlink" title="返回*this的成员函数"></a>返回*this的成员函数</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">screen</span>&#123;</span></span><br><span class="line">    <span class="keyword">private</span>:</span><br><span class="line">        <span class="keyword">int</span> x=<span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> y=<span class="number">0</span>;</span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        screen(<span class="keyword">int</span> x, <span class="keyword">int</span> y);</span><br><span class="line">        <span class="function">screen &amp;<span class="title">movex</span><span class="params">(<span class="keyword">int</span> m)</span></span>;</span><br><span class="line">        <span class="function">screen <span class="title">movey</span><span class="params">(<span class="keyword">int</span> m)</span></span>;</span><br><span class="line">        <span class="function"><span class="keyword">inline</span> <span class="keyword">int</span> <span class="title">getx</span><span class="params">()</span></span>&#123;  <span class="keyword">return</span> x;   &#125;</span><br><span class="line">        <span class="function"><span class="keyword">inline</span> <span class="keyword">int</span> <span class="title">gety</span><span class="params">()</span></span>&#123;  <span class="keyword">return</span> y;   &#125; </span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">screen &amp;screen::movex(<span class="keyword">int</span> m)&#123;</span><br><span class="line">    x=x+m;</span><br><span class="line">    <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">screen screen::movey(<span class="keyword">int</span> m)&#123;</span><br><span class="line">    y=y-m;</span><br><span class="line">    <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">screen::screen(<span class="keyword">int</span> m,<span class="keyword">int</span> n)&#123;</span><br><span class="line">    x=m;</span><br><span class="line">    y=n;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> x=<span class="number">10</span>,y=<span class="number">20</span>;</span><br><span class="line">    screen scr=screen(x,y);</span><br><span class="line">    scr.movex(<span class="number">2</span>).movey(<span class="number">4</span>);</span><br><span class="line">    <span class="comment">//the value will be 16</span></span><br><span class="line">    <span class="built_in">cout</span>&lt;&lt;scr.gety()&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里的screen的成员函数movex返回的是调用movex函数对象的引用。返回引用的函数是左值的，意味着这些函数返回的是对象本身而不是对象的拷贝。</p>
+<p>如果把上面的screen &amp;movex(int m)改为screen movex(int m)，那么结果将会变为20。即scr的y值并不会改变。因为scr.movex(2).movey(4)其实相当于下面的操作：</p>
+<pre><code class="c">tmpScreen=scr.movex(<span class="number">2</span>); <span class="comment">//对返回值进行拷贝</span>
+tmpScreen.movey(<span class="number">4</span>); <span class="comment">//改变的是tmpScreen的成员变量</span></code></pre>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+          <div class="post-eof"></div>
+        
+      </footer>
+  </div>
+  
+  
+  
+  </article>
+
+    
+        <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block home">
+    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/09/13/编程基础/c++/c++基础/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="阿娟">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="发现问题并解决问题">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+            
+            <a href="/2019/09/13/编程基础/c++/c++基础/" class="post-title-link" itemprop="url">C++基础</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              
+                
+              
+
+              <time title="Created: 2019-09-13 12:50:00" itemprop="dateCreated datePublished" datetime="2019-09-13T12:50:00+08:00">2019-09-13</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2019-09-21 19:39:39" itemprop="dateModified" datetime="2019-09-21T19:39:39+08:00">2019-09-21</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/编程基础/" itemprop="url" rel="index"><span itemprop="name">编程基础</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>在大多数系统中，main返回的值被用来指示特定状态。返回0表示成功，非0的返回值的含义由系统定义，通常用来指出错误类型。</p>
+<p>集成开发环境（Integrated Development Environment)IDE，将编译器与其他程序创建和分析工具包装在一起。</p>
+<h2 id="输入输出"><a href="#输入输出" class="headerlink" title="输入输出"></a>输入输出</h2><p>C++没有定义任何的输入输出语句，取而代之的是一个全面的标准库来提供IO机制。<br>标准输入输出对象：cin cout cerr clog</p>
+<p>std::cout&lt;&lt;”enter some thing”&lt;&lt;std::endl;</p>
+<p>endl是一个操纵符。写入的效果是结束当前行，并将与设备关联的缓冲区中的内容刷到设备中。<br>缓存刷新操作可以保证到目前为止程序所产生的所有输出都真正写入到输出流中，而不是仅仅停留内存中等待写入流。</p>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/2019/09/13/编程基础/c++/c++基础/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+          <div class="post-eof"></div>
+        
+      </footer>
+  </div>
+  
+  
+  
+  </article>
+
+    
+        <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block home">
+    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/09/13/区块链/比特币原理/比特币交易脚本及交易数据(二)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="阿娟">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="发现问题并解决问题">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+            
+            <a href="/2019/09/13/区块链/比特币原理/比特币交易脚本及交易数据(二)/" class="post-title-link" itemprop="url">比特币交易脚本及交易数据(二)</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              
+                
+              
+
+              <time title="Created: 2019-09-13 12:50:00" itemprop="dateCreated datePublished" datetime="2019-09-13T12:50:00+08:00">2019-09-13</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2019-02-23 08:48:34" itemprop="dateModified" datetime="2019-02-23T08:48:34+08:00">2019-02-23</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/区块链/" itemprop="url" rel="index"><span itemprop="name">区块链</span></a></span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/区块链/比特币原理/" itemprop="url" rel="index"><span itemprop="name">比特币原理</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="1-比特币交易的数据结构"><a href="#1-比特币交易的数据结构" class="headerlink" title="1. 比特币交易的数据结构"></a>1. 比特币交易的数据结构</h1><h2 id="1-1比特币区块的结构"><a href="#1-1比特币区块的结构" class="headerlink" title="1.1比特币区块的结构"></a>1.1比特币区块的结构</h2><p>每个区块包含5个结构：none,区块大小，区块头信息，交易数据，交易详情</p>
 <ol>
 <li>魔法数 <strong>什么意思？？？？</strong><br>占4个字节</li>
 </ol>
@@ -145,151 +741,327 @@
 <li><p>区块大小<br>占4个字节</p>
 </li>
 <li><p>区块头</p>
-        
-          <p class="article-more-link">
-            <a href="/2019/09/13/区块链/比特币原理/比特币交易脚本及交易数据(二)/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/09/13/区块链/比特币原理/比特币交易脚本及交易数据(二)/" data-id="ck0hncd8t00btfyxxya5nnmnn" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ECDSA/">ECDSA</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/blockchain/">blockchain</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-编程基础/c++面向对象" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/09/13/编程基础/c++面向对象/" class="article-date">
-  <time datetime="2019-09-13T04:50:00.000Z" itemprop="datePublished">2019-09-13</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/编程基础/">编程基础</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/09/13/编程基础/c++面向对象/">C++面向对象</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <blockquote>
-<p>类的基本思想是数据抽象和封装。</p>
-<p>数据抽象是一种依赖于接口和实现分离的编程技术。类的接口包括用户所能执行的操作；类的实现则包括类的数据成员，负责接口实现的函数以及定义类所需的各种私有函数。</p>
-<p>封装后的类隐藏了它的实现细节，类的用户只能使用接口而无法访问实现部分.</p>
-</blockquote>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/09/13/编程基础/c++面向对象/" data-id="ck0hncd6u003ofyxxdictt2ww" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/c/">c++</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/编程基础/">编程基础</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-编程基础/c++基础" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/09/13/编程基础/c++基础/" class="article-date">
-  <time datetime="2019-09-13T04:50:00.000Z" itemprop="datePublished">2019-09-13</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/编程基础/">编程基础</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/09/13/编程基础/c++基础/">C++基础</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>在大多数系统中，main返回的值被用来指示特定状态。返回0表示成功，非0的返回值的含义由系统定义，通常用来指出错误类型。</p>
-<p>集成开发环境（Integrated Development Environment)IDE，将编译器与其他程序创建和分析工具包装在一起。</p>
-<h2 id="输入输出"><a href="#输入输出" class="headerlink" title="输入输出"></a>输入输出</h2><p>C++没有定义任何的输入输出语句，取而代之的是一个全面的标准库来提供IO机制。<br>标准输入输出对象：cin cout cerr clog</p>
-<p>std::cout&lt;&lt;”enter some thing”&lt;&lt;std::endl;</p>
-<p>endl是一个操纵符。写入的效果是结束当前行，并将与设备关联的缓冲区中的内容刷到设备中。<br>缓存刷新操作可以保证到目前为止程序所产生的所有输出都真正写入到输出流中，而不是仅仅停留内存中等待写入流。</p>
-        
-          <p class="article-more-link">
-            <a href="/2019/09/13/编程基础/c++基础/#more">Read More</a>
-          </p>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/2019/09/13/区块链/比特币原理/比特币交易脚本及交易数据(二)/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
         
       
     </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/09/13/编程基础/c++基础/" data-id="ck0hncd8b009mfyxx1g9vir0t" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/c/">c++</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/编程基础/">编程基础</a></li></ul>
 
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-区块链/比特币原理/比特币交易脚本及交易数据(一)" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/09/13/区块链/比特币原理/比特币交易脚本及交易数据(一)/" class="article-date">
-  <time datetime="2019-09-13T04:50:00.000Z" itemprop="datePublished">2019-09-13</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/区块链/">区块链</a>►<a class="article-category-link" href="/categories/区块链/比特币原理/">比特币原理</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
     
     
-      <header class="article-header">
+    
+      <footer class="post-footer">
+          <div class="post-eof"></div>
         
+      </footer>
+  </div>
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/09/13/区块链/比特币原理/比特币交易脚本及交易数据(一)/">比特币交易脚本及交易数据(一)</a>
-    </h1>
   
+  
+  </article>
 
-      </header>
     
-    <div class="article-entry" itemprop="articleBody">
+        <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block home">
+    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/09/13/玩转linux/linux使用/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="阿娟">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="发现问题并解决问题">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+            
+            <a href="/2019/09/13/玩转linux/linux使用/" class="post-title-link" itemprop="url">linux使用</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              
+                
+              
+
+              <time title="Created: 2019-09-13 12:50:00" itemprop="dateCreated datePublished" datetime="2019-09-13T12:50:00+08:00">2019-09-13</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2019-02-21 10:30:26" itemprop="dateModified" datetime="2019-02-21T10:30:26+08:00">2019-02-21</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/linux/" itemprop="url" rel="index"><span itemprop="name">linux</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
-        <h1 id="1-比特币交易本质"><a href="#1-比特币交易本质" class="headerlink" title="1. 比特币交易本质"></a>1. 比特币交易本质</h1><blockquote>
+          <p><strong>cpu个数:</strong><br>cat /proc/cpuinfo | grep name | cut -f2 -d: | uniq -c</p>
+<p><strong>cpu核心数:</strong><br>cat /proc/cpuinfo| grep “physical id”| sort| uniq| wc -l</p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+          <div class="post-eof"></div>
+        
+      </footer>
+  </div>
+  
+  
+  
+  </article>
+
+    
+        <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block home">
+    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/09/13/区块链/比特币原理/比特币地址生成算法/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="阿娟">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="发现问题并解决问题">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+            
+            <a href="/2019/09/13/区块链/比特币原理/比特币地址生成算法/" class="post-title-link" itemprop="url">比特币地址生成算法及私钥生成算法</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              
+                
+              
+
+              <time title="Created: 2019-09-13 12:50:00" itemprop="dateCreated datePublished" datetime="2019-09-13T12:50:00+08:00">2019-09-13</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2019-02-22 17:29:50" itemprop="dateModified" datetime="2019-02-22T17:29:50+08:00">2019-02-22</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/区块链/" itemprop="url" rel="index"><span itemprop="name">区块链</span></a></span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/区块链/比特币原理/" itemprop="url" rel="index"><span itemprop="name">比特币原理</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>（注：资料来自千峰教育的区块链课程）</p>
+<h1 id="1-比特币地址的生成步骤"><a href="#1-比特币地址的生成步骤" class="headerlink" title="1. 比特币地址的生成步骤"></a>1. 比特币地址的生成步骤</h1><ol>
+<li>比特币是建立在数学加密基础上的，中本聪使用了椭圆曲线数字签名算法(ECDSA)来产生私钥及公钥</li>
+</ol>
+<p>ECC 椭圆曲线加密学</p>
+<ul>
+<li>ECDSA（Elliptic curve digital signature algorithm,椭圆曲线数字签名算法)</li>
+<li>具体来说，比特币系统中的椭圆曲线是Certicom推荐的SECP256K1算法</li>
+<li>Certicom是国际上著名的椭圆曲线密码技术公司。而SECP256K1算法由于其构造的特殊性，优化后性能比其他曲线算法提高30%
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/2019/09/13/区块链/比特币原理/比特币地址生成算法/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+          <div class="post-eof"></div>
+        
+      </footer>
+  </div>
+  
+  
+  
+  </article>
+
+    
+        <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block home">
+    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/09/13/区块链/比特币原理/比特币交易脚本及交易数据(一)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="阿娟">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="发现问题并解决问题">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+            
+            <a href="/2019/09/13/区块链/比特币原理/比特币交易脚本及交易数据(一)/" class="post-title-link" itemprop="url">比特币交易脚本及交易数据(一)</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              
+                
+              
+
+              <time title="Created: 2019-09-13 12:50:00" itemprop="dateCreated datePublished" datetime="2019-09-13T12:50:00+08:00">2019-09-13</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2019-02-22 18:42:54" itemprop="dateModified" datetime="2019-02-22T18:42:54+08:00">2019-02-22</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/区块链/" itemprop="url" rel="index"><span itemprop="name">区块链</span></a></span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/区块链/比特币原理/" itemprop="url" rel="index"><span itemprop="name">比特币原理</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="1-比特币交易本质"><a href="#1-比特币交易本质" class="headerlink" title="1. 比特币交易本质"></a>1. 比特币交易本质</h1><blockquote>
 <ul>
 <li>交易实质是包含了一组输入列表和输出列表的数据结构，也就是转账记录</li>
 <li>inputs用了追溯上一笔交易，以便明确转出者是否有权动用这笔钱，Outputs用来进行一次新的加密，加密后只有收款者才能解密并动用这笔钱</li>
@@ -299,383 +1071,408 @@
 <li>在一个交易中，锁定脚本相当于是加密难题，解锁脚本是解开锁定脚本的题解。但解锁脚本的解题是针对上一个交易输出产生的加密难题的题解。</li>
 </ul>
 </blockquote>
-        
-          <p class="article-more-link">
-            <a href="/2019/09/13/区块链/比特币原理/比特币交易脚本及交易数据(一)/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/09/13/区块链/比特币原理/比特币交易脚本及交易数据(一)/" data-id="ck0hncd8i00aefyxxhjuhfxct" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ECDSA/">ECDSA</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/blockchain/">blockchain</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-区块链/比特币原理/比特币地址生成算法" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/09/13/区块链/比特币原理/比特币地址生成算法/" class="article-date">
-  <time datetime="2019-09-13T04:50:00.000Z" itemprop="datePublished">2019-09-13</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/区块链/">区块链</a>►<a class="article-category-link" href="/categories/区块链/比特币原理/">比特币原理</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/09/13/区块链/比特币原理/比特币地址生成算法/">比特币地址生成算法及私钥生成算法</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>（注：资料来自千峰教育的区块链课程）</p>
-<h1 id="1-比特币地址的生成步骤"><a href="#1-比特币地址的生成步骤" class="headerlink" title="1. 比特币地址的生成步骤"></a>1. 比特币地址的生成步骤</h1><ol>
-<li>比特币是建立在数学加密基础上的，中本聪使用了椭圆曲线数字签名算法(ECDSA)来产生私钥及公钥</li>
-</ol>
-<p>ECC 椭圆曲线加密学</p>
-<ul>
-<li>ECDSA（Elliptic curve digital signature algorithm,椭圆曲线数字签名算法)</li>
-<li>具体来说，比特币系统中的椭圆曲线是Certicom推荐的SECP256K1算法</li>
-<li>Certicom是国际上著名的椭圆曲线密码技术公司。而SECP256K1算法由于其构造的特殊性，优化后性能比其他曲线算法提高30%
-        
-          <p class="article-more-link">
-            <a href="/2019/09/13/区块链/比特币原理/比特币地址生成算法/#more">Read More</a>
-          </p>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/2019/09/13/区块链/比特币原理/比特币交易脚本及交易数据(一)/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
         
       
     </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/09/13/区块链/比特币原理/比特币地址生成算法/" data-id="ck0hncd8j00aifyxxg1cnglhq" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/地址生成/">地址生成</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/比特币/">比特币</a></li></ul>
 
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-区块链/比特币原理/ECDSA交易签名及签名验证" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/09/13/区块链/比特币原理/ECDSA交易签名及签名验证/" class="article-date">
-  <time datetime="2019-09-13T04:49:58.000Z" itemprop="datePublished">2019-09-13</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/区块链/">区块链</a>►<a class="article-category-link" href="/categories/区块链/比特币原理/">比特币原理</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
     
     
-      <header class="article-header">
+    
+      <footer class="post-footer">
+          <div class="post-eof"></div>
         
+      </footer>
+  </div>
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/09/13/区块链/比特币原理/ECDSA交易签名及签名验证/">ECDSA交易签名及签名验证</a>
-    </h1>
   
+  
+  </article>
 
-      </header>
     
-    <div class="article-entry" itemprop="articleBody">
+        <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block home">
+    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/09/13/区块链/比特币原理/区块头/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="阿娟">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="发现问题并解决问题">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+            
+            <a href="/2019/09/13/区块链/比特币原理/区块头/" class="post-title-link" itemprop="url">区块头</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              
+                
+              
+
+              <time title="Created: 2019-09-13 12:49:58" itemprop="dateCreated datePublished" datetime="2019-09-13T12:49:58+08:00">2019-09-13</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2019-03-03 19:35:22" itemprop="dateModified" datetime="2019-03-03T19:35:22+08:00">2019-03-03</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/区块链/" itemprop="url" rel="index"><span itemprop="name">区块链</span></a></span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/区块链/比特币原理/" itemprop="url" rel="index"><span itemprop="name">比特币原理</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
-        <p>（注明：资源来自千峰教育课程内容）</p>
+          <p>version 版本号<br>hashPrevBlock前一区块的HSAH<br>hashMerkleRoot Merkle根节点HASH值<br>Time时间戳<br>Bits 当前目标HASH值<br>Nonce 随机数 </p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+          <div class="post-eof"></div>
+        
+      </footer>
+  </div>
+  
+  
+  
+  </article>
+
+    
+        <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block home">
+    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/09/13/区块链/比特币原理/ECDSA交易签名及签名验证/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="阿娟">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="发现问题并解决问题">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+            
+            <a href="/2019/09/13/区块链/比特币原理/ECDSA交易签名及签名验证/" class="post-title-link" itemprop="url">ECDSA交易签名及签名验证</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              
+                
+              
+
+              <time title="Created: 2019-09-13 12:49:58" itemprop="dateCreated datePublished" datetime="2019-09-13T12:49:58+08:00">2019-09-13</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2019-02-21 19:56:02" itemprop="dateModified" datetime="2019-02-21T19:56:02+08:00">2019-02-21</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/区块链/" itemprop="url" rel="index"><span itemprop="name">区块链</span></a></span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/区块链/比特币原理/" itemprop="url" rel="index"><span itemprop="name">比特币原理</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>（注明：资源来自千峰教育课程内容）</p>
 <h1 id="1-签名序列号-DER"><a href="#1-签名序列号-DER" class="headerlink" title="1. 签名序列号(DER)"></a>1. 签名序列号(DER)</h1><p>DER (Distinguished encoding rules,可辨别编码规则)<br>椭圆曲线加密算法对数据签名可以产生两个组成的签名Sig,通常称为R和S<br>计算出R和S后，需要使用DER国家标准编码方案，将其序列化为16进制字节码格式<br>椭圆曲线的数字签名其实是R和S值得序列化字节码</p>
 <h1 id="2-签名各个数字的含义"><a href="#2-签名各个数字的含义" class="headerlink" title="2.签名各个数字的含义"></a>2.签名各个数字的含义</h1>
-        
-          <p class="article-more-link">
-            <a href="/2019/09/13/区块链/比特币原理/ECDSA交易签名及签名验证/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/09/13/区块链/比特币原理/ECDSA交易签名及签名验证/" data-id="ck0hncd8h00aafyxxttalrumu" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ECDSA/">ECDSA</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/blockchain/">blockchain</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-区块链/比特币原理/区块头" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/09/13/区块链/比特币原理/区块头/" class="article-date">
-  <time datetime="2019-09-13T04:49:58.000Z" itemprop="datePublished">2019-09-13</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/区块链/">区块链</a>►<a class="article-category-link" href="/categories/区块链/比特币原理/">比特币原理</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/09/13/区块链/比特币原理/区块头/">区块头</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>version 版本号<br>hashPrevBlock前一区块的HSAH<br>hashMerkleRoot Merkle根节点HASH值<br>Time时间戳<br>Bits 当前目标HASH值<br>Nonce 随机数 </p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/09/13/区块链/比特币原理/区块头/" data-id="ck0hncd8g00a5fyxx01qxrvh2" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ECDSA/">ECDSA</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/blockchain/">blockchain</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-区块链/以太坊开发/以太坊truffle搭建Dapp-去中心化微博" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/09/13/区块链/以太坊开发/以太坊truffle搭建Dapp-去中心化微博/" class="article-date">
-  <time datetime="2019-09-13T04:49:56.000Z" itemprop="datePublished">2019-09-13</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/区块链/">区块链</a>►<a class="article-category-link" href="/categories/区块链/以太坊开发/">以太坊开发</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/09/13/区块链/以太坊开发/以太坊truffle搭建Dapp-去中心化微博/">以太坊truffle搭建DApp-去中心化微博</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="1-创建项目"><a href="#1-创建项目" class="headerlink" title="1.创建项目"></a>1.创建项目</h1><p>我们使用的是Truffle框架<br>Truffle是一套针对基于以太坊的Solidity语言开发框架，本身基于javascript,Truffle为以太坊提供了开发环境，测试框架和资产管道(pipeline)。<br><strong>安装truffle</strong><br>npm install -g <a href="mailto:truffle@3.4.11" target="_blank" rel="noopener">truffle@3.4.11</a></p>
-<p><strong>创建并初始化项目</strong><br>mkdir eth-weibo<br>git clone <a href="http://github.com/truffle-box/bare-box" target="_blank" rel="noopener">http://github.com/truffle-box/bare-box</a></p>
-<h1 id="2-合约"><a href="#2-合约" class="headerlink" title="2.合约"></a>2.合约</h1>
-        
-          <p class="article-more-link">
-            <a href="/2019/09/13/区块链/以太坊开发/以太坊truffle搭建Dapp-去中心化微博/#more">Read More</a>
-          </p>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/2019/09/13/区块链/比特币原理/ECDSA交易签名及签名验证/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
         
       
     </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/09/13/区块链/以太坊开发/以太坊truffle搭建Dapp-去中心化微博/" data-id="ck0hncd8q00blfyxxyje816m1" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/blockchain/">blockchain</a></li></ul>
 
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-区块链/以太坊开发/以太坊源码分析/以太坊源码分析-call,callcode,delegatecall" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/09/13/区块链/以太坊开发/以太坊源码分析/以太坊源码分析-call,callcode,delegatecall/" class="article-date">
-  <time datetime="2019-09-13T04:49:56.000Z" itemprop="datePublished">2019-09-13</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/区块链/">区块链</a>►<a class="article-category-link" href="/categories/区块链/以太坊开发/">以太坊开发</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
     
     
-      <header class="article-header">
+    
+      <footer class="post-footer">
+          <div class="post-eof"></div>
         
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/09/13/区块链/以太坊开发/以太坊源码分析/以太坊源码分析-call,callcode,delegatecall/">以太坊源码分析-call,callcode,delegatecall</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="CALL-vs-CALLCODE"><a href="#CALL-vs-CALLCODE" class="headerlink" title="CALL vs. CALLCODE"></a>CALL vs. CALLCODE</h2><p>CALL和CALLCODE的区别在于：代码执行的上下文环境不同。</p>
-<p>具体来说，CALL修改的是被调用者的storage，而CALLCODE修改的是调用者的storage。</p>
-<p>实际上，可以认为DELEGATECALL是CALLCODE的一个bugfix版本，官方已经不建议使用CALLCODE了。</p>
-<p>CALLCODE和DELEGATECALL的区别在于：msg.sender不同。</p>
-<p>具体来说，DELEGATECALL会一直使用原始调用者的地址，而CALLCODE不会。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/09/13/区块链/以太坊开发/以太坊源码分析/以太坊源码分析-call,callcode,delegatecall/" data-id="ck0hncd8w00c8fyxxp9g9v5xz" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/blockchain/">blockchain</a></li></ul>
-
-    </footer>
+      </footer>
   </div>
   
-</article>
+  
+  
+  </article>
 
+    
+  </div>
 
   
-
-
-  <nav id="page-nav">
-    
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
+  <nav class="pagination">
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
   </nav>
 
-</section>
-        
-          <aside id="sidebar">
+
+          </div>
+          
+
+        </div>
+          
   
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Categories</h3>
-    <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/GPU/">GPU</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Go/">Go</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Spark/">Spark</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/docker/">docker</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/go/">go</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/golang/">golang</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/linux/">linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/node/">node</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/书中自有黄金屋/">书中自有黄金屋</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/人生苦短我用python/">人生苦短我用python</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/人生苦短我用python/linux环境配置/">linux环境配置</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/其他/">其他</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/">分布式</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/分布式共识算法/">分布式共识算法</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式基本理论/">分布式基本理论</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/">区块链</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/Hyperledger-Fabric/">Hyperledger Fabric</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/《区块链：从数字货币到信用社会》/">《区块链：从数字货币到信用社会》</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/以太坊开发/">以太坊开发</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/区块链基本原理/">区块链基本原理</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/区块链/比特币原理/">比特币原理</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/大数据/">大数据</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/工具/">工具</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/编程基础/">编程基础</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/问题记录/">问题记录</a></li></ul>
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
     </div>
   </div>
 
+  <aside class="sidebar">
+    <div class="sidebar-inner">
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tags</h3>
-    <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/ACID/">ACID</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CAP/">CAP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ECDSA/">ECDSA</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GO/">GO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GPU/">GPU</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Hyperledger-Fabric/">Hyperledger Fabric</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PBFT/">PBFT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spark/">Spark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/blockchain/">blockchain</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/c/">c++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/centos/">centos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/centos7/">centos7</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cuda/">cuda</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dockerfile/">dockerfile</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/eos/">eos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gas/">gas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/go/">go</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hadoop/">hadoop</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hyperledger-fabric/">hyperledger fabric</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/">js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/leveldb/">leveldb</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/node/">node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nvcc/">nvcc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/paxos/">paxos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pos/">pos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pow/">pow</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python3/">python3</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spv/">spv</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/yaml/">yaml</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zab/">zab</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/以太坊/">以太坊</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式共识算法/">分布式共识算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式数据库/">分布式数据库</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式理论/">分布式理论</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/区块链/">区块链</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/地址生成/">地址生成</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/大数据/">大数据</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/密码学/">密码学</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/挖矿/">挖矿</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/比特币/">比特币</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/编程基础/">编程基础</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/错误记录/">错误记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/问题记录/">问题记录</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/阅读/">阅读</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tag Cloud</h3>
-    <div class="widget tagcloud">
-      <a href="/tags/ACID/" style="font-size: 11.67px;">ACID</a> <a href="/tags/CAP/" style="font-size: 10px;">CAP</a> <a href="/tags/ECDSA/" style="font-size: 15px;">ECDSA</a> <a href="/tags/GO/" style="font-size: 13.33px;">GO</a> <a href="/tags/GPU/" style="font-size: 11.67px;">GPU</a> <a href="/tags/Hyperledger-Fabric/" style="font-size: 16.67px;">Hyperledger Fabric</a> <a href="/tags/PBFT/" style="font-size: 10px;">PBFT</a> <a href="/tags/Spark/" style="font-size: 10px;">Spark</a> <a href="/tags/blockchain/" style="font-size: 20px;">blockchain</a> <a href="/tags/c/" style="font-size: 11.67px;">c++</a> <a href="/tags/centos/" style="font-size: 11.67px;">centos</a> <a href="/tags/centos7/" style="font-size: 15px;">centos7</a> <a href="/tags/cuda/" style="font-size: 10px;">cuda</a> <a href="/tags/docker/" style="font-size: 18.33px;">docker</a> <a href="/tags/dockerfile/" style="font-size: 11.67px;">dockerfile</a> <a href="/tags/eos/" style="font-size: 10px;">eos</a> <a href="/tags/gas/" style="font-size: 10px;">gas</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/go/" style="font-size: 15px;">go</a> <a href="/tags/hadoop/" style="font-size: 10px;">hadoop</a> <a href="/tags/hyperledger-fabric/" style="font-size: 10px;">hyperledger fabric</a> <a href="/tags/js/" style="font-size: 10px;">js</a> <a href="/tags/leveldb/" style="font-size: 10px;">leveldb</a> <a href="/tags/linux/" style="font-size: 13.33px;">linux</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/node/" style="font-size: 10px;">node</a> <a href="/tags/nvcc/" style="font-size: 10px;">nvcc</a> <a href="/tags/paxos/" style="font-size: 10px;">paxos</a> <a href="/tags/pos/" style="font-size: 10px;">pos</a> <a href="/tags/pow/" style="font-size: 10px;">pow</a> <a href="/tags/python/" style="font-size: 13.33px;">python</a> <a href="/tags/python3/" style="font-size: 15px;">python3</a> <a href="/tags/spv/" style="font-size: 11.67px;">spv</a> <a href="/tags/yaml/" style="font-size: 10px;">yaml</a> <a href="/tags/zab/" style="font-size: 10px;">zab</a> <a href="/tags/以太坊/" style="font-size: 10px;">以太坊</a> <a href="/tags/分布式共识算法/" style="font-size: 15px;">分布式共识算法</a> <a href="/tags/分布式数据库/" style="font-size: 10px;">分布式数据库</a> <a href="/tags/分布式理论/" style="font-size: 13.33px;">分布式理论</a> <a href="/tags/区块链/" style="font-size: 11.67px;">区块链</a> <a href="/tags/地址生成/" style="font-size: 10px;">地址生成</a> <a href="/tags/大数据/" style="font-size: 11.67px;">大数据</a> <a href="/tags/密码学/" style="font-size: 10px;">密码学</a> <a href="/tags/挖矿/" style="font-size: 10px;">挖矿</a> <a href="/tags/比特币/" style="font-size: 11.67px;">比特币</a> <a href="/tags/编程基础/" style="font-size: 11.67px;">编程基础</a> <a href="/tags/错误记录/" style="font-size: 10px;">错误记录</a> <a href="/tags/问题记录/" style="font-size: 10px;">问题记录</a> <a href="/tags/阅读/" style="font-size: 11.67px;">阅读</a>
-    </div>
-  </div>
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">December 2017</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/2019/09/13/玩转linux/linux使用/">linux使用</a>
-          </li>
-        
-          <li>
-            <a href="/2019/09/13/区块链/比特币原理/比特币交易脚本及交易数据(二)/">比特币交易脚本及交易数据(二)</a>
-          </li>
-        
-          <li>
-            <a href="/2019/09/13/编程基础/c++面向对象/">C++面向对象</a>
-          </li>
-        
-          <li>
-            <a href="/2019/09/13/编程基础/c++基础/">C++基础</a>
-          </li>
-        
-          <li>
-            <a href="/2019/09/13/区块链/比特币原理/比特币交易脚本及交易数据(一)/">比特币交易脚本及交易数据(一)</a>
-          </li>
-        
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
       </ul>
-    </div>
-  </div>
 
-  
-</aside>
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">阿娟</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">73</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">25</span>
+        <span class="site-state-item-name">categories</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">49</span>
+        <span class="site-state-item-name">tags</span>
+        </a>
+      </div>
+    
+  </nav>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">阿娟</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.9.0</div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.4.0</div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
         
       </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
-      &copy; 2019 John Doe<br>
-      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
-    </div>
+    </footer>
   </div>
-</footer>
-    </div>
-    <nav id="mobile-nav">
+
   
-    <a href="/" class="mobile-nav-link">Home</a>
+
+
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.0"></script><script src="/js/motion.js?v=7.4.0"></script>
+<script src="/js/schemes/pisces.js?v=7.4.0"></script>
+<script src="/js/next-boot.js?v=7.4.0"></script>
+
+
+
   
-    <a href="/archives" class="mobile-nav-link">Archives</a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   
-</nav>
-    
 
-<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+  
 
+  
 
-  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
-  <script src="/fancybox/jquery.fancybox.pack.js"></script>
-
-
-<script src="/js/script.js"></script>
-
-
-
-  </div>
 </body>
 </html>
