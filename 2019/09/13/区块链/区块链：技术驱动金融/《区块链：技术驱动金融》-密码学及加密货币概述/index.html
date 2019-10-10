@@ -63,15 +63,15 @@
 <meta property="og:site_name" content="发现问题并解决问题">
 <meta property="og:description" content="1118-1615 1.密码学哈希函数哈希函数特性：  其输入可为任意大小的字符串。 产生固定大小的输出。为使本章讨论更具体，我们假设输出值大小为256位。 它能进行有效计算，简单来说就是对于特定的输入字符串，在合理时间内，我们可以算出哈希函数的输出。更准确地说，对应n位的字符串，其哈希值计算的复杂度为O（n）。  要使哈希函数达到密码安全，要求其具有以下三个附加特性： 1.1碰撞阻力（colli">
 <meta property="og:locale" content="en">
-<meta property="og:image" content="https://yuajuan.github.io/2019/09/13/区块链/区块链：技术驱动金融/《区块链：技术驱动金融》-密码学及加密货币概述/sha256-md.png">
-<meta property="og:image" content="https://yuajuan.github.io/2019/09/13/区块链/区块链：技术驱动金融/《区块链：技术驱动金融》-密码学及加密货币概述/hash-pointer.png">
-<meta property="og:image" content="https://yuajuan.github.io/2019/09/13/区块链/区块链：技术驱动金融/《区块链：技术驱动金融》-密码学及加密货币概述/blockchain.png">
-<meta property="og:image" content="https://yuajuan.github.io/2019/09/13/区块链/区块链：技术驱动金融/《区块链：技术驱动金融》-密码学及加密货币概述/merkle-tree.png">
+<meta property="og:image" content="https://yuajuan.github.io/.io//sha256-md.png">
+<meta property="og:image" content="https://yuajuan.github.io/.io//hash-pointer.png">
+<meta property="og:image" content="https://yuajuan.github.io/.io//blockchain.png">
+<meta property="og:image" content="https://yuajuan.github.io/.io//merkle-tree.png">
 <meta property="og:updated_time" content="2019-03-03T13:15:12.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="《区块链：技术驱动金融》-比特币如何做到去中心化p1163-p1203">
 <meta name="twitter:description" content="1118-1615 1.密码学哈希函数哈希函数特性：  其输入可为任意大小的字符串。 产生固定大小的输出。为使本章讨论更具体，我们假设输出值大小为256位。 它能进行有效计算，简单来说就是对于特定的输入字符串，在合理时间内，我们可以算出哈希函数的输出。更准确地说，对应n位的字符串，其哈希值计算的复杂度为O（n）。  要使哈希函数达到密码安全，要求其具有以下三个附加特性： 1.1碰撞阻力（colli">
-<meta name="twitter:image" content="https://yuajuan.github.io/2019/09/13/区块链/区块链：技术驱动金融/《区块链：技术驱动金融》-密码学及加密货币概述/sha256-md.png">
+<meta name="twitter:image" content="https://yuajuan.github.io/.io//sha256-md.png">
   <link rel="canonical" href="https://yuajuan.github.io/2019/09/13/区块链/区块链：技术驱动金融/《区块链：技术驱动金融》-密码学及加密货币概述/">
 
 
@@ -345,12 +345,12 @@
 <p><strong>如果一个哈希函数具备谜题友好特性，这就意味着对于这个谜题没有一个解决策略，比只是随机地尝试x取值会更好。因此，如果我们要把谜比题做成很难解决是可以的，只要我们能用适合的随机方式生成谜题ID。比特币采矿（是一种搜索谜题）时会采用这一思路。</strong></p>
 <h1 id="2-安全哈希算法"><a href="#2-安全哈希算法" class="headerlink" title="2.安全哈希算法"></a>2.安全哈希算法</h1><p>一个主要被比特币世界采用，并且效果还很不错的哈希函数安全哈希算法（Secure  Hash Algorithm 256，简称SHA-256）。</p>
 <p><strong>MD（Merkle-Damgard）变换</strong><br>要求哈希函数可以用于任意长度输入。建立一个用于固定长度输入的哈希函数，然后通过一般方法，就可以<strong>将接受固定长度的哈希函数转化为可接受任意长度输入的哈希函数，我们称这个转换过程为MD（Merkle-Damgard）变换</strong>，SHA-256是采用这种变换方法的常用哈希函数之一。</p>
-<p>MD变换很简单。比如压缩函数代入长度为m的输入值，并产生长度短一些为n的输出值。哈希函数的输入（可为任意大小）被分为长度为m-n的区块。MD变换运作过程如下：将每个区块与之前区块的输出一起代入压缩函数，注意，输入长度则变为(m-n)+n=m，也刚好就是压缩函数的输入长度。对于第一个区块而言，之前没有的区块，我们需要选取一个初始向量。每次调用哈希函数，这个数字都会被再一次使用，而在实践中，你可以直接在标准文档中找到它。<br>SHA-256函数利用了这样的一个压缩函数，这个压缩函数把一个768位的输入压缩成一个256位的输出，每一个区块的大小是512位。<br><img src="sha256-md.png" alt="avatar"></p>
+<p>MD变换很简单。比如压缩函数代入长度为m的输入值，并产生长度短一些为n的输出值。哈希函数的输入（可为任意大小）被分为长度为m-n的区块。MD变换运作过程如下：将每个区块与之前区块的输出一起代入压缩函数，注意，输入长度则变为(m-n)+n=m，也刚好就是压缩函数的输入长度。对于第一个区块而言，之前没有的区块，我们需要选取一个初始向量。每次调用哈希函数，这个数字都会被再一次使用，而在实践中，你可以直接在标准文档中找到它。<br>SHA-256函数利用了这样的一个压缩函数，这个压缩函数把一个768位的输入压缩成一个256位的输出，每一个区块的大小是512位。<br><img src="/.io//sha256-md.png" alt="avatar"></p>
 <p><strong>压缩函数（compression function）</strong></p>
 <p>通用术语中，这种基础型，可用于固定长度，具备碰撞阻力的哈希函数被称为是压缩函数（compression function）。经过验证，<strong>如果基本压缩函数具有碰撞阻力的特性，那么经过转换而生成的哈希函数也具有碰撞阻力。</strong></p>
-<h1 id="2-哈希指针及数据结构"><a href="#2-哈希指针及数据结构" class="headerlink" title="2.哈希指针及数据结构"></a>2.哈希指针及数据结构</h1><p>哈希指针是一种数据结构，是一个指向数据存储位置的指针，同时也是位置数据的哈希值。<br>一个普通的指针可以告诉你数据存储的位置，哈希指针不但可以告诉你数据存储的位置，并且还可以给你一种方式，让你验证数据没有被篡改过。<br><img src="hash-pointer.png" alt="avatar"></p>
-<h2 id="2-1区块链"><a href="#2-1区块链" class="headerlink" title="2.1区块链"></a>2.1区块链</h2><p><img src="blockchain.png" alt="avatar"><br>区块链的一个应用就是“防篡改日志”。也就是说，我们要建立一个存储很多数据的日志数据结构，使我们能将数据附加到日志的末尾。但是如果有人篡改日志前面的数据，我们可以检测到。<br>篡改区块k中的数据会导致区块k+1中的哈希指针的不一致。<br>所以需要一次篡改，直到区块头。</p>
-<h2 id="2-2梅克尔树（merkle-trees"><a href="#2-2梅克尔树（merkle-trees" class="headerlink" title="2.2梅克尔树（merkle trees)"></a>2.2梅克尔树（merkle trees)</h2><p><img src="merkle-tree.png" alt="avatar"><br>假设有很多包含数据的区块，这些区块就是叶子节点。将这些数据区块两两分组，然后为每一组建立一个有两个哈希指针的数据结构，每个指针对应一个区块，这些数据结构就构成了树的下一个层次。轮流将这些区块组两两分组，为每一组建立一个包含每个区块组哈希指针的新的数据结构。以此类推，直到得到一个单一区块，即树根节点。<br>记住树最前面的哈希指针,就可以通过哈希指针回溯到列表中的任何位置，这样能保证数据确实未经篡改。如果对手篡改了树底部的一些数据区块，会导致上一层的哈希指针不匹配，即使他继续篡改这个区块，改动数据行为将最终传递到树的顶端，而此时，他将不能篡改我们存储的哈希指针（因为这会导致区块链中中的一个块被修改）。</p>
+<h1 id="2-哈希指针及数据结构"><a href="#2-哈希指针及数据结构" class="headerlink" title="2.哈希指针及数据结构"></a>2.哈希指针及数据结构</h1><p>哈希指针是一种数据结构，是一个指向数据存储位置的指针，同时也是位置数据的哈希值。<br>一个普通的指针可以告诉你数据存储的位置，哈希指针不但可以告诉你数据存储的位置，并且还可以给你一种方式，让你验证数据没有被篡改过。<br><img src="/.io//hash-pointer.png" alt="avatar"></p>
+<h2 id="2-1区块链"><a href="#2-1区块链" class="headerlink" title="2.1区块链"></a>2.1区块链</h2><p><img src="/.io//blockchain.png" alt="avatar"><br>区块链的一个应用就是“防篡改日志”。也就是说，我们要建立一个存储很多数据的日志数据结构，使我们能将数据附加到日志的末尾。但是如果有人篡改日志前面的数据，我们可以检测到。<br>篡改区块k中的数据会导致区块k+1中的哈希指针的不一致。<br>所以需要一次篡改，直到区块头。</p>
+<h2 id="2-2梅克尔树（merkle-trees"><a href="#2-2梅克尔树（merkle-trees" class="headerlink" title="2.2梅克尔树（merkle trees)"></a>2.2梅克尔树（merkle trees)</h2><p><img src="/.io//merkle-tree.png" alt="avatar"><br>假设有很多包含数据的区块，这些区块就是叶子节点。将这些数据区块两两分组，然后为每一组建立一个有两个哈希指针的数据结构，每个指针对应一个区块，这些数据结构就构成了树的下一个层次。轮流将这些区块组两两分组，为每一组建立一个包含每个区块组哈希指针的新的数据结构。以此类推，直到得到一个单一区块，即树根节点。<br>记住树最前面的哈希指针,就可以通过哈希指针回溯到列表中的任何位置，这样能保证数据确实未经篡改。如果对手篡改了树底部的一些数据区块，会导致上一层的哈希指针不匹配，即使他继续篡改这个区块，改动数据行为将最终传递到树的顶端，而此时，他将不能篡改我们存储的哈希指针（因为这会导致区块链中中的一个块被修改）。</p>
 <p><strong>隶属证明</strong><br>梅克尔树的另一个特点是它可以实现简洁的隶属证明。假设某人想要证明某个数据区块隶属于梅克尔树。我们只记住树根节点，然后他需要展示给我们数据块信息，以及从该数据区块通向树根节点的那些区块，可以忽略树的其余部分。时间复杂度为O(logn)。</p>
 <ul>
 <li>哈希指针可以用在任何地方，前提是数据结构不存在循环 *</li>
@@ -418,8 +418,8 @@
 
             <div class="post-nav-prev post-nav-item">
               
-                <a href="/2019/09/13/区块链/以太坊开发/以太坊开发问题记录/" rel="prev" title="区块链基础">
-                  区块链基础 <i class="fa fa-chevron-right"></i>
+                <a href="/2019/09/13/区块链/以太坊开发/以太坊源码分析/以太坊源码分析-call,callcode,delegatecall/" rel="prev" title="以太坊源码分析-call,callcode,delegatecall">
+                  以太坊源码分析-call,callcode,delegatecall <i class="fa fa-chevron-right"></i>
                 </a>
               
             </div>

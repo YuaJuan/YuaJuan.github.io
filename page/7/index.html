@@ -757,7 +757,7 @@
   
   
   <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2017/12/21/python/安装matplotlib出现—-tkinterr/">
+    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2017/12/21/python/安装matplotlib出错/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="阿娟">
@@ -771,7 +771,7 @@
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
             
-            <a href="/2017/12/21/python/安装matplotlib出现—-tkinterr/" class="post-title-link" itemprop="url">python3使用matplotlib出现ImportError  No module named '_tkinter' 详细解决方法</a>
+            <a href="/2017/12/21/python/安装matplotlib出错/" class="post-title-link" itemprop="url">python3使用matplotlib出现ImportError No module named '_tkinter' 详细解决方法</a>
           
         </h1>
 
@@ -797,128 +797,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2019-02-21 10:49:20" itemprop="dateModified" datetime="2019-02-21T10:49:20+08:00">2019-02-21</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/人生苦短我用python/" itemprop="url" rel="index"><span itemprop="name">人生苦短我用python</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p><strong>1.这是因为缺少tcl,tk组件，下载这两个组件 这里我下载的是8.4.4版本</strong><br>wget <a href="http://prdownloads.sourceforge.net/tcl/tcl8.4.4-src.tar.gz" target="_blank" rel="noopener">http://prdownloads.sourceforge.net/tcl/tcl8.4.4-src.tar.gz</a><br>wget <a href="http://prdownloads.sourceforge.net/tcl/tk8.4.4-src.tar.gz" target="_blank" rel="noopener">http://prdownloads.sourceforge.net/tcl/tk8.4.4-src.tar.gz</a><br>你也可以到<a href="https://sourceforge.net/projects/tcl/files/Tcl/上找到你自己需要的" target="_blank" rel="noopener">https://sourceforge.net/projects/tcl/files/Tcl/上找到你自己需要的</a><br><strong>2.安装tcl</strong><br>    tar －zvxf tcl8.4.4.tar.gz  -C /usr/local<br>    cd /usr/local/tcl8.4..4/<br>    cd unix<br>    ./configure<br>    make<br>    make install<br>    此时键入命令tclsh84，就可以使用tcl了<br><strong>3. 安装tk</strong><br>与安装tcl类似<br>    tar -zvxf tk8.4.4.tar.gz -C /usr/local<br>    cd /usr/local/tk8.4.4/<br>    cd unix<br>    ./configure<br>    make<br>    make install<br>执行wish84就可以使用tk了。</p>
-<p>注意：make tk时可能出现Xlib.h找不到的情况</p>
-<blockquote>
-<p>sudo yum search x11-dev</p>
-</blockquote>
-<p>libX11-devel.i686 : Development files for libX11<br>libX11-devel.x86_64 : Development files for libX11<br>libxkbcommon-x11-devel.i686 : X.Org X11 XKB keymap creation library<br>libxkbcommon-x11-devel.x86_64 : X.Org X11 XKB keymap creation library</p>
-<blockquote>
-<p>sudo yum install libX11-devel.x86_64</p>
-</blockquote>
-<p>我是64位系统，所以选了这个库</p>
-<p><strong>3.安装完成了，重新make Python，然后，Tkinter库可以正常调用了</strong></p>
-<p>但是重新make之前一定要改Python安装目录下 的Moudles/setup.list</p>
-<blockquote>
-<p>vim Moudles/setup.list</p>
-</blockquote>
-<p>把如下的几处的注释去掉</p>
-<p><img src="http://img.blog.csdn.net/20171221214130285?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQveXVqdWFuMTEw/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="这里写图片描述"></p>
-<p>然后在python目录下重新执行<br>./configure<br>make </p>
-<p>但是博主在make时发现出错：</p>
-<blockquote>
-<p>*** WARNING: renaming “_tkinter” since importing it failed: libtk8.4.so: cannot open shared object file: No such file or directory</p>
-</blockquote>
-<p>然后我查看了我的/usr/local/lib下明明有libtk8.4.so这个文件，为什么会找不到呢!<br>google了一大圈发现需要</p>
-<blockquote>
-<p> export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib</p>
-</blockquote>
-<p>导入了这个路径后，才重新./configure make make install 就好啦！<br>Oh yes!</p>
-<p>学计算机就是要不怕折腾！</p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-          <div class="post-eof"></div>
-        
-      </footer>
-  </div>
-  
-  
-  
-  </article>
-
-    
-        <article itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2017/12/21/python/安装matplotlib/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="阿娟">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="发现问题并解决问题">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-            
-            <a href="/2017/12/21/python/安装matplotlib/" class="post-title-link" itemprop="url">python3使用matplotlib出现ImportError No module named '_tkinter' 详细解决方法</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              
-                
-              
-
-              <time title="Created: 2017-12-21 21:49:47" itemprop="dateCreated datePublished" datetime="2017-12-21T21:49:47+08:00">2017-12-21</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2019-02-21 10:49:34" itemprop="dateModified" datetime="2019-02-21T10:49:34+08:00">2019-02-21</time>
+                <time title="Modified: 2019-02-21 10:49:30" itemprop="dateModified" datetime="2019-02-21T10:49:30+08:00">2019-02-21</time>
               </span>
             
           
@@ -1120,7 +999,7 @@
   
   
   <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2017/12/21/python/安装matplotlib出错/">
+    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2017/12/21/python/安装matplotlib/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="阿娟">
@@ -1134,7 +1013,7 @@
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
             
-            <a href="/2017/12/21/python/安装matplotlib出错/" class="post-title-link" itemprop="url">python3使用matplotlib出现ImportError No module named '_tkinter' 详细解决方法</a>
+            <a href="/2017/12/21/python/安装matplotlib/" class="post-title-link" itemprop="url">python3使用matplotlib出现ImportError No module named '_tkinter' 详细解决方法</a>
           
         </h1>
 
@@ -1160,7 +1039,128 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2019-02-21 10:49:30" itemprop="dateModified" datetime="2019-02-21T10:49:30+08:00">2019-02-21</time>
+                <time title="Modified: 2019-02-21 10:49:34" itemprop="dateModified" datetime="2019-02-21T10:49:34+08:00">2019-02-21</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/人生苦短我用python/" itemprop="url" rel="index"><span itemprop="name">人生苦短我用python</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p><strong>1.这是因为缺少tcl,tk组件，下载这两个组件 这里我下载的是8.4.4版本</strong><br>wget <a href="http://prdownloads.sourceforge.net/tcl/tcl8.4.4-src.tar.gz" target="_blank" rel="noopener">http://prdownloads.sourceforge.net/tcl/tcl8.4.4-src.tar.gz</a><br>wget <a href="http://prdownloads.sourceforge.net/tcl/tk8.4.4-src.tar.gz" target="_blank" rel="noopener">http://prdownloads.sourceforge.net/tcl/tk8.4.4-src.tar.gz</a><br>你也可以到<a href="https://sourceforge.net/projects/tcl/files/Tcl/上找到你自己需要的" target="_blank" rel="noopener">https://sourceforge.net/projects/tcl/files/Tcl/上找到你自己需要的</a><br><strong>2.安装tcl</strong><br>    tar －zvxf tcl8.4.4.tar.gz  -C /usr/local<br>    cd /usr/local/tcl8.4..4/<br>    cd unix<br>    ./configure<br>    make<br>    make install<br>    此时键入命令tclsh84，就可以使用tcl了<br><strong>3. 安装tk</strong><br>与安装tcl类似<br>    tar -zvxf tk8.4.4.tar.gz -C /usr/local<br>    cd /usr/local/tk8.4.4/<br>    cd unix<br>    ./configure<br>    make<br>    make install<br>执行wish84就可以使用tk了。</p>
+<p>注意：make tk时可能出现Xlib.h找不到的情况</p>
+<blockquote>
+<p>sudo yum search x11-dev</p>
+</blockquote>
+<p>libX11-devel.i686 : Development files for libX11<br>libX11-devel.x86_64 : Development files for libX11<br>libxkbcommon-x11-devel.i686 : X.Org X11 XKB keymap creation library<br>libxkbcommon-x11-devel.x86_64 : X.Org X11 XKB keymap creation library</p>
+<blockquote>
+<p>sudo yum install libX11-devel.x86_64</p>
+</blockquote>
+<p>我是64位系统，所以选了这个库</p>
+<p><strong>3.安装完成了，重新make Python，然后，Tkinter库可以正常调用了</strong></p>
+<p>但是重新make之前一定要改Python安装目录下 的Moudles/setup.list</p>
+<blockquote>
+<p>vim Moudles/setup.list</p>
+</blockquote>
+<p>把如下的几处的注释去掉</p>
+<p><img src="http://img.blog.csdn.net/20171221214130285?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQveXVqdWFuMTEw/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="这里写图片描述"></p>
+<p>然后在python目录下重新执行<br>./configure<br>make </p>
+<p>但是博主在make时发现出错：</p>
+<blockquote>
+<p>*** WARNING: renaming “_tkinter” since importing it failed: libtk8.4.so: cannot open shared object file: No such file or directory</p>
+</blockquote>
+<p>然后我查看了我的/usr/local/lib下明明有libtk8.4.so这个文件，为什么会找不到呢!<br>google了一大圈发现需要</p>
+<blockquote>
+<p> export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib</p>
+</blockquote>
+<p>导入了这个路径后，才重新./configure make make install 就好啦！<br>Oh yes!</p>
+<p>学计算机就是要不怕折腾！</p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+          <div class="post-eof"></div>
+        
+      </footer>
+  </div>
+  
+  
+  
+  </article>
+
+    
+        <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block home">
+    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2017/12/21/python/安装matplotlib出现—-tkinterr/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="阿娟">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="发现问题并解决问题">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+            
+            <a href="/2017/12/21/python/安装matplotlib出现—-tkinterr/" class="post-title-link" itemprop="url">python3使用matplotlib出现ImportError  No module named '_tkinter' 详细解决方法</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              
+                
+              
+
+              <time title="Created: 2017-12-21 21:49:47" itemprop="dateCreated datePublished" datetime="2017-12-21T21:49:47+08:00">2017-12-21</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2019-02-21 10:49:20" itemprop="dateModified" datetime="2019-02-21T10:49:20+08:00">2019-02-21</time>
               </span>
             
           

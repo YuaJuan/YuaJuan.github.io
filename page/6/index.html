@@ -236,6 +236,111 @@
   
   
   <div class="post-block home">
+    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/09/13/docker/docker入门实战（四）—— 网络访问/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="阿娟">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="发现问题并解决问题">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+            
+            <a href="/2019/09/13/docker/docker入门实战（四）—— 网络访问/" class="post-title-link" itemprop="url">docker入门实战（四）—— 网络访问</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              
+                
+              
+
+              <time title="Created: 2019-09-13 12:49:42" itemprop="dateCreated datePublished" datetime="2019-09-13T12:49:42+08:00">2019-09-13</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2019-02-22 16:36:38" itemprop="dateModified" datetime="2019-02-22T16:36:38+08:00">2019-02-22</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/docker/" itemprop="url" rel="index"><span itemprop="name">docker</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>启动与配置参数</p>
+<ol>
+<li>网络启动过程<br>Docker 服务启动时会首先在主机上自动创建一个 dockerO虚拟网桥， 实际上是一个Linux 网桥。 网桥可以理解为一个软件交换机， 负责挂载其上的接口之间进行包转发。<br>同时， Docker 随机分配一个本地未占用的私有网段（在 RFC1918 中定义）中的一个地址<br>给 dockerO接口。 比如典型的 172.17.0.0/16 网段， 掩码为 255.255.0.0。 此后启动的容器内的网口也会自动分配一个该网段的地址。</li>
+</ol>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/2019/09/13/docker/docker入门实战（四）—— 网络访问/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+          <div class="post-eof"></div>
+        
+      </footer>
+  </div>
+  
+  
+  
+  </article>
+
+    
+        <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block home">
     <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/09/13/docker/docke入门实战（一）——mysql镜像使用/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -315,114 +420,6 @@
           
             <div class="post-button text-center">
               <a class="btn" href="/2019/09/13/docker/docke入门实战（一）——mysql镜像使用/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-          <div class="post-eof"></div>
-        
-      </footer>
-  </div>
-  
-  
-  
-  </article>
-
-    
-        <article itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/09/13/docker/docker-networking/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="阿娟">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="发现问题并解决问题">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-            
-            <a href="/2019/09/13/docker/docker-networking/" class="post-title-link" itemprop="url">docker--网络配置</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              
-                
-              
-
-              <time title="Created: 2019-09-13 12:49:42" itemprop="dateCreated datePublished" datetime="2019-09-13T12:49:42+08:00">2019-09-13</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2019-09-10 14:37:36" itemprop="dateModified" datetime="2019-09-10T14:37:36+08:00">2019-09-10</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/docker/" itemprop="url" rel="index"><span itemprop="name">docker</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>Docker的网络子系统是可插拔的（pluggble),使用drivers。几个drivers是默认存在的，并且提供了以下几个核心的网络功能：</p>
-<ul>
-<li><p><strong>brigde</strong>: 默认的网络驱动模式。如果你的应用运行在一个独立的容器里面，与之通信常用bridge networks。或者多个运行在同一主机上的容器需要通信，brigde也是最好的选择。</p>
-</li>
-<li><p><strong>host</strong>: 对于独立的容器，去掉容器和docker宿主机上的隔离，并且直接使用宿主机的网络。host模式只使用于Docker 17.06及更高版本的swarm服务中。</p>
-</li>
-<li><p><strong>overlay</strong>: overlay网络把多个docker daemons连接到一起并且使得swarm中的docker可以相互通信。也可以使用overlay网络让一个独立运行的容器和swarm中的容器通信。（有多个运行在不同主机上的容器需要通信，最好用overlay)</p>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2019/09/13/docker/docker-networking/#more" rel="contents">
                 Read more &raquo;
               </a>
             </div>
@@ -557,7 +554,7 @@
   
   
   <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/09/13/docker/docker入门实战（四）—— 网络访问/">
+    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/09/13/docker/持久化存储和卷间状态共享/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="阿娟">
@@ -571,7 +568,7 @@
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
             
-            <a href="/2019/09/13/docker/docker入门实战（四）—— 网络访问/" class="post-title-link" itemprop="url">docker入门实战（四）—— 网络访问</a>
+            <a href="/2019/09/13/docker/持久化存储和卷间状态共享/" class="post-title-link" itemprop="url">docker入门----持久化存储和卷积状态共享</a>
           
         </h1>
 
@@ -597,7 +594,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2019-02-22 16:36:38" itemprop="dateModified" datetime="2019-02-22T16:36:38+08:00">2019-02-22</time>
+                <time title="Modified: 2019-02-22 10:58:58" itemprop="dateModified" datetime="2019-02-22T10:58:58+08:00">2019-02-22</time>
               </span>
             
           
@@ -626,14 +623,12 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>启动与配置参数</p>
-<ol>
-<li>网络启动过程<br>Docker 服务启动时会首先在主机上自动创建一个 dockerO虚拟网桥， 实际上是一个Linux 网桥。 网桥可以理解为一个软件交换机， 负责挂载其上的接口之间进行包转发。<br>同时， Docker 随机分配一个本地未占用的私有网段（在 RFC1918 中定义）中的一个地址<br>给 dockerO接口。 比如典型的 172.17.0.0/16 网段， 掩码为 255.255.0.0。 此后启动的容器内的网口也会自动分配一个该网段的地址。</li>
-</ol>
+          <p>在容器中指定挂载点<br>docker run -d –volume /var/lib/cassandra/data  –name cass-shared alpine echo data container</p>
+<p>继承cass-shared的挂载<br>docker run -d –volume-from cass-shared –name cass1 cassandra:2.2</p>
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2019/09/13/docker/docker入门实战（四）—— 网络访问/#more" rel="contents">
+              <a class="btn" href="/2019/09/13/docker/持久化存储和卷间状态共享/#more" rel="contents">
                 Read more &raquo;
               </a>
             </div>
@@ -867,7 +862,7 @@
   
   
   <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2018/07/19/区块链/hyperledger fabric ca使用（go sdk）/">
+    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2018/07/19/区块链/fabric-ca 的使用/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="阿娟">
@@ -881,7 +876,7 @@
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
             
-            <a href="/2018/07/19/区块链/hyperledger fabric ca使用（go sdk）/" class="post-title-link" itemprop="url">Hyperledger Fabric ca 使用 （go-sdk来发送请求)</a>
+            <a href="/2018/07/19/区块链/fabric-ca 的使用/" class="post-title-link" itemprop="url">fabric-ca的使用</a>
           
         </h1>
 
@@ -907,7 +902,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2019-09-10 14:40:24" itemprop="dateModified" datetime="2019-09-10T14:40:24+08:00">2019-09-10</time>
+                <time title="Modified: 2019-09-10 14:39:06" itemprop="dateModified" datetime="2019-09-10T14:39:06+08:00">2019-09-10</time>
               </span>
             
           
@@ -943,13 +938,18 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>fabric-ca的使用其实很多书上都有相关例子，但是用go-sdk的例子很少，而且go-sdk的文档也很少。折腾了一大圈，还看了官方的hyperledger fabric-go-sdk中测试用例才终于搞明白了。泪流满面。实际运行过程中也是各种错误，好在所有问题都解决了，分享给大家供参考，希望大家都能少走弯路。</p>
-<p>注明：下面代码中action.sdk就是fabricsdk<br>需要导入的包</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">"github.com/hyperledger/fabric-sdk-go/pkg/client/msp"</span></span><br><span class="line"><span class="string">"github.com/hyperledger/fabric-sdk-go/pkg/fabsdk"</span></span><br></pre></td></tr></table></figure>
+          <p>两种和hyperledger fabric 交互的方式：</p>
+<ol>
+<li>通过hyperledger fabric ca client</li>
+<li>通过fabric sdk<br>这两种方式都是通过rest api交互的。<blockquote>
+<p>See fabric-ca/swagger/swagger-fabric-ca.json for the swagger documentation for these REST APIs. You may view this documentation via the <a href="http://editor2.swagger.io" target="_blank" rel="noopener">http://editor2.swagger.io</a> online editor.(这个链接不能访问？)</p>
+</blockquote>
+</li>
+</ol>
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2018/07/19/区块链/hyperledger fabric ca使用（go sdk）/#more" rel="contents">
+              <a class="btn" href="/2018/07/19/区块链/fabric-ca 的使用/#more" rel="contents">
                 Read more &raquo;
               </a>
             </div>
@@ -1092,6 +1092,117 @@
   
   
   <div class="post-block home">
+    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2018/07/19/区块链/hyperledger fabric ca使用（go sdk）/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="阿娟">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="发现问题并解决问题">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+            
+            <a href="/2018/07/19/区块链/hyperledger fabric ca使用（go sdk）/" class="post-title-link" itemprop="url">Hyperledger Fabric ca 使用 （go-sdk来发送请求)</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              
+                
+              
+
+              <time title="Created: 2018-07-19 00:00:00" itemprop="dateCreated datePublished" datetime="2018-07-19T00:00:00+08:00">2018-07-19</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2019-09-10 14:40:24" itemprop="dateModified" datetime="2019-09-10T14:40:24+08:00">2019-09-10</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/区块链/" itemprop="url" rel="index"><span itemprop="name">区块链</span></a></span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/区块链/Hyperledger-Fabric/" itemprop="url" rel="index"><span itemprop="name">Hyperledger Fabric</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>fabric-ca的使用其实很多书上都有相关例子，但是用go-sdk的例子很少，而且go-sdk的文档也很少。折腾了一大圈，还看了官方的hyperledger fabric-go-sdk中测试用例才终于搞明白了。泪流满面。实际运行过程中也是各种错误，好在所有问题都解决了，分享给大家供参考，希望大家都能少走弯路。</p>
+<p>注明：下面代码中action.sdk就是fabricsdk<br>需要导入的包</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">"github.com/hyperledger/fabric-sdk-go/pkg/client/msp"</span></span><br><span class="line"><span class="string">"github.com/hyperledger/fabric-sdk-go/pkg/fabsdk"</span></span><br></pre></td></tr></table></figure>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/2018/07/19/区块链/hyperledger fabric ca使用（go sdk）/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+          <div class="post-eof"></div>
+        
+      </footer>
+  </div>
+  
+  
+  
+  </article>
+
+    
+        <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block home">
     <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2018/07/19/区块链/Fabric多节点集群测试/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1184,122 +1295,6 @@
           
             <div class="post-button text-center">
               <a class="btn" href="/2018/07/19/区块链/Fabric多节点集群测试/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-          <div class="post-eof"></div>
-        
-      </footer>
-  </div>
-  
-  
-  
-  </article>
-
-    
-        <article itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2018/07/19/区块链/fabric-ca 的使用/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="阿娟">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="发现问题并解决问题">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-            
-            <a href="/2018/07/19/区块链/fabric-ca 的使用/" class="post-title-link" itemprop="url">fabric-ca的使用</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              
-                
-              
-
-              <time title="Created: 2018-07-19 00:00:00" itemprop="dateCreated datePublished" datetime="2018-07-19T00:00:00+08:00">2018-07-19</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2019-09-10 14:39:06" itemprop="dateModified" datetime="2019-09-10T14:39:06+08:00">2019-09-10</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/区块链/" itemprop="url" rel="index"><span itemprop="name">区块链</span></a></span>
-
-                
-                
-                  , 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/区块链/Hyperledger-Fabric/" itemprop="url" rel="index"><span itemprop="name">Hyperledger Fabric</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>两种和hyperledger fabric 交互的方式：</p>
-<ol>
-<li>通过hyperledger fabric ca client</li>
-<li>通过fabric sdk<br>这两种方式都是通过rest api交互的。<blockquote>
-<p>See fabric-ca/swagger/swagger-fabric-ca.json for the swagger documentation for these REST APIs. You may view this documentation via the <a href="http://editor2.swagger.io" target="_blank" rel="noopener">http://editor2.swagger.io</a> online editor.(这个链接不能访问？)</p>
-</blockquote>
-</li>
-</ol>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2018/07/19/区块链/fabric-ca 的使用/#more" rel="contents">
                 Read more &raquo;
               </a>
             </div>

@@ -236,7 +236,7 @@
   
   
   <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/09/13/GPU/GPU内存/">
+    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/09/13/GoLang/Go的并发机制/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="阿娟">
@@ -250,7 +250,7 @@
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
             
-            <a href="/2019/09/13/GPU/GPU内存/" class="post-title-link" itemprop="url">GPU内存详解</a>
+            <a href="/2019/09/13/GoLang/Go的并发机制/" class="post-title-link" itemprop="url">GO并发编程</a>
           
         </h1>
 
@@ -276,7 +276,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2019-02-21 10:49:46" itemprop="dateModified" datetime="2019-02-21T10:49:46+08:00">2019-02-21</time>
+                <time title="Modified: 2019-03-03 21:16:18" itemprop="dateModified" datetime="2019-03-03T21:16:18+08:00">2019-03-03</time>
               </span>
             
           
@@ -286,7 +286,7 @@
               </span>
               <span class="post-meta-item-text">In</span>
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/GPU/" itemprop="url" rel="index"><span itemprop="name">GPU</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Go/" itemprop="url" rel="index"><span itemprop="name">Go</span></a></span>
 
                 
                 
@@ -305,12 +305,116 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="寄存器"><a href="#寄存器" class="headerlink" title="寄存器"></a>寄存器</h1><p>与CPU不同，GPU的每个SM（流多处理器）有成千上万个寄存器，在GPU技术简介中已经提到，SM类似于CPU的核，每个SM拥有多个SP（流处理器），所有的工作都是在SP上处理的，GPU的每个SM可能有8~192个SP，这就意味着，SM可同时运行这些数目的线程。<br>寄存器是每个线程私有的，并且GPU没有使用寄存器重命名机制，而是致力于为每一个线程都分配真实的寄存器，CUDA上下文切换机制非常高效，几乎是零开销。当然，这些细节对程序员是完全透明的。<br>和CPU一样，访问寄存器的速度是非常快的，所以应尽量优先使用寄存器。无论是CPU还是GPU，通过寄存器的优化方式都会使程序的执行速度得到很大提高。<br>举一个例子：<br>‘’’<br> for (int i = 0; i &lt; size; ++i)<br> {<br>         sum += array[i];<br> }<br>‘’’</p>
-<hr>
-<p>sum如果存于内存中，则需要做size次读/写内存的操作，而如果把sum设置为局部变量，把最终结果写回内存，编译器会将其放入寄存器中，这样只需1次内存写操作，将大大节约运行时间。</p>
-<h1 id="Local-memory"><a href="#Local-memory" class="headerlink" title="Local memory***"></a>Local memory***</h1><p>Local memory和寄存器类似，也是线程私有的，访问速度比寄存器稍微慢一点。<br>事实上，是由编译器在寄存器全部使用完的时候自动分配的。<strong>在优化程序的时候可以考虑减少block的线程数量以使每个线程有更多的寄存器可使用，这样可减少Local memory的使用，从而加快运行速度。</strong></p>
-<h1 id="共享内存"><a href="#共享内存" class="headerlink" title="共享内存"></a>共享内存</h1><p>每个线程块都有一个共享内存，该线程块中的线程都可以读取该内存，其他线程块的线程无法访问该共享内存。共享内存帮助同一线程块的线程通信与协作。并且共享内存缓存区实在物理GPU上，而不是其他与GPU相连的设备上，访问效率更高。</p>
-<h1 id="常量内存"><a href="#常量内存" class="headerlink" title="常量内存"></a>常量内存</h1><p>常量内存通过<strong>constant</strong>来修饰变量，被限制为只读。<br>1.对常量内存的单次读操作可以广播到该线程的半线程数中，减少15读操作。<br>2.常量内存的数据将缓存起来，因此对相同地址的连续读操作不会产生额外通信量。</p>
+          <p>Go搭建了特有的<strong>两级线程模型</strong><br>Go语言不推荐用共享内存的方式传递数据，而推荐使用channel。channel用来在多个goroutine之间传递数据，并且还保证了整个过程的并发安全性。<br>不过作为可选方法，Go依然提供了一些传统的同步方法（比如互斥量，条件变量等）</p>
+<h2 id="1-并发的主流实现模型"><a href="#1-并发的主流实现模型" class="headerlink" title="1.并发的主流实现模型"></a>1.并发的主流实现模型</h2>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/2019/09/13/GoLang/Go的并发机制/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+          <div class="post-eof"></div>
+        
+      </footer>
+  </div>
+  
+  
+  
+  </article>
+
+    
+        <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block home">
+    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/09/13/GoLang/Go并发编程/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="阿娟">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="发现问题并解决问题">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+            
+            <a href="/2019/09/13/GoLang/Go并发编程/" class="post-title-link" itemprop="url">GO并发编程</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              
+                
+              
+
+              <time title="Created: 2019-09-13 12:49:46" itemprop="dateCreated datePublished" datetime="2019-09-13T12:49:46+08:00">2019-09-13</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2019-03-03 21:15:48" itemprop="dateModified" datetime="2019-03-03T21:15:48+08:00">2019-03-03</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Go/" itemprop="url" rel="index"><span itemprop="name">Go</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="3-多进程编程"><a href="#3-多进程编程" class="headerlink" title="3. 多进程编程"></a>3. 多进程编程</h1><p>多进程程序中，如果多个进程之间需要协作完成任务，那么进程之间通信就非常重要，进程间通信叫做IPC（inter-process communication).<br>在Linux系统中，可以把IPC方法分为3种：</p>
+<ol>
+<li>基于通信的IPC方法（又分为数据传送为手段（包括管道和消息队列）的IPC方法和以共享内存为手段的IPC方法）</li>
+<li>基于信号的IPC方法 </li>
+<li>基于同步的IPC方法（最重要的是信号量）</li>
+</ol>
+<p><strong>管道</strong><br>管道（pipe)是一种半双工（或者说单向）的通信方式，只能用于父进程与子进程以及同祖先的子进程之间的通信。</p>
 
         
       
@@ -443,7 +547,7 @@
   
   
   <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/09/13/GoLang/Go的并发机制/">
+    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/09/13/GoLang/GOLang基础（三）---面向对象编程/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="阿娟">
@@ -457,7 +561,7 @@
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
             
-            <a href="/2019/09/13/GoLang/Go的并发机制/" class="post-title-link" itemprop="url">GO并发编程</a>
+            <a href="/2019/09/13/GoLang/GOLang基础（三）---面向对象编程/" class="post-title-link" itemprop="url">GOLang基础（三）---面向对象编程</a>
           
         </h1>
 
@@ -472,7 +576,7 @@
                 
               
 
-              <time title="Created: 2019-09-13 12:49:46" itemprop="dateCreated datePublished" datetime="2019-09-13T12:49:46+08:00">2019-09-13</time>
+              <time title="Created: 2019-09-13 12:49:44" itemprop="dateCreated datePublished" datetime="2019-09-13T12:49:44+08:00">2019-09-13</time>
             </span>
           
             
@@ -483,7 +587,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2019-03-03 21:16:18" itemprop="dateModified" datetime="2019-03-03T21:16:18+08:00">2019-03-03</time>
+                <time title="Modified: 2019-03-03 19:43:14" itemprop="dateModified" datetime="2019-03-03T19:43:14+08:00">2019-03-03</time>
               </span>
             
           
@@ -512,17 +616,112 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>Go搭建了特有的<strong>两级线程模型</strong><br>Go语言不推荐用共享内存的方式传递数据，而推荐使用channel。channel用来在多个goroutine之间传递数据，并且还保证了整个过程的并发安全性。<br>不过作为可选方法，Go依然提供了一些传统的同步方法（比如互斥量，条件变量等）</p>
-<h2 id="1-并发的主流实现模型"><a href="#1-并发的主流实现模型" class="headerlink" title="1.并发的主流实现模型"></a>1.并发的主流实现模型</h2>
+          <p>参考书籍:书籍《go语言编程》</p>
+<p>在Java语言中，存在两套完全独立的类型系统：一套是值类型系统，主要是基本类型，如byte、int、boolean、char、double等，这些类型基于值语义；一套是以Object类型为根的对象类型系统，这些类型可以定义成员变量和成员方法，可以有虚函数，基于引用语义，只允许在堆上创建（通过使用关键字new）。Java语言中的Any类型就是整个对象类型系统的根——java.lang.Object类型，只有对象类型系统中的实例才可以被Any类型引用。值类型想要被Any类型引用，需要装箱（boxing）过程，比如int类型需要装箱成为Integer类型。另外，只有对象类型系统中的类型才可以实现接口，具体方法是让该类型从要实现的接口继承。</p>
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2019/09/13/GoLang/Go的并发机制/#more" rel="contents">
+              <a class="btn" href="/2019/09/13/GoLang/GOLang基础（三）---面向对象编程/#more" rel="contents">
                 Read more &raquo;
               </a>
             </div>
           
           <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+          <div class="post-eof"></div>
+        
+      </footer>
+  </div>
+  
+  
+  
+  </article>
+
+    
+        <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block home">
+    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/09/13/GoLang/GO/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="阿娟">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="发现问题并解决问题">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+            
+            <a href="/2019/09/13/GoLang/GO/" class="post-title-link" itemprop="url">问题记录</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              
+                
+              
+
+              <time title="Created: 2019-09-13 12:49:44" itemprop="dateCreated datePublished" datetime="2019-09-13T12:49:44+08:00">2019-09-13</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2019-03-02 22:53:12" itemprop="dateModified" datetime="2019-03-02T22:53:12+08:00">2019-03-02</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>go get 很慢<br>在/etc/hosts中添加<br>192.30.253.112 github.com<br>151.101.185.194 github.global.ssl.fastly.net</p>
+<p><strong>错误和异常</strong><br>对于一些隐式的运行时错误，如切片索引越界、类型断言错误等情形下， panic 方法就会被调用，它将立<br>刻中断当前函数的执行，并展开当前Goroutine的调用栈，依次执行之前注册的defer函数。当栈展开操作<br>达到该Goroutine栈顶端时，程序将终止。但这时仍然可以使用Go的内建 recover 方法重新获得<br>Goroutine的控制权，并将程序恢复到正常执行的状态。<br>调用 recover 方法会终止栈展开操作并返回之前传递给 panic 方法的那个参数。由于在栈展开过程中，只<br>有defer型函数会被执行，因此 recover 的调用必须置于defer函数内才有效</p>
+
         
       
     </div>
@@ -832,7 +1031,7 @@ type Person struct{
   
   
   <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/09/13/GoLang/GO/">
+    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/09/13/GoLang/GOLang基础（二）---函数及流程控制/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="阿娟">
@@ -846,7 +1045,7 @@ type Person struct{
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
             
-            <a href="/2019/09/13/GoLang/GO/" class="post-title-link" itemprop="url">问题记录</a>
+            <a href="/2019/09/13/GoLang/GOLang基础（二）---函数及流程控制/" class="post-title-link" itemprop="url">GOLang基础（二）---函数及流程控制.md</a>
           
         </h1>
 
@@ -872,102 +1071,7 @@ type Person struct{
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2019-03-02 22:53:12" itemprop="dateModified" datetime="2019-03-02T22:53:12+08:00">2019-03-02</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>go get 很慢<br>在/etc/hosts中添加<br>192.30.253.112 github.com<br>151.101.185.194 github.global.ssl.fastly.net</p>
-<p><strong>错误和异常</strong><br>对于一些隐式的运行时错误，如切片索引越界、类型断言错误等情形下， panic 方法就会被调用，它将立<br>刻中断当前函数的执行，并展开当前Goroutine的调用栈，依次执行之前注册的defer函数。当栈展开操作<br>达到该Goroutine栈顶端时，程序将终止。但这时仍然可以使用Go的内建 recover 方法重新获得<br>Goroutine的控制权，并将程序恢复到正常执行的状态。<br>调用 recover 方法会终止栈展开操作并返回之前传递给 panic 方法的那个参数。由于在栈展开过程中，只<br>有defer型函数会被执行，因此 recover 的调用必须置于defer函数内才有效</p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-          <div class="post-eof"></div>
-        
-      </footer>
-  </div>
-  
-  
-  
-  </article>
-
-    
-        <article itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/09/13/GoLang/GOLang基础（三）---面向对象编程/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="阿娟">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="发现问题并解决问题">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-            
-            <a href="/2019/09/13/GoLang/GOLang基础（三）---面向对象编程/" class="post-title-link" itemprop="url">GOLang基础（三）---面向对象编程</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              
-                
-              
-
-              <time title="Created: 2019-09-13 12:49:44" itemprop="dateCreated datePublished" datetime="2019-09-13T12:49:44+08:00">2019-09-13</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2019-03-03 19:43:14" itemprop="dateModified" datetime="2019-03-03T19:43:14+08:00">2019-03-03</time>
+                <time title="Modified: 2019-03-03 21:21:12" itemprop="dateModified" datetime="2019-03-03T21:21:12+08:00">2019-03-03</time>
               </span>
             
           
@@ -996,12 +1100,15 @@ type Person struct{
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>参考书籍:书籍《go语言编程》</p>
-<p>在Java语言中，存在两套完全独立的类型系统：一套是值类型系统，主要是基本类型，如byte、int、boolean、char、double等，这些类型基于值语义；一套是以Object类型为根的对象类型系统，这些类型可以定义成员变量和成员方法，可以有虚函数，基于引用语义，只允许在堆上创建（通过使用关键字new）。Java语言中的Any类型就是整个对象类型系统的根——java.lang.Object类型，只有对象类型系统中的实例才可以被Any类型引用。值类型想要被Any类型引用，需要装箱（boxing）过程，比如int类型需要装箱成为Integer类型。另外，只有对象类型系统中的类型才可以实现接口，具体方法是让该类型从要实现的接口继承。</p>
+          <h1 id="1流程控制"><a href="#1流程控制" class="headerlink" title="1流程控制"></a>1流程控制</h1><h2 id="1-1条件语句"><a href="#1-1条件语句" class="headerlink" title="1.1条件语句"></a>1.1条件语句</h2><pre><code>if a &lt; 5 { 
+ return 0 
+} else { 
+ return 1 
+} </code></pre><p>关于条件语句，需要注意以下几点：</p>
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2019/09/13/GoLang/GOLang基础（三）---面向对象编程/#more" rel="contents">
+              <a class="btn" href="/2019/09/13/GoLang/GOLang基础（二）---函数及流程控制/#more" rel="contents">
                 Read more &raquo;
               </a>
             </div>
@@ -1125,7 +1232,7 @@ type Person struct{
   
   
   <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/09/13/GoLang/GOLang基础（二）---函数及流程控制/">
+    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/09/13/docker/docker-networking/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="阿娟">
@@ -1139,113 +1246,7 @@ type Person struct{
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
             
-            <a href="/2019/09/13/GoLang/GOLang基础（二）---函数及流程控制/" class="post-title-link" itemprop="url">GOLang基础（二）---函数及流程控制.md</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              
-                
-              
-
-              <time title="Created: 2019-09-13 12:49:44" itemprop="dateCreated datePublished" datetime="2019-09-13T12:49:44+08:00">2019-09-13</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2019-03-03 21:21:12" itemprop="dateModified" datetime="2019-03-03T21:21:12+08:00">2019-03-03</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Go/" itemprop="url" rel="index"><span itemprop="name">Go</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="1流程控制"><a href="#1流程控制" class="headerlink" title="1流程控制"></a>1流程控制</h1><h2 id="1-1条件语句"><a href="#1-1条件语句" class="headerlink" title="1.1条件语句"></a>1.1条件语句</h2><pre><code>if a &lt; 5 { 
- return 0 
-} else { 
- return 1 
-} </code></pre><p>关于条件语句，需要注意以下几点：</p>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2019/09/13/GoLang/GOLang基础（二）---函数及流程控制/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-          <div class="post-eof"></div>
-        
-      </footer>
-  </div>
-  
-  
-  
-  </article>
-
-    
-        <article itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/09/13/docker/持久化存储和卷间状态共享/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="阿娟">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="发现问题并解决问题">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-            
-            <a href="/2019/09/13/docker/持久化存储和卷间状态共享/" class="post-title-link" itemprop="url">docker入门----持久化存储和卷积状态共享</a>
+            <a href="/2019/09/13/docker/docker-networking/" class="post-title-link" itemprop="url">docker--网络配置</a>
           
         </h1>
 
@@ -1271,7 +1272,7 @@ type Person struct{
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2019-02-22 10:58:58" itemprop="dateModified" datetime="2019-02-22T10:58:58+08:00">2019-02-22</time>
+                <time title="Modified: 2019-09-10 14:37:36" itemprop="dateModified" datetime="2019-09-10T14:37:36+08:00">2019-09-10</time>
               </span>
             
           
@@ -1300,12 +1301,17 @@ type Person struct{
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>在容器中指定挂载点<br>docker run -d –volume /var/lib/cassandra/data  –name cass-shared alpine echo data container</p>
-<p>继承cass-shared的挂载<br>docker run -d –volume-from cass-shared –name cass1 cassandra:2.2</p>
+          <p>Docker的网络子系统是可插拔的（pluggble),使用drivers。几个drivers是默认存在的，并且提供了以下几个核心的网络功能：</p>
+<ul>
+<li><p><strong>brigde</strong>: 默认的网络驱动模式。如果你的应用运行在一个独立的容器里面，与之通信常用bridge networks。或者多个运行在同一主机上的容器需要通信，brigde也是最好的选择。</p>
+</li>
+<li><p><strong>host</strong>: 对于独立的容器，去掉容器和docker宿主机上的隔离，并且直接使用宿主机的网络。host模式只使用于Docker 17.06及更高版本的swarm服务中。</p>
+</li>
+<li><p><strong>overlay</strong>: overlay网络把多个docker daemons连接到一起并且使得swarm中的docker可以相互通信。也可以使用overlay网络让一个独立运行的容器和swarm中的容器通信。（有多个运行在不同主机上的容器需要通信，最好用overlay)</p></li></ul>
           <!--noindex-->
           
             <div class="post-button text-center">
-              <a class="btn" href="/2019/09/13/docker/持久化存储和卷间状态共享/#more" rel="contents">
+              <a class="btn" href="/2019/09/13/docker/docker-networking/#more" rel="contents">
                 Read more &raquo;
               </a>
             </div>
@@ -1406,7 +1412,7 @@ type Person struct{
           <h1 id="1-配置指令"><a href="#1-配置指令" class="headerlink" title="1.配置指令"></a>1.配置指令</h1><ol>
 <li>ARG<br>定义创建镜像过程中使用的变量<br>ARG VERSION=9.3 </li>
 <li>FROM<br>指定所创建的基础镜像<br>FROM debian:${VERSION}</li>
-<li>LABEL<br>为生成的镜像添加元数据标签信息<br>LABEL version=”l.0.0-rc3”<br>LABEL author=”yeasy@github” date=”2020-01-01”<br>LABEL description=”This text illustrates<br>that label-values can span mul七iple lines.”
+<li>LABEL<br>为生成的镜像添加元数据标签信息<br>LABEL version=”l.0.0-rc3”<br>LABEL author=”yeasy@github” date=”2020-01-01”<br>LABEL description=”This text illustrates<br>that label-values can span mul七iple lines.”</li></ol>
           <!--noindex-->
           
             <div class="post-button text-center">
