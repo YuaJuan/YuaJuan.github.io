@@ -63,12 +63,12 @@
 <meta property="og:site_name" content="发现问题并解决问题">
 <meta property="og:description" content="启动与配置参数  网络启动过程Docker 服务启动时会首先在主机上自动创建一个 dockerO虚拟网桥， 实际上是一个Linux 网桥。 网桥可以理解为一个软件交换机， 负责挂载其上的接口之间进行包转发。同时， Docker 随机分配一个本地未占用的私有网段（在 RFC1918 中定义）中的一个地址给 dockerO接口。 比如典型的 172.17.0.0/16 网段， 掩码为 255.255.">
 <meta property="og:locale" content="en">
-<meta property="og:image" content="https://yuajuan.github.io/.io//network.png">
+<meta property="og:image" content="https://yuajuan.github.io/2019/09/13/docker/docker入门实战（四）——%20网络访问/network.png">
 <meta property="og:updated_time" content="2019-02-22T08:36:38.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="docker入门实战（四）—— 网络访问">
 <meta name="twitter:description" content="启动与配置参数  网络启动过程Docker 服务启动时会首先在主机上自动创建一个 dockerO虚拟网桥， 实际上是一个Linux 网桥。 网桥可以理解为一个软件交换机， 负责挂载其上的接口之间进行包转发。同时， Docker 随机分配一个本地未占用的私有网段（在 RFC1918 中定义）中的一个地址给 dockerO接口。 比如典型的 172.17.0.0/16 网段， 掩码为 255.255.">
-<meta name="twitter:image" content="https://yuajuan.github.io/.io//network.png">
+<meta name="twitter:image" content="https://yuajuan.github.io/2019/09/13/docker/docker入门实战（四）——%20网络访问/network.png">
   <link rel="canonical" href="https://yuajuan.github.io/2019/09/13/docker/docker入门实战（四）—— 网络访问/">
 
 
@@ -317,7 +317,7 @@
 <li>网络启动过程<br>Docker 服务启动时会首先在主机上自动创建一个 dockerO虚拟网桥， 实际上是一个Linux 网桥。 网桥可以理解为一个软件交换机， 负责挂载其上的接口之间进行包转发。<br>同时， Docker 随机分配一个本地未占用的私有网段（在 RFC1918 中定义）中的一个地址<br>给 dockerO接口。 比如典型的 172.17.0.0/16 网段， 掩码为 255.255.0.0。 此后启动的容器内的网口也会自动分配一个该网段的地址。</li>
 </ol>
 <a id="more"></a>
-<p>当创建一个 Docker 容器的时候， 同时会创建了一对veth pair 订互联接口。 当向任一个接<br>口发送包时， 另外一个接口自动收到相同的包。 互联接口的一端位于容器内， 即ethO; 另一<br>端在本地并被挂载到 docker O网桥， 名称以veth 开头（例如 vethAQI2QT) 。 通过这种方式，<br>主机可以与容器通信， 容器之间也可以相互通信。 如此一来， Docker就创建了在主机和所有<br>容器之间一个虚拟共享网络， 如图 20-1 所示。<br><img src="/.io//network.png" alt="avatar"></p>
+<p>当创建一个 Docker 容器的时候， 同时会创建了一对veth pair 订互联接口。 当向任一个接<br>口发送包时， 另外一个接口自动收到相同的包。 互联接口的一端位于容器内， 即ethO; 另一<br>端在本地并被挂载到 docker O网桥， 名称以veth 开头（例如 vethAQI2QT) 。 通过这种方式，<br>主机可以与容器通信， 容器之间也可以相互通信。 如此一来， Docker就创建了在主机和所有<br>容器之间一个虚拟共享网络， 如图 20-1 所示。<br><img src="network.png" alt="avatar"></p>
 <ol start="2">
 <li>配置容器DNS和主机名</li>
 <li>相关配置文件</li>
@@ -356,8 +356,8 @@
           <div class="post-nav">
             <div class="post-nav-next post-nav-item">
               
-                <a href="/2019/09/13/docker/docke入门实战（一）——mysql镜像使用/" rel="next" title="docker入门（一）----mysql镜像使用">
-                  <i class="fa fa-chevron-left"></i> docker入门（一）----mysql镜像使用
+                <a href="/2019/09/13/docker/docker入门实战（三）——dockerfile指令/" rel="next" title="docker入门实战（三）—— dockerfile 指令">
+                  <i class="fa fa-chevron-left"></i> docker入门实战（三）—— dockerfile 指令
                 </a>
               
             </div>
@@ -366,8 +366,8 @@
 
             <div class="post-nav-prev post-nav-item">
               
-                <a href="/2019/09/13/docker/docker入门实战（三）——dockerfile指令/" rel="prev" title="docker入门实战（三）—— dockerfile 指令">
-                  docker入门实战（三）—— dockerfile 指令 <i class="fa fa-chevron-right"></i>
+                <a href="/2019/09/13/docker/docker基本使用/" rel="prev" title="docker入门（一）----mysql镜像使用">
+                  docker入门（一）----mysql镜像使用 <i class="fa fa-chevron-right"></i>
                 </a>
               
             </div>
@@ -430,7 +430,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">73</span>
+          <span class="site-state-item-count">78</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -456,7 +456,7 @@
             <a href="/tags/">
           
         
-        <span class="site-state-item-count">49</span>
+        <span class="site-state-item-count">51</span>
         <span class="site-state-item-name">tags</span>
         </a>
       </div>
@@ -477,7 +477,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>

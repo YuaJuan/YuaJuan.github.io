@@ -56,25 +56,25 @@
 </script>
 
   <meta name="description" content="1. Introduction  Zookeeper是个为云计算提供容错分布式共识的服务，该服务旨在提供高可用性和高可靠性，因此一些客户机进程依赖它来引导、存储配置数据、运行进程的状态、组成员关系、实现同步原语和管理故障恢复。它通过复制实现可用性和可靠性，并在以读取为主的工作负载中具有良好的性能。  只要大多数节点可用，服务就被认为是可用的。ZooKeeper的一个关键组件是Zab，即ZooKee">
-<meta name="keywords" content="zab,blockchain,分布式共识算法">
+<meta name="keywords" content="分布式共识算法,blockchain,zab">
 <meta property="og:type" content="article">
 <meta property="og:title" content="分布式共识算法-ZAB">
 <meta property="og:url" content="https://yuajuan.github.io/2019/09/13/分布式共识算法/ZAB/index.html">
 <meta property="og:site_name" content="发现问题并解决问题">
 <meta property="og:description" content="1. Introduction  Zookeeper是个为云计算提供容错分布式共识的服务，该服务旨在提供高可用性和高可靠性，因此一些客户机进程依赖它来引导、存储配置数据、运行进程的状态、组成员关系、实现同步原语和管理故障恢复。它通过复制实现可用性和可靠性，并在以读取为主的工作负载中具有良好的性能。  只要大多数节点可用，服务就被认为是可用的。ZooKeeper的一个关键组件是Zab，即ZooKee">
 <meta property="og:locale" content="en">
-<meta property="og:image" content="https://yuajuan.github.io/.io//discovery.png">
-<meta property="og:image" content="https://yuajuan.github.io/.io//syn.png">
-<meta property="og:image" content="https://yuajuan.github.io/.io//broadcast.png">
-<meta property="og:image" content="https://yuajuan.github.io/.io//imp.png">
-<meta property="og:image" content="https://yuajuan.github.io/.io//recovery.png">
-<meta property="og:image" content="https://yuajuan.github.io/.io//noti.png">
-<meta property="og:image" content="https://yuajuan.github.io/.io//FLE.png">
+<meta property="og:image" content="https://yuajuan.github.io/2019/09/13/分布式共识算法/ZAB/discovery.png">
+<meta property="og:image" content="https://yuajuan.github.io/2019/09/13/分布式共识算法/ZAB/syn.png">
+<meta property="og:image" content="https://yuajuan.github.io/2019/09/13/分布式共识算法/ZAB/broadcast.png">
+<meta property="og:image" content="https://yuajuan.github.io/2019/09/13/分布式共识算法/ZAB/imp.png">
+<meta property="og:image" content="https://yuajuan.github.io/2019/09/13/分布式共识算法/ZAB/recovery.png">
+<meta property="og:image" content="https://yuajuan.github.io/2019/09/13/分布式共识算法/ZAB/noti.png">
+<meta property="og:image" content="https://yuajuan.github.io/2019/09/13/分布式共识算法/ZAB/FLE.png">
 <meta property="og:updated_time" content="2019-02-28T07:26:54.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="分布式共识算法-ZAB">
 <meta name="twitter:description" content="1. Introduction  Zookeeper是个为云计算提供容错分布式共识的服务，该服务旨在提供高可用性和高可靠性，因此一些客户机进程依赖它来引导、存储配置数据、运行进程的状态、组成员关系、实现同步原语和管理故障恢复。它通过复制实现可用性和可靠性，并在以读取为主的工作负载中具有良好的性能。  只要大多数节点可用，服务就被认为是可用的。ZooKeeper的一个关键组件是Zab，即ZooKee">
-<meta name="twitter:image" content="https://yuajuan.github.io/.io//discovery.png">
+<meta name="twitter:image" content="https://yuajuan.github.io/2019/09/13/分布式共识算法/ZAB/discovery.png">
   <link rel="canonical" href="https://yuajuan.github.io/2019/09/13/分布式共识算法/ZAB/">
 
 
@@ -363,16 +363,16 @@
 <li>phase3:Broadcast</li>
 </ul>
 <h3 id="phase0-Leader-election"><a href="#phase0-Leader-election" class="headerlink" title="phase0:Leader election"></a>phase0:Leader election</h3><p>节点初始化，状态为election。得到quorum的投票成为Leader。election阶段完成后，节点存储她的投票到local volatile memory。如果a投票给了b，那么b就是a的prospective leader （未来的领导者）。只有当prospective leader变为一个established leader，它才会成为一个主进程。如果一个节点为自己投票，那么就会把自己的状态转为leading，否则转为following。</p>
-<h3 id="phase1-Discovery"><a href="#phase1-Discovery" class="headerlink" title="phase1:Discovery"></a>phase1:Discovery</h3><p>followers会和自己的prospective leader进行通信，那么leader会从这些followers上收集这些被accepted的最新的事务。这个阶段的目的就是从这些quorum中收集最新accepted事务，并且将epoch加1进入到下一个新的epoch，使得先前的leader失效。完整的算法描述如下图：<br><img src="/.io//discovery.png" alt="avatar"></p>
-<h3 id="phase2-Synchronization"><a href="#phase2-Synchronization" class="headerlink" title="phase2:Synchronization"></a>phase2:Synchronization</h3><p>同步阶段包括了recovery，使用Leader从上一阶段更新的历史记录同步集群中的副本。具体看算法伪代码。<br><img src="/.io//syn.png" alt="avatar"></p>
-<h3 id="phase3-broadcast"><a href="#phase3-broadcast" class="headerlink" title="phase3:broadcast"></a>phase3:broadcast</h3><p>如果没有crash发生，节点会在这个阶段持续下去。在这个阶段允许有新的节点加入<br><img src="/.io//broadcast.png" alt="avatar"></p>
+<h3 id="phase1-Discovery"><a href="#phase1-Discovery" class="headerlink" title="phase1:Discovery"></a>phase1:Discovery</h3><p>followers会和自己的prospective leader进行通信，那么leader会从这些followers上收集这些被accepted的最新的事务。这个阶段的目的就是从这些quorum中收集最新accepted事务，并且将epoch加1进入到下一个新的epoch，使得先前的leader失效。完整的算法描述如下图：<br><img src="discovery.png" alt="avatar"></p>
+<h3 id="phase2-Synchronization"><a href="#phase2-Synchronization" class="headerlink" title="phase2:Synchronization"></a>phase2:Synchronization</h3><p>同步阶段包括了recovery，使用Leader从上一阶段更新的历史记录同步集群中的副本。具体看算法伪代码。<br><img src="syn.png" alt="avatar"></p>
+<h3 id="phase3-broadcast"><a href="#phase3-broadcast" class="headerlink" title="phase3:broadcast"></a>phase3:broadcast</h3><p>如果没有crash发生，节点会在这个阶段持续下去。在这个阶段允许有新的节点加入<br><img src="broadcast.png" alt="avatar"></p>
 <p>在上面的三种算法中都没有考虑crash的情况。为了检测crash发生，在followers和leader之间使用心跳机制。如果一个leader不能再从quorum中收到heartbeats，则放弃自己的leadership，转换成election状态；如果一个follower不再收到Leader的heartbeat也同样转换成election状态</p>
-<h2 id="3-2-Analytical-results"><a href="#3-2-Analytical-results" class="headerlink" title="3.2 Analytical results"></a>3.2 Analytical results</h2><h1 id="4-Implementation"><a href="#4-Implementation" class="headerlink" title="4. Implementation"></a>4. Implementation</h1><p>zab在实习过程中和上面有些不同，实现过程中是将上述的phase0和phase1合并成了一个一个阶段，即Fast Leader Election。这个算法是选择最up-to-date的节点作业leader。这样的leader就不要phase1中去发现最新的history了<br><img src="/.io//imp.png" alt="avatar"></p>
-<h2 id="4-1-Recovery-phase"><a href="#4-1-Recovery-phase" class="headerlink" title="4.1 Recovery phase"></a>4.1 Recovery phase</h2><p>Followers和leader通信发送自己最新的zxid,leader才能决定如何来对这个follower的history进行同步。<br><img src="/.io//recovery.png" alt="avatar"> </p>
+<h2 id="3-2-Analytical-results"><a href="#3-2-Analytical-results" class="headerlink" title="3.2 Analytical results"></a>3.2 Analytical results</h2><h1 id="4-Implementation"><a href="#4-Implementation" class="headerlink" title="4. Implementation"></a>4. Implementation</h1><p>zab在实习过程中和上面有些不同，实现过程中是将上述的phase0和phase1合并成了一个一个阶段，即Fast Leader Election。这个算法是选择最up-to-date的节点作业leader。这样的leader就不要phase1中去发现最新的history了<br><img src="imp.png" alt="avatar"></p>
+<h2 id="4-1-Recovery-phase"><a href="#4-1-Recovery-phase" class="headerlink" title="4.1 Recovery phase"></a>4.1 Recovery phase</h2><p>Followers和leader通信发送自己最新的zxid,leader才能决定如何来对这个follower的history进行同步。<br><img src="recovery.png" alt="avatar"> </p>
 <h2 id="4-2-Fast-Leader-Election"><a href="#4-2-Fast-Leader-Election" class="headerlink" title="4.2 Fast Leader Election"></a>4.2 Fast Leader Election</h2><p><strong>选取出的Leader在history中要包括所有提交了的事务</strong>。这就要求节点有最新的提案必须也有最新的提交的事务。？？？？<br>在同步阶段（即recovery阶段），事务的流向是单向的：即从leader-&gt;follower。所以这就要求选取出的Leader必须是最up-to-date的，<strong>即在一个quorum钟拥有的lastZxid最大。</strong></p>
 <p>peers exchange notifications about their votes,and they update their own vote when a peer with more recent history is discovered.返回一个vote，该peer的FLE就终止了，如果这个vote是投给自己的，那么这个peer进入到leading状态，如果投给别人，就进入到following状态。<br>任何subsequent的失败都会导致peer退回到election状态重新开始FLE.每次开始一轮FLE,round number 就会加1.<br>假设集群中的节点集合为@={p1,p2,p3,pn}。一个投给pi的票用&lt; zi,i &gt;来做标记，其中zi是pi中最新的zxid。对于FLE,vote通过“better”关系来排序。&lt; zi,i &gt; &gt; &lt; zj,j &gt; if zi&gt;zj 或者 zi=zj and i&gt;j。这里pi&gt;pj也是上面的表示。</p>
-<p>notification 包括（vote,id,state,round),notification会用于各个节点点的交互信息。<br><img src="/.io//noti.png" alt="avatar"></p>
-<p>Fast Leader Election 算法<br><img src="/.io//FLE.png" alt="avatar"></p>
+<p>notification 包括（vote,id,state,round),notification会用于各个节点点的交互信息。<br><img src="noti.png" alt="avatar"></p>
+<p>Fast Leader Election 算法<br><img src="FLE.png" alt="avatar"></p>
 <p><strong>参考论文《 ZooKeeper’s atomic broadcast protocol: Theory and practice  》</strong></p>
 
     </div>
@@ -389,11 +389,11 @@
           
           <div class="post-tags">
             
-              <a href="/tags/zab/" rel="tag"># zab</a>
+              <a href="/tags/分布式共识算法/" rel="tag"># 分布式共识算法</a>
             
               <a href="/tags/blockchain/" rel="tag"># blockchain</a>
             
-              <a href="/tags/分布式共识算法/" rel="tag"># 分布式共识算法</a>
+              <a href="/tags/zab/" rel="tag"># zab</a>
             
           </div>
         
@@ -403,8 +403,8 @@
           <div class="post-nav">
             <div class="post-nav-next post-nav-item">
               
-                <a href="/2019/09/13/分布式共识算法/Paxos/" rel="next" title="分布式共识算法：Paxos">
-                  <i class="fa fa-chevron-left"></i> 分布式共识算法：Paxos
+                <a href="/2019/09/13/分布式共识算法/pos and pow/" rel="next" title="分布式共识算法：pos and pow">
+                  <i class="fa fa-chevron-left"></i> 分布式共识算法：pos and pow
                 </a>
               
             </div>
@@ -413,8 +413,8 @@
 
             <div class="post-nav-prev post-nav-item">
               
-                <a href="/2019/09/13/分布式共识算法/pos and pow/" rel="prev" title="分布式共识算法：pos and pow">
-                  分布式共识算法：pos and pow <i class="fa fa-chevron-right"></i>
+                <a href="/2019/09/13/分布式共识算法/Paxos/" rel="prev" title="分布式共识算法：Paxos">
+                  分布式共识算法：Paxos <i class="fa fa-chevron-right"></i>
                 </a>
               
             </div>
@@ -479,7 +479,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">73</span>
+          <span class="site-state-item-count">78</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -505,7 +505,7 @@
             <a href="/tags/">
           
         
-        <span class="site-state-item-count">49</span>
+        <span class="site-state-item-count">51</span>
         <span class="site-state-item-name">tags</span>
         </a>
       </div>
@@ -526,7 +526,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>

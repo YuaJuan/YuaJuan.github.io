@@ -56,23 +56,23 @@
 </script>
 
   <meta name="description" content="1.paxos应用场景没有恶意节点，但可能由于网络延迟或crash导致某些节点不能正常收到消息。paxos要解决的问题是：将所有节点都写入同一个值，且被写入后不再更改。paxos需要满足的两个条件  Safety只有一个值可能被选中。 服务器永远不会知道一个值被选中，除非它真的被选中。">
-<meta name="keywords" content="blockchain,分布式共识算法,paxos">
+<meta name="keywords" content="分布式共识算法,blockchain,paxos">
 <meta property="og:type" content="article">
 <meta property="og:title" content="分布式共识算法：Paxos">
 <meta property="og:url" content="https://yuajuan.github.io/2019/09/13/分布式共识算法/Paxos/index.html">
 <meta property="og:site_name" content="发现问题并解决问题">
 <meta property="og:description" content="1.paxos应用场景没有恶意节点，但可能由于网络延迟或crash导致某些节点不能正常收到消息。paxos要解决的问题是：将所有节点都写入同一个值，且被写入后不再更改。paxos需要满足的两个条件  Safety只有一个值可能被选中。 服务器永远不会知道一个值被选中，除非它真的被选中。">
 <meta property="og:locale" content="en">
-<meta property="og:image" content="https://yuajuan.github.io/.io//paxos.png">
-<meta property="og:image" content="https://yuajuan.github.io/.io//majorityAccept.png">
-<meta property="og:image" content="https://yuajuan.github.io/.io//minority.png">
-<meta property="og:image" content="https://yuajuan.github.io/.io//cannotSeeAccept.png">
-<meta property="og:image" content="https://yuajuan.github.io/.io//livelock.png">
+<meta property="og:image" content="https://yuajuan.github.io/2019/09/13/分布式共识算法/Paxos/paxos.png">
+<meta property="og:image" content="https://yuajuan.github.io/2019/09/13/分布式共识算法/Paxos/majorityAccept.png">
+<meta property="og:image" content="https://yuajuan.github.io/2019/09/13/分布式共识算法/Paxos/minority.png">
+<meta property="og:image" content="https://yuajuan.github.io/2019/09/13/分布式共识算法/Paxos/cannotSeeAccept.png">
+<meta property="og:image" content="https://yuajuan.github.io/2019/09/13/分布式共识算法/Paxos/livelock.png">
 <meta property="og:updated_time" content="2019-02-21T03:17:30.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="分布式共识算法：Paxos">
 <meta name="twitter:description" content="1.paxos应用场景没有恶意节点，但可能由于网络延迟或crash导致某些节点不能正常收到消息。paxos要解决的问题是：将所有节点都写入同一个值，且被写入后不再更改。paxos需要满足的两个条件  Safety只有一个值可能被选中。 服务器永远不会知道一个值被选中，除非它真的被选中。">
-<meta name="twitter:image" content="https://yuajuan.github.io/.io//paxos.png">
+<meta name="twitter:image" content="https://yuajuan.github.io/2019/09/13/分布式共识算法/Paxos/paxos.png">
   <link rel="canonical" href="https://yuajuan.github.io/2019/09/13/分布式共识算法/Paxos/">
 
 
@@ -384,19 +384,19 @@
 <ol>
 <li>Proposer选择一个proposal编号n，向acceptor发送编号为n的prepare请求</li>
 <li>如果Acceptor接收到的prepare请求的编号大于它已经回应过的prepare请求，它就回应已经accept的编号最高的议案（如果有的话），并承诺不再回应任何编号小于n的议案。<br><strong>phase2:accept</strong></li>
-<li>Proposer:如果收到了多数acceptor对prepare请求（编号为n）的回应，它就像这些acceptor发送提案(n,v),其中v是所有回应中编号最高的议案的value。<br><img src="/.io//paxos.png" alt="avatar"></li>
+<li>Proposer:如果收到了多数acceptor对prepare请求（编号为n）的回应，它就像这些acceptor发送提案(n,v),其中v是所有回应中编号最高的议案的value。<br><img src="paxos.png" alt="avatar"></li>
 </ol>
 <h1 id="5-具体情况分析"><a href="#5-具体情况分析" class="headerlink" title="5.具体情况分析"></a>5.具体情况分析</h1><p>在整个paxos两阶段过程中，有三个特别重要的值 : AcceptedN,AcceptedV,MaxN。每次发起提议都会用到这三个值，并根据这三个值的不同情况做不同的判定。所以，<strong>这三个值每次产生之后都需要持久化到磁盘上</strong>。这样，才能在服务器restart或者故障情况下，能够正确的执行paxos的二阶段来保证强一致性.</p>
 <p>整个Lifecycle，每次去提交一个值(Accept)之前，需要先检查集群中大多数节点是否之前已经通过对这个值的提议。一旦有某一个节点反馈这个值之前被接受，那我们认为之前对这个值发起过提议，并被某个节点接受。因此，选择返回的提议号最大的值替换当前的值，也就是最后一次Accept的值来作为当前发起Accept 请求的值。</p>
 <p>接下来，列举几种可能出现的情况，并看看Basic Paxos 协议是如何来进行实际处理的。</p>
 <ul>
-<li><p><strong>1.如果一个提议发起之前，对应的值已经被大多数Accept，那么这个提议必须使用已经被Accept的值。</strong><br><img src="/.io//majorityAccept.png" alt="avatar"></p>
+<li><p><strong>1.如果一个提议发起之前，对应的值已经被大多数Accept，那么这个提议必须使用已经被Accept的值。</strong><br><img src="majorityAccept.png" alt="avatar"></p>
 </li>
-<li><p><strong>2.如果之前提议的值已经被部少分节点Accept，但是没有chosen。新的提议可以看到之前少部分节点Accept的值。则这个Accept的值会作为新的提议Accept请求的值。</strong><br><img src="/.io//minority.png" alt="avatar"><br>在S5发起编号为4.5的提议之后，Accept之前，S1的Accept 请求并未被大多数接受。此时，只有S3接受了S1编号为3.1的Accept 请求。在这种情况下，S5的Parepare提议返回AcceptValue为X并将X作为Accept的请求值进行提交。 </p>
+<li><p><strong>2.如果之前提议的值已经被部少分节点Accept，但是没有chosen。新的提议可以看到之前少部分节点Accept的值。则这个Accept的值会作为新的提议Accept请求的值。</strong><br><img src="minority.png" alt="avatar"><br>在S5发起编号为4.5的提议之后，Accept之前，S1的Accept 请求并未被大多数接受。此时，只有S3接受了S1编号为3.1的Accept 请求。在这种情况下，S5的Parepare提议返回AcceptValue为X并将X作为Accept的请求值进行提交。 </p>
 </li>
-<li><p><strong>3.如果之前的提议被部分节点Accept，但是没有chosen。且新的提议看不到之前提议的Accept的值。则新的提议的Accept的请求会使用自己的值。</strong><br><img src="/.io//cannotSeeAccept.png" alt="avatar"><br>S1的编号为3.1的Accept请求到了S3服务器，但是S3服务器接收到Accept请求后，发现已经存在其他的Prepare请求，且编号为4.5 &gt; 3.1,所以拒绝了S1的Accept的请求。所以S1收到S3返回的minProposal,发现minProposal（4.5） &gt; 3.1，所以调整自己的Proposal Number，重新发起提议。</p>
+<li><p><strong>3.如果之前的提议被部分节点Accept，但是没有chosen。且新的提议看不到之前提议的Accept的值。则新的提议的Accept的请求会使用自己的值。</strong><br><img src="cannotSeeAccept.png" alt="avatar"><br>S1的编号为3.1的Accept请求到了S3服务器，但是S3服务器接收到Accept请求后，发现已经存在其他的Prepare请求，且编号为4.5 &gt; 3.1,所以拒绝了S1的Accept的请求。所以S1收到S3返回的minProposal,发现minProposal（4.5） &gt; 3.1，所以调整自己的Proposal Number，重新发起提议。</p>
 </li>
-<li><p><strong>4.出现livelock</strong><br><img src="/.io//livelock.png" alt="avatar"><br>每次服务器接收到Accept请求后，发现有比Accept 编号大的提议已经Prepare了，所以Proposer（这里为S1,S5）不断的重新发起提议。这种情况被称之为Livelock。</p>
+<li><p><strong>4.出现livelock</strong><br><img src="livelock.png" alt="avatar"><br>每次服务器接收到Accept请求后，发现有比Accept 编号大的提议已经Prepare了，所以Proposer（这里为S1,S5）不断的重新发起提议。这种情况被称之为Livelock。</p>
 <p>那么，如何避免这种情况的发生呢 ？ </p>
 <ol>
 <li>每次失败后，重新发起提议前，随机delay一段时间。</li>
@@ -419,9 +419,9 @@
           
           <div class="post-tags">
             
-              <a href="/tags/blockchain/" rel="tag"># blockchain</a>
-            
               <a href="/tags/分布式共识算法/" rel="tag"># 分布式共识算法</a>
+            
+              <a href="/tags/blockchain/" rel="tag"># blockchain</a>
             
               <a href="/tags/paxos/" rel="tag"># paxos</a>
             
@@ -433,8 +433,8 @@
           <div class="post-nav">
             <div class="post-nav-next post-nav-item">
               
-                <a href="/2019/09/13/分布式共识算法/PBFT/" rel="next" title="分布式共识算法：PBFT">
-                  <i class="fa fa-chevron-left"></i> 分布式共识算法：PBFT
+                <a href="/2019/09/13/分布式共识算法/ZAB/" rel="next" title="分布式共识算法-ZAB">
+                  <i class="fa fa-chevron-left"></i> 分布式共识算法-ZAB
                 </a>
               
             </div>
@@ -443,8 +443,8 @@
 
             <div class="post-nav-prev post-nav-item">
               
-                <a href="/2019/09/13/分布式共识算法/ZAB/" rel="prev" title="分布式共识算法-ZAB">
-                  分布式共识算法-ZAB <i class="fa fa-chevron-right"></i>
+                <a href="/2019/09/13/分布式共识算法/PBFT/" rel="prev" title="分布式共识算法：PBFT">
+                  分布式共识算法：PBFT <i class="fa fa-chevron-right"></i>
                 </a>
               
             </div>
@@ -509,7 +509,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">73</span>
+          <span class="site-state-item-count">78</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -535,7 +535,7 @@
             <a href="/tags/">
           
         
-        <span class="site-state-item-count">49</span>
+        <span class="site-state-item-count">51</span>
         <span class="site-state-item-name">tags</span>
         </a>
       </div>
@@ -556,7 +556,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>

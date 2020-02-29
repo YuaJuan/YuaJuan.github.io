@@ -63,13 +63,13 @@
 <meta property="og:site_name" content="发现问题并解决问题">
 <meta property="og:description" content="3.1比特币的交易这种交易账本的记账方式需要考虑的几个问题：   地址转换：上比特币就像财奴币中描述的币一样，一个交易中输出的币，要么在另一个交易中被完全消费掉，要么就一个都不被消费，不存在只消费部分的情况。爱丽丝只需付给鲍勃17个币，但爱丽丝在上一交易中实际获得了25个币，为了把这些币全部消费掉，她必须再转给自己8个币。这8个币可以转到另外一个地址（不同于交易1中获得25个币的地址），但前提是该">
 <meta property="og:locale" content="en">
-<meta property="og:image" content="https://yuajuan.github.io/.io//bitcointrans.png">
-<meta property="og:image" content="https://yuajuan.github.io/.io//bitcoin_trans_program.png">
+<meta property="og:image" content="https://yuajuan.github.io/2019/09/13/区块链/区块链：技术驱动金融/《区块链：技术驱动金融》-比特币运行机制/bitcointrans.png">
+<meta property="og:image" content="https://yuajuan.github.io/2019/09/13/区块链/区块链：技术驱动金融/《区块链：技术驱动金融》-比特币运行机制/bitcoin_trans_program.png">
 <meta property="og:updated_time" content="2019-03-03T13:15:20.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="《区块链：技术驱动金融》-比特币运行机制">
 <meta name="twitter:description" content="3.1比特币的交易这种交易账本的记账方式需要考虑的几个问题：   地址转换：上比特币就像财奴币中描述的币一样，一个交易中输出的币，要么在另一个交易中被完全消费掉，要么就一个都不被消费，不存在只消费部分的情况。爱丽丝只需付给鲍勃17个币，但爱丽丝在上一交易中实际获得了25个币，为了把这些币全部消费掉，她必须再转给自己8个币。这8个币可以转到另外一个地址（不同于交易1中获得25个币的地址），但前提是该">
-<meta name="twitter:image" content="https://yuajuan.github.io/.io//bitcointrans.png">
+<meta name="twitter:image" content="https://yuajuan.github.io/2019/09/13/区块链/区块链：技术驱动金融/《区块链：技术驱动金融》-比特币运行机制/bitcointrans.png">
   <link rel="canonical" href="https://yuajuan.github.io/2019/09/13/区块链/区块链：技术驱动金融/《区块链：技术驱动金融》-比特币运行机制/">
 
 
@@ -313,7 +313,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="3-1比特币的交易"><a href="#3-1比特币的交易" class="headerlink" title="3.1比特币的交易"></a>3.1比特币的交易</h1><p><img src="/.io//bitcointrans.png" alt="avatar"><br>这种交易账本的记账方式需要考虑的几个问题：</p>
+        <h1 id="3-1比特币的交易"><a href="#3-1比特币的交易" class="headerlink" title="3.1比特币的交易"></a>3.1比特币的交易</h1><p><img src="bitcointrans.png" alt="avatar"><br>这种交易账本的记账方式需要考虑的几个问题：</p>
 <blockquote>
 <ol>
 <li>地址转换：上比特币就像财奴币中描述的币一样，一个交易中输出的币，要么在另一个交易中被完全消费掉，要么就一个都不被消费，不存在只消费部分的情况。爱丽丝只需付给鲍勃17个币，但爱丽丝在上一交易中实际获得了25个币，为了把这些币全部消费掉，她必须再转给自己8个币。这8个币可以转到另外一个地址（不同于交易1中获得25个币的地址），但前提是该地址为爱丽丝所有，这就叫地址转换。</li>
@@ -322,7 +322,7 @@
 <li>共同支付。同样地，共同支付也很容易做到。如果卡罗尔和鲍勃想要共同支付给戴维，他们可以发起一个交易，交易里也有两个输入和一个输出，唯一不同在于，两个输入所引用的“上一笔交易”的输出地址不同，因此，这笔交易需要两个签名：卡罗尔的和鲍勃的。</li>
 </ol>
 </blockquote>
-<p>一个真实的比特币交易程序段<br><img src="/.io//bitcoin_trans_program.png" alt="avatar"><br>可以看到比特币交易分成3个部分：元数据，一系列的输入和一系列输出</p>
+<p>一个真实的比特币交易程序段<br><img src="bitcoin_trans_program.png" alt="avatar"><br>可以看到比特币交易分成3个部分：元数据，一系列的输入和一系列输出</p>
 <blockquote>
 <ol>
 <li>元数据。这里存放一些内部处理的信息：包含这笔交易的规模、输入的数量、输出的数量，还有此笔交易的哈希值，也就是这个交易独一无二的ID。我们可以用哈希指针指向这个ID。最后还有一个“锁定时间”（lock_time），后面会谈到。</li>
@@ -361,8 +361,8 @@
           <div class="post-nav">
             <div class="post-nav-next post-nav-item">
               
-                <a href="/2019/09/13/区块链/以太坊开发/以太坊开发问题记录/" rel="next" title="区块链基础">
-                  <i class="fa fa-chevron-left"></i> 区块链基础
+                <a href="/2019/09/13/区块链/以太坊开发/以太坊源码分析/以太坊源码分析-call,callcode,delegatecall/" rel="next" title="以太坊源码分析-call,callcode,delegatecall">
+                  <i class="fa fa-chevron-left"></i> 以太坊源码分析-call,callcode,delegatecall
                 </a>
               
             </div>
@@ -371,8 +371,8 @@
 
             <div class="post-nav-prev post-nav-item">
               
-                <a href="/2019/09/13/区块链/以太坊开发/以太坊源码分析/以太坊源码分析-合约创建/" rel="prev" title="以太坊源码分析-交易处理及创建合约">
-                  以太坊源码分析-交易处理及创建合约 <i class="fa fa-chevron-right"></i>
+                <a href="/2019/09/13/区块链/以太坊开发/以太坊搭建私有链/" rel="prev" title="以太坊搭建私有链">
+                  以太坊搭建私有链 <i class="fa fa-chevron-right"></i>
                 </a>
               
             </div>
@@ -437,7 +437,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">73</span>
+          <span class="site-state-item-count">78</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -463,7 +463,7 @@
             <a href="/tags/">
           
         
-        <span class="site-state-item-count">49</span>
+        <span class="site-state-item-count">51</span>
         <span class="site-state-item-name">tags</span>
         </a>
       </div>
@@ -484,7 +484,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>

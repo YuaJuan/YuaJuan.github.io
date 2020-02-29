@@ -56,22 +56,22 @@
 </script>
 
   <meta name="description" content="什么是拜占庭问题拜占庭问题：拜占庭将军问题（Byzantine Generals Problem），是由莱斯利·兰波特在其同名论文中提出的分布式对等网络通信容错问题。拜占庭帝国是一个古老而强大的帝国，这次他们想攻打另一个强大的敌人，所以派出了10支军队想要包围敌人。并且这10支军队约定，互相依靠轻骑兵通信协商，在包围敌人之后同时进攻。那么问题来了，如果这其中有人叛变，传递错误的信息，那么怎么同时进">
-<meta name="keywords" content="blockchain,分布式共识算法,PBFT">
+<meta name="keywords" content="分布式共识算法,blockchain,PBFT">
 <meta property="og:type" content="article">
 <meta property="og:title" content="分布式共识算法：PBFT">
 <meta property="og:url" content="https://yuajuan.github.io/2019/09/13/分布式共识算法/PBFT/index.html">
 <meta property="og:site_name" content="发现问题并解决问题">
 <meta property="og:description" content="什么是拜占庭问题拜占庭问题：拜占庭将军问题（Byzantine Generals Problem），是由莱斯利·兰波特在其同名论文中提出的分布式对等网络通信容错问题。拜占庭帝国是一个古老而强大的帝国，这次他们想攻打另一个强大的敌人，所以派出了10支军队想要包围敌人。并且这10支军队约定，互相依靠轻骑兵通信协商，在包围敌人之后同时进攻。那么问题来了，如果这其中有人叛变，传递错误的信息，那么怎么同时进">
 <meta property="og:locale" content="en">
-<meta property="og:image" content="https://yuajuan.github.io/.io//request.png">
-<meta property="og:image" content="https://yuajuan.github.io/.io//pre-prepare.png">
-<meta property="og:image" content="https://yuajuan.github.io/.io//prepare.png">
-<meta property="og:image" content="https://yuajuan.github.io/.io//reply.png">
+<meta property="og:image" content="https://yuajuan.github.io/2019/09/13/分布式共识算法/PBFT/request.png">
+<meta property="og:image" content="https://yuajuan.github.io/2019/09/13/分布式共识算法/PBFT/pre-prepare.png">
+<meta property="og:image" content="https://yuajuan.github.io/2019/09/13/分布式共识算法/PBFT/prepare.png">
+<meta property="og:image" content="https://yuajuan.github.io/2019/09/13/分布式共识算法/PBFT/reply.png">
 <meta property="og:updated_time" content="2019-02-21T03:17:38.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="分布式共识算法：PBFT">
 <meta name="twitter:description" content="什么是拜占庭问题拜占庭问题：拜占庭将军问题（Byzantine Generals Problem），是由莱斯利·兰波特在其同名论文中提出的分布式对等网络通信容错问题。拜占庭帝国是一个古老而强大的帝国，这次他们想攻打另一个强大的敌人，所以派出了10支军队想要包围敌人。并且这10支军队约定，互相依靠轻骑兵通信协商，在包围敌人之后同时进攻。那么问题来了，如果这其中有人叛变，传递错误的信息，那么怎么同时进">
-<meta name="twitter:image" content="https://yuajuan.github.io/.io//request.png">
+<meta name="twitter:image" content="https://yuajuan.github.io/2019/09/13/分布式共识算法/PBFT/request.png">
   <link rel="canonical" href="https://yuajuan.github.io/2019/09/13/分布式共识算法/PBFT/">
 
 
@@ -335,7 +335,7 @@
 <li>所有副本都执行请求并将结果发回到客户端</li>
 <li>客户端需要等待f+1个不同副本节点发回相同的结果<h2 id="request阶段"><a href="#request阶段" class="headerlink" title="request阶段"></a>request阶段</h2></li>
 </ol>
-<p>客户端c向主节点发送&lt;REQUEST,o,t,c&gt;请求执行状态机操作o,这里时间戳t用了保证客户端请求只会被执行一次。<br><img src="/.io//request.png" alt="avatar"></p>
+<p>客户端c向主节点发送&lt;REQUEST,o,t,c&gt;请求执行状态机操作o,这里时间戳t用了保证客户端请求只会被执行一次。<br><img src="request.png" alt="avatar"></p>
 <p>当主节点收到客户端的请求m，主节点将该请求发送给所有副本节点。</p>
 <p>接下来就是three-phase protocol</p>
 <ul>
@@ -343,7 +343,7 @@
 <li>准备 prepare</li>
 <li>确认 commit</li>
 </ul>
-<h2 id="预准备阶段-pre-prepare"><a href="#预准备阶段-pre-prepare" class="headerlink" title="预准备阶段(pre-prepare)"></a>预准备阶段(pre-prepare)</h2><p>在预准备节点，主节点分配一个序列号n给收到的请求，然后向所有备份节点广播预准备消息，预准备消息的格式为&lt;&lt;PRE-PREPARE,v,n,d&gt;,m&gt;,这里v是视图编号，m是客户端发送的请求消息，d是请求消息的摘要。<br><img src="/.io//pre-prepare.png" alt="avatar"></p>
+<h2 id="预准备阶段-pre-prepare"><a href="#预准备阶段-pre-prepare" class="headerlink" title="预准备阶段(pre-prepare)"></a>预准备阶段(pre-prepare)</h2><p>在预准备节点，主节点分配一个序列号n给收到的请求，然后向所有备份节点广播预准备消息，预准备消息的格式为&lt;&lt;PRE-PREPARE,v,n,d&gt;,m&gt;,这里v是视图编号，m是客户端发送的请求消息，d是请求消息的摘要。<br><img src="pre-prepare.png" alt="avatar"></p>
 <p>请求本身不包含在pre-prepare消息中（只有请求消息），这样可以使得pre-prepare消息足够小。pre-prepare的目的是作为一种证明，确定该请求在视图v中被赋予了序号n，从而如果发生视图变更可以追索。另外一个层面，将“请求排序协议”和“请求传输协议”进行解耦（？？？？what，为什么这样就排序了，在哪个阶段进了请求传输？？？），有利于对消息传输的效率进行深度优化。</p>
 <p><strong>只有满足以下条件，各个备份节点才会接受一个预准备消息：</strong></p>
 <ul>
@@ -352,7 +352,7 @@
 <li>该备份节点从未在视图v中接受过序号为n但是摘要d不同的消息m</li>
 <li>预准备消息的序号n必须在水线上下限h和H之间<br>(水线存在的意义在于防止一个失效节点使用一个很大的序号消耗序号空间)</li>
 </ul>
-<h2 id="准备-prepare-阶段"><a href="#准备-prepare-阶段" class="headerlink" title="准备(prepare)阶段"></a>准备(prepare)阶段</h2><p>如果备份节点i接受了预准备消息&lt;&lt;PRE-PREPARE,v,n,d&gt;,m&gt;则进入到准备阶段。在准备阶段的同时，该节点向其他所有副本节点广播准备消息&lt; prepare,v,n,d,i&gt;,并且将预准备消息和准备消息写入自己的消息日志。<br>如果节点i没有接受预准备消息，则什么也不需要干<br><img src="/.io//prepare.png" alt="avatar"><br><strong>只有满足以下条件，各个备份节点才会接受一个准备消息：</strong></p>
+<h2 id="准备-prepare-阶段"><a href="#准备-prepare-阶段" class="headerlink" title="准备(prepare)阶段"></a>准备(prepare)阶段</h2><p>如果备份节点i接受了预准备消息&lt;&lt;PRE-PREPARE,v,n,d&gt;,m&gt;则进入到准备阶段。在准备阶段的同时，该节点向其他所有副本节点广播准备消息&lt; prepare,v,n,d,i&gt;,并且将预准备消息和准备消息写入自己的消息日志。<br>如果节点i没有接受预准备消息，则什么也不需要干<br><img src="prepare.png" alt="avatar"><br><strong>只有满足以下条件，各个备份节点才会接受一个准备消息：</strong></p>
 <ul>
 <li>请求和预准备消息的签名正确</li>
 <li>当前视图编号是v</li>
@@ -381,7 +381,7 @@
 </blockquote>
 <p><strong>非常重要的：对于任意正常节点i来说，如果committed-local为真，那么committed就为真。</strong></p>
 <p>这样能保证任何正常节点的本地确认最终会确认f+1个更多的<strong>正常副本</strong>。（应该是2f+1中有f个非正常副本吗？非正常副本和正常副本的区别是是什么？）</p>
-<h2 id="reply阶段"><a href="#reply阶段" class="headerlink" title="reply阶段"></a>reply阶段</h2><p>每个副本节点在commited-local(m,v,n,i)为真后，开始执行m的请求。每个节点在完成请求的操作后，都会向客户端发送执行结果。<br>副本节点会把时间戳比自己已经回复的更小的请求丢弃，保证请求只会被执行一次。<br><img src="/.io//reply.png" alt="avatar"></p>
+<h2 id="reply阶段"><a href="#reply阶段" class="headerlink" title="reply阶段"></a>reply阶段</h2><p>每个副本节点在commited-local(m,v,n,i)为真后，开始执行m的请求。每个节点在完成请求的操作后，都会向客户端发送执行结果。<br>副本节点会把时间戳比自己已经回复的更小的请求丢弃，保证请求只会被执行一次。<br><img src="reply.png" alt="avatar"></p>
 <p>客户端等待f+1个从不同副本得到的同样的响应，同样的响应需要保证签名正确，并且具有同样的时间戳t和执行结果r。这样客户端才能把r当做正确的执行结果。</p>
 <p>如果客户端没有在有效时间内收到回复，将会把请求向所有副本节点进行广播。如果请求已经在副本节点处理过了直接把结果返回给客户端，如果没有则会把请求转发给主节点。<br>如果主节点没有将请求进行广播，那么就认为主节点失效，如果有足够多的副本节点认为主节点失效，则会触发视图变更。</p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
@@ -420,9 +420,9 @@
           
           <div class="post-tags">
             
-              <a href="/tags/blockchain/" rel="tag"># blockchain</a>
-            
               <a href="/tags/分布式共识算法/" rel="tag"># 分布式共识算法</a>
+            
+              <a href="/tags/blockchain/" rel="tag"># blockchain</a>
             
               <a href="/tags/PBFT/" rel="tag"># PBFT</a>
             
@@ -434,8 +434,8 @@
           <div class="post-nav">
             <div class="post-nav-next post-nav-item">
               
-                <a href="/2019/09/13/GPU/GPU内存/" rel="next" title="GPU内存详解">
-                  <i class="fa fa-chevron-left"></i> GPU内存详解
+                <a href="/2019/09/13/分布式共识算法/Paxos/" rel="next" title="分布式共识算法：Paxos">
+                  <i class="fa fa-chevron-left"></i> 分布式共识算法：Paxos
                 </a>
               
             </div>
@@ -444,8 +444,8 @@
 
             <div class="post-nav-prev post-nav-item">
               
-                <a href="/2019/09/13/分布式共识算法/Paxos/" rel="prev" title="分布式共识算法：Paxos">
-                  分布式共识算法：Paxos <i class="fa fa-chevron-right"></i>
+                <a href="/2019/09/13/书中自有黄金屋/第九个寡妇-严歌苓/" rel="prev" title="第九个寡妇-读后感">
+                  第九个寡妇-读后感 <i class="fa fa-chevron-right"></i>
                 </a>
               
             </div>
@@ -510,7 +510,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">73</span>
+          <span class="site-state-item-count">78</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -536,7 +536,7 @@
             <a href="/tags/">
           
         
-        <span class="site-state-item-count">49</span>
+        <span class="site-state-item-count">51</span>
         <span class="site-state-item-name">tags</span>
         </a>
       </div>
@@ -557,7 +557,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>

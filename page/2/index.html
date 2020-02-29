@@ -236,7 +236,7 @@
   
   
   <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/09/13/区块链/以太坊开发/以太坊源码分析/以太坊源码分析-call,callcode,delegatecall/">
+    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/09/13/区块链/比特币原理/比特币地址生成算法/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="阿娟">
@@ -250,7 +250,7 @@
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
             
-            <a href="/2019/09/13/区块链/以太坊开发/以太坊源码分析/以太坊源码分析-call,callcode,delegatecall/" class="post-title-link" itemprop="url">以太坊源码分析-call,callcode,delegatecall</a>
+            <a href="/2019/09/13/区块链/比特币原理/比特币地址生成算法/" class="post-title-link" itemprop="url">比特币地址生成算法及私钥生成算法</a>
           
         </h1>
 
@@ -265,7 +265,7 @@
                 
               
 
-              <time title="Created: 2019-09-13 12:49:56" itemprop="dateCreated datePublished" datetime="2019-09-13T12:49:56+08:00">2019-09-13</time>
+              <time title="Created: 2019-09-13 12:50:00" itemprop="dateCreated datePublished" datetime="2019-09-13T12:50:00+08:00">2019-09-13</time>
             </span>
           
             
@@ -276,7 +276,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2019-09-10 11:17:28" itemprop="dateModified" datetime="2019-09-10T11:17:28+08:00">2019-09-10</time>
+                <time title="Modified: 2019-02-22 17:29:50" itemprop="dateModified" datetime="2019-02-22T17:29:50+08:00">2019-02-22</time>
               </span>
             
           
@@ -293,7 +293,7 @@
                   , 
                 
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/区块链/以太坊开发/" itemprop="url" rel="index"><span itemprop="name">以太坊开发</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/区块链/比特币原理/" itemprop="url" rel="index"><span itemprop="name">比特币原理</span></a></span>
 
                 
                 
@@ -312,12 +312,558 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h2 id="CALL-vs-CALLCODE"><a href="#CALL-vs-CALLCODE" class="headerlink" title="CALL vs. CALLCODE"></a>CALL vs. CALLCODE</h2><p>CALL和CALLCODE的区别在于：代码执行的上下文环境不同。</p>
-<p>具体来说，CALL修改的是被调用者的storage，而CALLCODE修改的是调用者的storage。</p>
-<p>实际上，可以认为DELEGATECALL是CALLCODE的一个bugfix版本，官方已经不建议使用CALLCODE了。</p>
-<p>CALLCODE和DELEGATECALL的区别在于：msg.sender不同。</p>
-<p>具体来说，DELEGATECALL会一直使用原始调用者的地址，而CALLCODE不会。</p>
+          <p>（注：资料来自千峰教育的区块链课程）</p>
+<h1 id="1-比特币地址的生成步骤"><a href="#1-比特币地址的生成步骤" class="headerlink" title="1. 比特币地址的生成步骤"></a>1. 比特币地址的生成步骤</h1><ol>
+<li>比特币是建立在数学加密基础上的，中本聪使用了椭圆曲线数字签名算法(ECDSA)来产生私钥及公钥</li>
+</ol>
+<p>ECC 椭圆曲线加密学</p>
+<ul>
+<li>ECDSA（Elliptic curve digital signature algorithm,椭圆曲线数字签名算法)</li>
+<li>具体来说，比特币系统中的椭圆曲线是Certicom推荐的SECP256K1算法</li>
+<li>Certicom是国际上著名的椭圆曲线密码技术公司。而SECP256K1算法由于其构造的特殊性，优化后性能比其他曲线算法提高30%
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/2019/09/13/区块链/比特币原理/比特币地址生成算法/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
+    </div>
 
+    
+    
+    
+      <footer class="post-footer">
+          <div class="post-eof"></div>
+        
+      </footer>
+  </div>
+  
+  
+  
+  </article>
+
+    
+        <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block home">
+    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/09/13/玩转linux/linux使用/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="阿娟">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="发现问题并解决问题">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+            
+            <a href="/2019/09/13/玩转linux/linux使用/" class="post-title-link" itemprop="url">linux使用</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              
+                
+              
+
+              <time title="Created: 2019-09-13 12:50:00" itemprop="dateCreated datePublished" datetime="2019-09-13T12:50:00+08:00">2019-09-13</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2019-02-21 10:30:26" itemprop="dateModified" datetime="2019-02-21T10:30:26+08:00">2019-02-21</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/linux/" itemprop="url" rel="index"><span itemprop="name">linux</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p><strong>cpu个数:</strong><br>cat /proc/cpuinfo | grep name | cut -f2 -d: | uniq -c</p>
+<p><strong>cpu核心数:</strong><br>cat /proc/cpuinfo| grep “physical id”| sort| uniq| wc -l</p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+          <div class="post-eof"></div>
+        
+      </footer>
+  </div>
+  
+  
+  
+  </article>
+
+    
+        <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block home">
+    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/09/13/区块链/比特币原理/比特币交易脚本及交易数据(二)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="阿娟">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="发现问题并解决问题">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+            
+            <a href="/2019/09/13/区块链/比特币原理/比特币交易脚本及交易数据(二)/" class="post-title-link" itemprop="url">比特币交易脚本及交易数据(二)</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              
+                
+              
+
+              <time title="Created: 2019-09-13 12:50:00" itemprop="dateCreated datePublished" datetime="2019-09-13T12:50:00+08:00">2019-09-13</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2019-02-23 08:48:34" itemprop="dateModified" datetime="2019-02-23T08:48:34+08:00">2019-02-23</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/区块链/" itemprop="url" rel="index"><span itemprop="name">区块链</span></a></span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/区块链/比特币原理/" itemprop="url" rel="index"><span itemprop="name">比特币原理</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="1-比特币交易的数据结构"><a href="#1-比特币交易的数据结构" class="headerlink" title="1. 比特币交易的数据结构"></a>1. 比特币交易的数据结构</h1><h2 id="1-1比特币区块的结构"><a href="#1-1比特币区块的结构" class="headerlink" title="1.1比特币区块的结构"></a>1.1比特币区块的结构</h2><p>每个区块包含5个结构：none,区块大小，区块头信息，交易数据，交易详情</p>
+<ol>
+<li>魔法数 <strong>什么意思？？？？</strong><br>占4个字节</li>
+</ol>
+<ul>
+<li>正式网络中魔法数：0xD9B48EF9(实际区块中存储为小头位序，显示为F9 BE B4 D9)</li>
+<li>正式网络中魔法数：0x709110B(实际区块中存储为小头位序，显示为0B 11 09 07)</li>
+<li>正式网络中魔法数：0xDAB5BFFA(实际区块中存储为小头位序，显示为FA FB B4 DA)</li>
+</ul>
+<ol start="2">
+<li><p>区块大小<br>占4个字节</p>
+</li>
+<li><p>区块头</p>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/2019/09/13/区块链/比特币原理/比特币交易脚本及交易数据(二)/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+          <div class="post-eof"></div>
+        
+      </footer>
+  </div>
+  
+  
+  
+  </article>
+
+    
+        <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block home">
+    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/09/13/编程基础/c++/c++基础/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="阿娟">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="发现问题并解决问题">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+            
+            <a href="/2019/09/13/编程基础/c++/c++基础/" class="post-title-link" itemprop="url">C++基础</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              
+                
+              
+
+              <time title="Created: 2019-09-13 12:50:00" itemprop="dateCreated datePublished" datetime="2019-09-13T12:50:00+08:00">2019-09-13</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2019-09-21 19:39:39" itemprop="dateModified" datetime="2019-09-21T19:39:39+08:00">2019-09-21</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/编程基础/" itemprop="url" rel="index"><span itemprop="name">编程基础</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>在大多数系统中，main返回的值被用来指示特定状态。返回0表示成功，非0的返回值的含义由系统定义，通常用来指出错误类型。</p>
+<p>集成开发环境（Integrated Development Environment)IDE，将编译器与其他程序创建和分析工具包装在一起。</p>
+<h2 id="输入输出"><a href="#输入输出" class="headerlink" title="输入输出"></a>输入输出</h2><p>C++没有定义任何的输入输出语句，取而代之的是一个全面的标准库来提供IO机制。<br>标准输入输出对象：cin cout cerr clog</p>
+<p>std::cout&lt;&lt;”enter some thing”&lt;&lt;std::endl;</p>
+<p>endl是一个操纵符。写入的效果是结束当前行，并将与设备关联的缓冲区中的内容刷到设备中。<br>缓存刷新操作可以保证到目前为止程序所产生的所有输出都真正写入到输出流中，而不是仅仅停留内存中等待写入流。</p>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/2019/09/13/编程基础/c++/c++基础/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+          <div class="post-eof"></div>
+        
+      </footer>
+  </div>
+  
+  
+  
+  </article>
+
+    
+        <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block home">
+    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/09/13/区块链/比特币原理/区块头/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="阿娟">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="发现问题并解决问题">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+            
+            <a href="/2019/09/13/区块链/比特币原理/区块头/" class="post-title-link" itemprop="url">区块头</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              
+                
+              
+
+              <time title="Created: 2019-09-13 12:49:58" itemprop="dateCreated datePublished" datetime="2019-09-13T12:49:58+08:00">2019-09-13</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2019-03-03 19:35:22" itemprop="dateModified" datetime="2019-03-03T19:35:22+08:00">2019-03-03</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/区块链/" itemprop="url" rel="index"><span itemprop="name">区块链</span></a></span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/区块链/比特币原理/" itemprop="url" rel="index"><span itemprop="name">比特币原理</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>version 版本号<br>hashPrevBlock前一区块的HSAH<br>hashMerkleRoot Merkle根节点HASH值<br>Time时间戳<br>Bits 当前目标HASH值<br>Nonce 随机数 </p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+          <div class="post-eof"></div>
+        
+      </footer>
+  </div>
+  
+  
+  
+  </article>
+
+    
+        <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block home">
+    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/09/13/区块链/比特币原理/ECDSA交易签名及签名验证/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="阿娟">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="发现问题并解决问题">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+            
+            <a href="/2019/09/13/区块链/比特币原理/ECDSA交易签名及签名验证/" class="post-title-link" itemprop="url">ECDSA交易签名及签名验证</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              
+                
+              
+
+              <time title="Created: 2019-09-13 12:49:58" itemprop="dateCreated datePublished" datetime="2019-09-13T12:49:58+08:00">2019-09-13</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2019-02-21 19:56:02" itemprop="dateModified" datetime="2019-02-21T19:56:02+08:00">2019-02-21</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/区块链/" itemprop="url" rel="index"><span itemprop="name">区块链</span></a></span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/区块链/比特币原理/" itemprop="url" rel="index"><span itemprop="name">比特币原理</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>（注明：资源来自千峰教育课程内容）</p>
+<h1 id="1-签名序列号-DER"><a href="#1-签名序列号-DER" class="headerlink" title="1. 签名序列号(DER)"></a>1. 签名序列号(DER)</h1><p>DER (Distinguished encoding rules,可辨别编码规则)<br>椭圆曲线加密算法对数据签名可以产生两个组成的签名Sig,通常称为R和S<br>计算出R和S后，需要使用DER国家标准编码方案，将其序列化为16进制字节码格式<br>椭圆曲线的数字签名其实是R和S值得序列化字节码</p>
+<h1 id="2-签名各个数字的含义"><a href="#2-签名各个数字的含义" class="headerlink" title="2.签名各个数字的含义"></a>2.签名各个数字的含义</h1>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/2019/09/13/区块链/比特币原理/ECDSA交易签名及签名验证/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
         
       
     </div>
@@ -423,221 +969,6 @@
           
             <div class="post-button text-center">
               <a class="btn" href="/2019/09/13/区块链/区块链：技术驱动金融/《区块链：技术驱动金融》-密码学及加密货币概述/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-          <div class="post-eof"></div>
-        
-      </footer>
-  </div>
-  
-  
-  
-  </article>
-
-    
-        <article itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/09/13/区块链/区块链：技术驱动金融/《区块链：技术驱动金融》-比特币去中心化/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="阿娟">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="发现问题并解决问题">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-            
-            <a href="/2019/09/13/区块链/区块链：技术驱动金融/《区块链：技术驱动金融》-比特币去中心化/" class="post-title-link" itemprop="url">《区块链：技术驱动金融》-比特币如何做到去中心化</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              
-                
-              
-
-              <time title="Created: 2019-09-13 12:49:56" itemprop="dateCreated datePublished" datetime="2019-09-13T12:49:56+08:00">2019-09-13</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2019-03-03 21:15:26" itemprop="dateModified" datetime="2019-03-03T21:15:26+08:00">2019-03-03</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/区块链/" itemprop="url" rel="index"><span itemprop="name">区块链</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="1-分布式系统的共识机制"><a href="#1-分布式系统的共识机制" class="headerlink" title="1.分布式系统的共识机制"></a>1.分布式系统的共识机制</h1><p><strong>比特币网络里，节点到底要达成什么样的共识呢</strong><br>网络里有各种各样的用户在向网络广播交易，节点必须对哪些交易可以进行广播和交易发生的次序达成共识，以此系统将形成一个唯一的全球交易总账。</p>
-<p>在任何时点，所有在点对点网络上的节点都有包含一系列区块的总账本，每个区块中都包含了已经被所有节点达成共识的交易清单。除此之外，每个节点还有一堆没有被打包进入区块的交易，就是那些网络节点已经被通知、交易已经发生，但还没有被写进区块的交易。网络节点对于这些交易还没有达成共识，所以每个节点都有一个略有差异、尚待确认的交易池。在实际中，点对点网络是不完美的，所以有些节点听到了交易，而有些节点却没有听到。</p>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2019/09/13/区块链/区块链：技术驱动金融/《区块链：技术驱动金融》-比特币去中心化/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-          <div class="post-eof"></div>
-        
-      </footer>
-  </div>
-  
-  
-  
-  </article>
-
-    
-        <article itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/09/13/区块链/以太坊开发/以太坊搭建私有链/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="阿娟">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="发现问题并解决问题">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-            
-            <a href="/2019/09/13/区块链/以太坊开发/以太坊搭建私有链/" class="post-title-link" itemprop="url">以太坊搭建私有链</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              
-                
-              
-
-              <time title="Created: 2019-09-13 12:49:56" itemprop="dateCreated datePublished" datetime="2019-09-13T12:49:56+08:00">2019-09-13</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2019-03-03 19:39:28" itemprop="dateModified" datetime="2019-03-03T19:39:28+08:00">2019-03-03</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/区块链/" itemprop="url" rel="index"><span itemprop="name">区块链</span></a></span>
-
-                
-                
-                  , 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/区块链/以太坊开发/" itemprop="url" rel="index"><span itemprop="name">以太坊开发</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>我的系统：CentOS7 64位</p>
-<p>环境需要：Go 1.9以上版本<br>geth工具</p>
-<pre><code>WARN [11-04|09:34:47.411] System clock seems off by -10h15m43.047110838s, which can prevent network connectivity 
-WARN [11-04|09:34:47.411] Please enable network time synchronisation in system settings. </code></pre><h1 id="一-环境搭建"><a href="#一-环境搭建" class="headerlink" title="一.环境搭建"></a>一.环境搭建</h1><h2 id="1-安装Go"><a href="#1-安装Go" class="headerlink" title="1.安装Go"></a>1.安装Go</h2><p>下载源码 <a href="https://golang.org/dl/" target="_blank" rel="noopener">https://golang.org/dl/</a><br>找到适合自己操作系统的版本，必须1.9版本以上。我安装的是1.9.5<br>解压到/usr/local下 </p>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2019/09/13/区块链/以太坊开发/以太坊搭建私有链/#more" rel="contents">
                 Read more &raquo;
               </a>
             </div>
@@ -776,7 +1107,7 @@ WARN [11-04|09:34:47.411] Please enable network time synchronisation in system s
   
   
   <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/09/13/区块链/区块链：技术驱动金融/《区块链：技术驱动金融》-比特币运行机制/">
+    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/09/13/区块链/以太坊开发/以太坊开发预备知识/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="阿娟">
@@ -790,7 +1121,7 @@ WARN [11-04|09:34:47.411] Please enable network time synchronisation in system s
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
             
-            <a href="/2019/09/13/区块链/区块链：技术驱动金融/《区块链：技术驱动金融》-比特币运行机制/" class="post-title-link" itemprop="url">《区块链：技术驱动金融》-比特币运行机制</a>
+            <a href="/2019/09/13/区块链/以太坊开发/以太坊开发预备知识/" class="post-title-link" itemprop="url">区块链基础</a>
           
         </h1>
 
@@ -816,7 +1147,7 @@ WARN [11-04|09:34:47.411] Please enable network time synchronisation in system s
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2019-03-03 21:15:20" itemprop="dateModified" datetime="2019-03-03T21:15:20+08:00">2019-03-03</time>
+                <time title="Modified: 2019-03-03 19:36:34" itemprop="dateModified" datetime="2019-03-03T19:36:34+08:00">2019-03-03</time>
               </span>
             
           
@@ -827,6 +1158,13 @@ WARN [11-04|09:34:47.411] Please enable network time synchronisation in system s
               <span class="post-meta-item-text">In</span>
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/区块链/" itemprop="url" rel="index"><span itemprop="name">区块链</span></a></span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/区块链/以太坊开发/" itemprop="url" rel="index"><span itemprop="name">以太坊开发</span></a></span>
 
                 
                 
@@ -845,29 +1183,8 @@ WARN [11-04|09:34:47.411] Please enable network time synchronisation in system s
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="3-1比特币的交易"><a href="#3-1比特币的交易" class="headerlink" title="3.1比特币的交易"></a>3.1比特币的交易</h1><p><img src="/.io//bitcointrans.png" alt="avatar"><br>这种交易账本的记账方式需要考虑的几个问题：</p>
-<blockquote>
-<ol>
-<li>地址转换：上比特币就像财奴币中描述的币一样，一个交易中输出的币，要么在另一个交易中被完全消费掉，要么就一个都不被消费，不存在只消费部分的情况。爱丽丝只需付给鲍勃17个币，但爱丽丝在上一交易中实际获得了25个币，为了把这些币全部消费掉，她必须再转给自己8个币。这8个币可以转到另外一个地址（不同于交易1中获得25个币的地址），但前提是该地址为爱丽丝所有，这就叫地址转换。</li>
-<li>有效验证：当一个新的交易被加入总账，它的有效性是否容易被验证？在这个例子里，我们要核查一下爱丽丝引用的交易输出，确认她确实有25个币没有被花费掉。因为我们使用了哈希指针，所以核查很快。为了确认这25个币没有被花掉，我们只需从爱丽丝所引用的交易开始，一直核查到账本上最新记录的交易为止即可——而不需要从账本建立之初的交易开始核查。而且，这种方法也不需要增加额外的数据结构（当然，我们将会看到，加入新的数据结构将进一步提高速度）。</li>
-<li>资金合并。和财奴币一样，比特币交易可能有许多输入与输出，资金分隔与合并也很容易。假如鲍勃在两笔不同的交易中分别收到17个币和2个币，现在他想把这两笔钱合并起来花掉，这很容易，他只需发起一个交易，交易里有两个输入和一个输出，输出的地址是他自己的地址，这样，鲍勃就把两个交易合二为一了。</li>
-<li>共同支付。同样地，共同支付也很容易做到。如果卡罗尔和鲍勃想要共同支付给戴维，他们可以发起一个交易，交易里也有两个输入和一个输出，唯一不同在于，两个输入所引用的“上一笔交易”的输出地址不同，因此，这笔交易需要两个签名：卡罗尔的和鲍勃的。</li>
-</ol>
-</blockquote>
-<p>一个真实的比特币交易程序段<br><img src="/.io//bitcoin_trans_program.png" alt="avatar"><br>可以看到比特币交易分成3个部分：元数据，一系列的输入和一系列输出</p>
-<blockquote>
-<ol>
-<li>元数据。这里存放一些内部处理的信息：包含这笔交易的规模、输入的数量、输出的数量，还有此笔交易的哈希值，也就是这个交易独一无二的ID。我们可以用哈希指针指向这个ID。最后还有一个“锁定时间”（lock_time），后面会谈到。</li>
-<li>输入。所有输入排成一个序列，每个输入的格式都是一样的。输入需要明确说明之前一笔交易的某个输出，因此它包括之前那笔交易的哈希值，使其成为指向那个特定交易的哈希指针。这个输入部分同时包括之前交易输出的索引和一个签名：我们必须有签名来证明我们有资格去支配这笔比特币。</li>
-<li>输出。所有输出也排成一个序列。每个输出的内容分成两部分。所有输出的金额之和必须小于或等于输入的金额之和。<strong>当输出的总金额小于输入总金额时，输出的总金额与输入的总金额的差额部分，就作为交易费支付给为这笔交易记账的矿工</strong>。</li>
-</ol>
-</blockquote>
-<h1 id="3-2比特币脚本"><a href="#3-2比特币脚本" class="headerlink" title="3.2比特币脚本"></a>3.2比特币脚本</h1><p><strong>每个交易输出不仅确定了一个公钥，其实同时指定了一个脚本。</strong></p>
-<p><strong>blockchain.info，在该网站上可以看到所有交易</strong></p>
-<h1 id="3-4比特币的区块"><a href="#3-4比特币的区块" class="headerlink" title="3.4比特币的区块"></a>3.4比特币的区块</h1><p>p1260</p>
-<h1 id="3-5比特币网络"><a href="#3-5比特币网络" class="headerlink" title="3.5比特币网络"></a>3.5比特币网络</h1><p>p1264<br>比特币网络是一个<strong>点对点的网络，沿用了很多已有的点对点网络的理念。在比特币网络里，所有的节点都是平等的。没有等级，也没有特殊的节点，或所谓的主节点。</strong>它运行在TCP网络上，有一个随意的拓扑结构，每个节点和其他的随机节点相连。新的节点也可以随时加入。</p>
-<p><strong>完成有效节点</strong><br>完全有效节点必须永久在线，这样才能接收到所有的交易数据，一个节点离线时间越久，当它重新连接到网络时，就需要越多的时间来更新所有交易。这些节点还需要把完整的共识区块链都存储下来，也需要有好的网络连接，确保可以接收到所有交易并将其转播给其他节<br>点。目前的存储空间大约要几十个GB（见图3.10）<br><strong>轻量节点</strong><br>除了完全有效节点之外，还有一种轻量节点(nightweight nodes)，或者称为轻客户端，也叫简单付款验证（Simple Payment Verification，简称SPV）客户端。事实上，比特币网络中的大部分节点都是轻量节点，这些节点不会存储整个比特币区块链，他们只会存储自己所关心，需要进行核验的部分交易。如果你使用一个钱包软件，那里面就会有一个SPV节点，这个节点只会下载向你的账户付款的交易及区块头部。</p>
-<h1 id="3-6限制和优化"><a href="#3-6限制和优化" class="headerlink" title="3.6限制和优化"></a>3.6限制和优化</h1><p>区块大小的硬性规定，每个区块大小限定在1MB，每个交易大约是250字节，所以每块最多容纳4 000个交易。平均每隔10分钟，有一个矿工获得记账权利，所以每秒钟只能处理7个交易，这就是比特币网络的交易处理能力！似乎改掉这些限制只是需要改掉源代码的某些常数这么简单，实际上却并不容易。</p>
+          <p>以太坊在线钱包<br><a href="http://www.myetherwallet.com" target="_blank" rel="noopener">http://www.myetherwallet.com</a></p>
+<p>如何获得测试币<br><a href="http://gitter.im/kovan-testnet/faucet" target="_blank" rel="noopener">http://gitter.im/kovan-testnet/faucet</a></p>
 
         
       
@@ -1001,325 +1318,6 @@ you believe this is an error, please contact Truffle support.</code></pre>
   </article>
 
     
-        <article itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/09/13/区块链/以太坊开发/以太坊开发预备知识/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="阿娟">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="发现问题并解决问题">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-            
-            <a href="/2019/09/13/区块链/以太坊开发/以太坊开发预备知识/" class="post-title-link" itemprop="url">区块链基础</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              
-                
-              
-
-              <time title="Created: 2019-09-13 12:49:56" itemprop="dateCreated datePublished" datetime="2019-09-13T12:49:56+08:00">2019-09-13</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2019-03-03 19:36:34" itemprop="dateModified" datetime="2019-03-03T19:36:34+08:00">2019-03-03</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/区块链/" itemprop="url" rel="index"><span itemprop="name">区块链</span></a></span>
-
-                
-                
-                  , 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/区块链/以太坊开发/" itemprop="url" rel="index"><span itemprop="name">以太坊开发</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>以太坊在线钱包<br><a href="http://www.myetherwallet.com" target="_blank" rel="noopener">http://www.myetherwallet.com</a></p>
-<p>如何获得测试币<br><a href="http://gitter.im/kovan-testnet/faucet" target="_blank" rel="noopener">http://gitter.im/kovan-testnet/faucet</a></p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-          <div class="post-eof"></div>
-        
-      </footer>
-  </div>
-  
-  
-  
-  </article>
-
-    
-        <article itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/09/13/区块链/以太坊开发/以太坊truffle搭建Dapp-去中心化微博/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="阿娟">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="发现问题并解决问题">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-            
-            <a href="/2019/09/13/区块链/以太坊开发/以太坊truffle搭建Dapp-去中心化微博/" class="post-title-link" itemprop="url">以太坊truffle搭建DApp-去中心化微博</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              
-                
-              
-
-              <time title="Created: 2019-09-13 12:49:56" itemprop="dateCreated datePublished" datetime="2019-09-13T12:49:56+08:00">2019-09-13</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2019-03-03 19:41:06" itemprop="dateModified" datetime="2019-03-03T19:41:06+08:00">2019-03-03</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/区块链/" itemprop="url" rel="index"><span itemprop="name">区块链</span></a></span>
-
-                
-                
-                  , 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/区块链/以太坊开发/" itemprop="url" rel="index"><span itemprop="name">以太坊开发</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="1-创建项目"><a href="#1-创建项目" class="headerlink" title="1.创建项目"></a>1.创建项目</h1><p>我们使用的是Truffle框架<br>Truffle是一套针对基于以太坊的Solidity语言开发框架，本身基于javascript,Truffle为以太坊提供了开发环境，测试框架和资产管道(pipeline)。<br><strong>安装truffle</strong><br>npm install -g <a href="mailto:truffle@3.4.11" target="_blank" rel="noopener">truffle@3.4.11</a></p>
-<p><strong>创建并初始化项目</strong><br>mkdir eth-weibo<br>git clone <a href="http://github.com/truffle-box/bare-box" target="_blank" rel="noopener">http://github.com/truffle-box/bare-box</a></p>
-<h1 id="2-合约"><a href="#2-合约" class="headerlink" title="2.合约"></a>2.合约</h1>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2019/09/13/区块链/以太坊开发/以太坊truffle搭建Dapp-去中心化微博/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-          <div class="post-eof"></div>
-        
-      </footer>
-  </div>
-  
-  
-  
-  </article>
-
-    
-        <article itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/09/13/区块链/区块链：技术驱动金融/《区块链：技术驱动金融》-比特币挖矿/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="阿娟">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="发现问题并解决问题">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-            
-            <a href="/2019/09/13/区块链/区块链：技术驱动金融/《区块链：技术驱动金融》-比特币挖矿/" class="post-title-link" itemprop="url">《区块链：技术驱动金融》-比特币挖矿</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              
-                
-              
-
-              <time title="Created: 2019-09-13 12:49:56" itemprop="dateCreated datePublished" datetime="2019-09-13T12:49:56+08:00">2019-09-13</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2019-03-03 21:15:18" itemprop="dateModified" datetime="2019-03-03T21:15:18+08:00">2019-03-03</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/区块链/" itemprop="url" rel="index"><span itemprop="name">区块链</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="1-比特币矿工的任务"><a href="#1-比特币矿工的任务" class="headerlink" title="1.比特币矿工的任务"></a>1.比特币矿工的任务</h1><p>6个任务：</p>
-<ol>
-<li>监听交易广播。监听网络上的交易广播，然后验证它们的签名是正当有效的，交易输出没有被重复支付。</li>
-<li>维护区块链网络和监听新的区块。必须先维护区块链。为了做到这一点，一开始你可以要求其他节点把区块链上的历史记录（在你加入区块链网络之前的）同步过来。然后，监听那些被广播到网络上的新的区块。你的任务是验证你收到的每个区块，这里的验证是指保证区块里的每笔交易都是有效的，而且这个区块包含了一个有效的随机数。</li>
-</ol>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2019/09/13/区块链/区块链：技术驱动金融/《区块链：技术驱动金融》-比特币挖矿/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-          <div class="post-eof"></div>
-        
-      </footer>
-  </div>
-  
-  
-  
-  </article>
-
-    
   </div>
 
   
@@ -1369,7 +1367,7 @@ you believe this is an error, please contact Truffle support.</code></pre>
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">73</span>
+          <span class="site-state-item-count">78</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1395,7 +1393,7 @@ you believe this is an error, please contact Truffle support.</code></pre>
             <a href="/tags/">
           
         
-        <span class="site-state-item-count">49</span>
+        <span class="site-state-item-count">51</span>
         <span class="site-state-item-name">tags</span>
         </a>
       </div>
@@ -1416,7 +1414,7 @@ you believe this is an error, please contact Truffle support.</code></pre>
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>

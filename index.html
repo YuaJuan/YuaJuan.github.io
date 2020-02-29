@@ -236,6 +236,964 @@
   
   
   <div class="post-block home">
+    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/12/13/编程基础/go/go-map实现源码/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="阿娟">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="发现问题并解决问题">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+            
+            <a href="/2019/12/13/编程基础/go/go-map实现源码/" class="post-title-link" itemprop="url">go-map源码实现</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              
+                
+              
+
+              <time title="Created: 2019-12-13 20:41:21" itemprop="dateCreated datePublished" datetime="2019-12-13T20:41:21+08:00">2019-12-13</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2019-12-16 14:33:37" itemprop="dateModified" datetime="2019-12-16T14:33:37+08:00">2019-12-16</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/编程基础/" itemprop="url" rel="index"><span itemprop="name">编程基础</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>对于同一个key，比较重要的计算公式<br>key                     hash                                    hashtop                                bucket index<br>key      hash := alg.hash(key, uintptr(h.hash0))   top := uint8(hash &gt;&gt; (sys.PtrSize*8 - 8))    bucket := hash &amp; (uintptr(1)&lt;&lt;h.B - 1)，即 hash % 2^B</p>
+<p>map最重要的数据结构</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// A header for a Go map.</span></span><br><span class="line"><span class="keyword">type</span> hmap <span class="keyword">struct</span> &#123;</span><br><span class="line">	<span class="comment">// <span class="doctag">Note:</span> the format of the hmap is also encoded in cmd/compile/internal/gc/reflect.go.</span></span><br><span class="line">	<span class="comment">// Make sure this stays in sync with the compiler's definition.</span></span><br><span class="line">	count     <span class="keyword">int</span> <span class="comment">// # live cells == size of map.  Must be first (used by len() builtin)</span></span><br><span class="line">	flags     <span class="keyword">uint8</span></span><br><span class="line">	B         <span class="keyword">uint8</span>  <span class="comment">// log_2 of # of buckets (can hold up to loadFactor * 2^B items)</span></span><br><span class="line">	noverflow <span class="keyword">uint16</span> <span class="comment">// 溢出桶个数</span></span><br><span class="line">	hash0     <span class="keyword">uint32</span> <span class="comment">// hash seed</span></span><br><span class="line"></span><br><span class="line">	buckets    unsafe.Pointer <span class="comment">// array of 2^B Buckets. 用于存储的结构</span></span><br><span class="line">	oldbuckets unsafe.Pointer <span class="comment">// previous bucket array of half the size, non-nil only when growing</span></span><br><span class="line">	nevacuate  <span class="keyword">uintptr</span>        <span class="comment">// progress counter for evacuation (buckets less than this have been evacuated)</span></span><br><span class="line"></span><br><span class="line">	extra *mapextra <span class="comment">// optional fields</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> mapextra <span class="keyword">struct</span> &#123;</span><br><span class="line">	overflow    *[]*bmap</span><br><span class="line">	oldoverflow *[]*bmap</span><br><span class="line">	nextOverflow *bmap</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>bmap就是一个tophash .<br>bucetCnt是个固定值,即8</p>
+<blockquote>
+<p>   bucketCntBits = 3</p>
+<p>   bucketCnt     = 1 &lt;&lt; bucketCntBits</p>
+</blockquote>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> bmap <span class="keyword">struct</span> &#123;</span><br><span class="line">	tophash [bucketCnt]<span class="keyword">uint8</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>bucket的结构</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">高位哈希值</span><br><span class="line">存储key和value的数组</span><br><span class="line">指向扩容bucket的指针</span><br></pre></td></tr></table></figure>
+
+<p><strong>tophash的存在是为了快速试错，毕竟只有8位，比较起来会快一点</strong><br>tophash记录每个value的高8位，用来快速判断<br>为了优化存储，将8个key,8个value连在一起存放<br>接下来是发生冲突时，下一个溢出桶的位置。</p>
+<blockquote>
+<p>在写入tophash时，如果是value写入，如果该hash值小于mintophash,会给该hash值加mintophash.<br>如果tophash[0]&lt;minTopHash,那么tophash表示桶的迁移状态</p>
+</blockquote>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> bmap <span class="keyword">struct</span>&#123;</span><br><span class="line">    tophash [bucketCnt]<span class="keyword">uint8</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>低位用于寻找当前key属于hmap中的哪个bucket，而高位用于寻找bucket中的哪个key。</p>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+          <div class="post-eof"></div>
+        
+      </footer>
+  </div>
+  
+  
+  
+  </article>
+
+    
+        <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block home">
+    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/12/12/区块链/论文阅读/PerformanceBenchmarkingandOptimizingHyperledgerFabricBlockchainPlatform/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="阿娟">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="发现问题并解决问题">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+            
+            <a href="/2019/12/12/区块链/论文阅读/PerformanceBenchmarkingandOptimizingHyperledgerFabricBlockchainPlatform/" class="post-title-link" itemprop="url">Performance Benchmarking and Optimizing Hyperledger Fabric Blockchain Platform</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              
+                
+              
+
+              <time title="Created: 2019-12-12 09:24:45" itemprop="dateCreated datePublished" datetime="2019-12-12T09:24:45+08:00">2019-12-12</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2019-12-13 09:36:24" itemprop="dateModified" datetime="2019-12-13T09:36:24+08:00">2019-12-13</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/区块链/" itemprop="url" rel="index"><span itemprop="name">区块链</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>所做的优化</p>
+<ul>
+<li><p>加密操作是CPU密集的</p>
+<blockquote>
+<p>缓存Deserialization of identity.  把serialization 作为key,deserializtion的值作为value.<br>Validation of identity with Organization’s MSP.   hashmap来缓存每个identity对应于哪个organization。</p>
+</blockquote>
+</li>
+<li><p>在一个块内并行验证block</p>
+<blockquote>
+<p>vscc阶段主要就是为了验证每个交易的背书<br>可以配置每个peer在每个channel上的work数量，每个work负责一条消息的配置</p>
+</blockquote>
+</li>
+<li><p>Bulk Read/Write during MVCC Validation &amp; Commit</p>
+<blockquote>
+<p>在MVCC阶段，对于CouchDB来说<br>read set 中，对于每个交易的每一个key，都会调用一次GET REST API<br>write set 中，对于每个交易的每一个key，都会调用一次GET REST API 取得version版本号，再调用PUT REST API<br>显然这样调用非常耗时<br>couchdb 建议用bulk operations</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="FastFabric-Scaling-Hyperledger-Fabric-to-20-000-Transactions-per-Second"><a href="#FastFabric-Scaling-Hyperledger-Fabric-to-20-000-Transactions-per-Second" class="headerlink" title="FastFabric: Scaling Hyperledger Fabric to 20,000 Transactions per Second"></a>FastFabric: Scaling Hyperledger Fabric to 20,000 Transactions per Second</h2><p>优化主要针对consensus模块</p>
+<ol>
+<li>交易可能很大，在发给kafka排序时，只需要发txID即可排序，而不需要发送整个tx。可以很好地节省网络和内存开销。其他部分保存在本地<br>然后等kafka返回结果，再来拼接相应部分。（这部分到底该怎么做呢？）</li>
+<li>ordering service 并行处理transaction</li>
+<li>针对peer节点<ul>
+<li>验证交易的读写集，使用in-memory hash table 来代替world state ,而不是database</li>
+<li>block都是不可修改的，所以存储block很适合append-only。使用分布式存储来存储block,如 hadoop mapreduce or spark.</li>
+<li>blockchain log可以推后写入，因为准确来讲，它不属于transaction flow.(但是如果宕机，这样真的安全吗？)</li>
+<li>有些peer节点既是commiter，又是endorser ，最好把它们分开（使用不同的硬件）</li>
+<li>验证state change必须是sequentially的</li>
+<li>并行验证 transaction</li>
+<li>cache unmarshled blocks</li>
+</ul>
+</li>
+</ol>
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+          <div class="post-eof"></div>
+        
+      </footer>
+  </div>
+  
+  
+  
+  </article>
+
+    
+        <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block home">
+    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/12/05/区块链/hyperledger  fabric源码解读/committer/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="阿娟">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="发现问题并解决问题">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+            
+            <a href="/2019/12/05/区块链/hyperledger  fabric源码解读/committer/" class="post-title-link" itemprop="url">hyperledger fabric 源码解读 --committer</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              
+                
+              
+
+              <time title="Created: 2019-12-05 20:03:24 / Modified: 20:17:22" itemprop="dateCreated datePublished" datetime="2019-12-05T20:03:24+08:00">2019-12-05</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/区块链/" itemprop="url" rel="index"><span itemprop="name">区块链</span></a></span>
+
+                
+                
+                  , 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/区块链/Hyperledger-Fabric/" itemprop="url" rel="index"><span itemprop="name">Hyperledger Fabric</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>core/committer/committer_impl.go</p>
+<p>为leger.PeerLedger 抽象出了接口PeerLedgerSupport的接口</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// PeerLedgerSupport abstract out the API's of ledger.PeerLedger interface</span></span><br><span class="line"><span class="comment">// required to implement LedgerCommitter</span></span><br><span class="line"><span class="keyword">type</span> PeerLedgerSupport <span class="keyword">interface</span> &#123;</span><br><span class="line">	GetPvtDataAndBlockByNum(blockNum <span class="keyword">uint64</span>, filter ledger.PvtNsCollFilter) (*ledger.BlockAndPvtData, error)</span><br><span class="line">	GetPvtDataByNum(blockNum <span class="keyword">uint64</span>, filter ledger.PvtNsCollFilter) ([]*ledger.TxPvtData, error)</span><br><span class="line">	CommitWithPvtData(blockAndPvtdata *ledger.BlockAndPvtData) error</span><br><span class="line">	GetBlockchainInfo() (*common.BlockchainInfo, error)</span><br><span class="line">	GetBlockByNumber(blockNumber <span class="keyword">uint64</span>) (*common.Block, error)</span><br><span class="line">	GetConfigHistoryRetriever() (ledger.ConfigHistoryRetriever, error)</span><br><span class="line">	Close()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// LedgerCommitter is the implementation of  Committer interface</span></span><br><span class="line"><span class="comment">// it keeps the reference to the ledger to commit blocks and retrieve</span></span><br><span class="line"><span class="comment">// chain information</span></span><br><span class="line"><span class="keyword">type</span> LedgerCommitter <span class="keyword">struct</span> &#123;</span><br><span class="line">	PeerLedgerSupport</span><br><span class="line">	eventer ConfigBlockEventer</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+          <div class="post-eof"></div>
+        
+      </footer>
+  </div>
+  
+  
+  
+  </article>
+
+    
+        <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block home">
+    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/10/31/分布式基本理论/ipfs比皮书阅读整理/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="阿娟">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="发现问题并解决问题">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+            
+            <a href="/2019/10/31/分布式基本理论/ipfs比皮书阅读整理/" class="post-title-link" itemprop="url">IPFS阅读整理</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              
+                
+              
+
+              <time title="Created: 2019-10-31 16:19:02" itemprop="dateCreated datePublished" datetime="2019-10-31T16:19:02+08:00">2019-10-31</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2019-11-11 15:55:00" itemprop="dateModified" datetime="2019-11-11T15:55:00+08:00">2019-11-11</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/分布式基本理论/" itemprop="url" rel="index"><span itemprop="name">分布式基本理论</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="IPFS-Content-Addressed-Versioned-P2P-File-System"><a href="#IPFS-Content-Addressed-Versioned-P2P-File-System" class="headerlink" title="IPFS - Content Addressed, Versioned, P2P File System"></a>IPFS - Content Addressed, Versioned, P2P File System</h1><p>InterPlanetary File System(IPFS)是一个p2p的分布式文件系统，它将所有的电脑通过同一文件系统连接起来。<br>某种程度上将，IPFS类似Web，但是更像是BitTorrent swarm,在一个Git仓库中交换objects。<br>IPFS基于内容寻址的hyper links来提供一个高吞吐量的content-addressed block storage 模型。<br>IPFS形成一个Merkle DAG，这是一种可以构建versioned file systems，blockchains以及持久化web的数据结构。<br>IPFS结合分布式hashtable,激励模型的block exchange,self-certifying namespace。<br>IPFS没有单点失败，且nodes之间不需要去相信彼此。</p>
+<h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>Napster, KaZaA, 和 BitTorrent 部署了大规模的分布式文件系统，但是这些具体的应用都不是提供一个基础架构来让开发者基于此，搭建上层应用。一方面可能是因为，大多数的需求场景已经有足够好的系统来提供服务了，例如“HTTP”。但是随着数据增多，“HTTP”架构可能不再适用了。</p>
+<p>IPFS的原则就是：</p>
+<blockquote>
+<p>The central IPFS principle is modeling all data as part of the same Merkle DAG.</p>
+</blockquote>
+<h1 id="背景知识"><a href="#背景知识" class="headerlink" title="背景知识"></a>背景知识</h1><ul>
+<li><p>分布式hash表</p>
+</li>
+<li><p>Block Exchanges</p>
+<blockquote>
+<p>受BitTorrent的影响，IPFS的设计包含如下：</p>
+<ul>
+<li>奖励做出贡献的节点，惩罚只获取资源的节点</li>
+<li>节点会track每个file pieces的availability，优先发送pieces最少的。</li>
+<li></li>
+</ul>
+</blockquote>
+</li>
+<li><p>版本控制系统-Git<br>Git通过Merkle DAG来记录filesystem tree的修改。</p>
+</li>
+<li><p>Self-Certified Filesystems-SFS</p>
+</li>
+</ul>
+<h1 id="IPFS-DESIGN"><a href="#IPFS-DESIGN" class="headerlink" title="IPFS DESIGN"></a>IPFS DESIGN</h1><p>IPFS是一个分布式文件系统，综合了之前的p2p系统的成功的idea，包括：DHTs,BItTorrent,Git,SFS。</p>
+<p>IPFS协议分为如下几个子协议：</p>
+<ul>
+<li>Identities</li>
+<li>Network</li>
+<li>Routing</li>
+<li>Exchange</li>
+<li>Object</li>
+<li>Files</li>
+<li>Naming</li>
+</ul>
+<h3 id="Identities"><a href="#Identities" class="headerlink" title="Identities"></a>Identities</h3><h3 id="Network"><a href="#Network" class="headerlink" title="Network"></a>Network</h3><ol>
+<li>Transport: IPFS can use any transport protocol, and is best suited for WebRTC DataChannels (for browser connectivity) or uTP(LEDBAT [14]).</li>
+<li>Reliability: IPFS can provide reliability if underlying networks do not provide it, using uTP (LEDBAT [14]) or SCTP.</li>
+<li>Connectivity: IPFS also uses the ICE NAT traversal techniques.</li>
+<li>Integrity: optionally checks integrity of messages us- ing a hash checksum.</li>
+<li>Authenticity: optionally checks authenticity of mes- sages using HMAC with sender’s public key.</li>
+</ol>
+<h4 id="Note-on-Peer-Address"><a href="#Note-on-Peer-Address" class="headerlink" title="Note on Peer Address"></a>Note on Peer Address</h4><p> IPFS可以使用任何网络，且不依赖于IP.IPFS可以在overlay网络中使用。IPFS使用multiaddr来提供地址给下层网络。multiaddr可以表达地址和协议，包括支持的封装。例如：<br> <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"> # an SCTP/IPv4 connection </span><br><span class="line"> /ip4/10.20.30.40/sctp/1234/</span><br><span class="line"># an SCTP/IPv4 connection proxied over TCP/IPv4 </span><br><span class="line">/ip4/5.6.7.8/tcp/5678/ip4/1.2.3.4/sctp/1234/</span><br></pre></td></tr></table></figure></p>
+<h3 id="Routing"><a href="#Routing" class="headerlink" title="Routing"></a>Routing</h3><p>IPFS node需要一个Routing System能够找到其他peer的network地址并且能够获取服务于某个object的所有节点。IPFS基于S/Kademlia以及Coral使用DSHT。存储时，如果小value(不大于1KB)就直接存储在DHT中，如果大于1KB就存储该值的references。</p>
+<h3 id="Blokc-Exchange-BitSwap-Protocal"><a href="#Blokc-Exchange-BitSwap-Protocal" class="headerlink" title="Blokc Exchange-BitSwap Protocal"></a>Blokc Exchange-BitSwap Protocal</h3><p>在IPFS中，peer使用基于BitTorrent的激励机制–bitSwap交换block，以达到来分发数据的目的。类似于BitTorrent,在BitSwap，peer需要的object在want_list中，并且可以分发的object在have_list中。但是在BitTorrent中有个限制，这些object都需要在一个torrent中，但是在BitSwap中没有这个限制。</p>
+<p>BitSwap是一个持久的市场，节点可以在这里获取他们需要的数据块。由于barter系统的存在，那么隐含了虚拟currency可以被创建，这就需要一个全局的账本来追踪currency的owership和transfer.</p>
+<p>有时候peers需要的object，该节点也没有。该节点也需要去向其他邻居获取。于此同时，该节点也有自己需要的object,但是这个的优先级会低于peers找该节点寻求的object，这样可以很好地激励节点缓存和广播稀少的pieces,即使他们本身对这些pieces并没有兴趣。</p>
+<h4 id="3-4-1-BitSwap-Credit"><a href="#3-4-1-BitSwap-Credit" class="headerlink" title="3.4.1 BitSwap Credit"></a>3.4.1 BitSwap Credit</h4><h4 id="3-4-2-BitSwap-Strategy"><a href="#3-4-2-BitSwap-Strategy" class="headerlink" title="3.4.2 BitSwap Strategy"></a>3.4.2 BitSwap Strategy</h4><h4 id="3-4-3-BitSwap-Ledger"><a href="#3-4-3-BitSwap-Ledger" class="headerlink" title="3.4.3 BitSwap Ledger"></a>3.4.3 BitSwap Ledger</h4><h3 id="3-4-4-BitSwap-Specification"><a href="#3-4-4-BitSwap-Specification" class="headerlink" title="3.4.4 BitSwap Specification"></a>3.4.4 BitSwap Specification</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Additional state kept</span></span><br><span class="line"><span class="keyword">type</span> BitSwap <span class="keyword">struct</span> &#123;</span><br><span class="line">ledgers <span class="keyword">map</span>[NodeId]Ledger</span><br><span class="line"><span class="comment">// Ledgers known to this node, inc inactive</span></span><br><span class="line">active <span class="keyword">map</span>[NodeId]Peer</span><br><span class="line"><span class="comment">// currently open connections to other nodes</span></span><br><span class="line">need_list []Multihash</span><br><span class="line"><span class="comment">// checksums of blocks this node needs</span></span><br><span class="line">have_list []Multihash</span><br><span class="line"><span class="comment">// checksums of blocks this node has &#125;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Peer <span class="keyword">struct</span> &#123;</span><br><span class="line">    nodeid NodeId</span><br><span class="line">    ledger Ledger</span><br><span class="line">    <span class="comment">// Ledger between the node and this peer</span></span><br><span class="line">    last_seen Timestamp</span><br><span class="line">    <span class="comment">// timestamp of last received message</span></span><br><span class="line">    want_list []Multihash</span><br><span class="line">    <span class="comment">// checksums of all blocks wanted by peer // includes blocks wanted by peer’s peers</span></span><br><span class="line">    <span class="comment">// Protocol interface:</span></span><br><span class="line">    <span class="keyword">interface</span> Peer &#123;</span><br><span class="line">    open (nodeid :NodeId, ledger :Ledger); send_want_list (want_list :WantList); send_block (block :Block) -&gt; (complete :Bool); <span class="built_in">close</span> (final :Bool);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+          <div class="post-eof"></div>
+        
+      </footer>
+  </div>
+  
+  
+  
+  </article>
+
+    
+        <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block home">
+    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/10/20/分布式基本理论/leveldb/level源码解析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="阿娟">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="发现问题并解决问题">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+            
+            <a href="/2019/10/20/分布式基本理论/leveldb/level源码解析/" class="post-title-link" itemprop="url">leveldb源码理解</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              
+                
+              
+
+              <time title="Created: 2019-10-20 15:57:27" itemprop="dateCreated datePublished" datetime="2019-10-20T15:57:27+08:00">2019-10-20</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2019-10-24 19:28:05" itemprop="dateModified" datetime="2019-10-24T19:28:05+08:00">2019-10-24</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/分布式基本理论/" itemprop="url" rel="index"><span itemprop="name">分布式基本理论</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="总结设计"><a href="#总结设计" class="headerlink" title="总结设计"></a>总结设计</h1><ul>
+<li>基本原理</li>
+<li>leveldb的读写过程，包括dump啥的</li>
+<li>代码模块 最好能画图</li>
+<li>内存处理：Arena,memtable，sstalbe 并且要画图说明，元信息管理</li>
+<li>交互流程： recovery,read,write</li>
+<li>log compaction：<ul>
+<li>为什么需要compaction</li>
+<li>何时进行compaction</li>
+<li>compaction时如何保证服务正常</li>
+<li>compaction对性能的影响</li>
+</ul>
+</li>
+</ul>
+<h1 id="My-Questions"><a href="#My-Questions" class="headerlink" title="My Questions"></a>My Questions</h1><ol>
+<li>为什么sstalbe要分层处理呢</li>
+<li>除了level-0,其他level都没有overlap吗？为什么</li>
+<li>压缩时考虑grandparentLevel的原因？</li>
+<li>sstable按block为单位吗？block时一个文件的关系是什么？</li>
+<li>大部分数据都是在sstable中，怎么保证读取数据的高效性？</li>
+<li>既然除了当前Version，其他Version并不会做compact，那么在Verison的compact_score字段有何意义？</li>
+<li>Skiplist中的comparator中key的比较是只比较userkey吗？当然不应该，在插入时应该还包括sequenceNumber和ValueType吧，但是在查找时应该只根据userkey来查找啊！（除非comparator可以根据长度来判断key就比较合理）</li>
+</ol>
+<ul>
+<li>AllocateFallback 大于block/4就单独分配为啥？？？？</li>
+<li>ShardLRUCache认真看看？</li>
+<li>读性能稍显不足主要是受制于LSM的检索方式而非由于多版本共存的问题，当然写的便利也是基于这样的组织方式</li>
+<li>level db为了保证持久化时仍然能对外服务，使用了memtable以及immutalbememtable。那么其他db的做法是什么？CMS垃圾回收？</li>
+<li>Seek过程中引入了<strong>布隆过滤器</strong></li>
+<li>WriteBatch 部分的key做排序</li>
+</ul>
+<h2 id="设计模式"><a href="#设计模式" class="headerlink" title="设计模式"></a>设计模式</h2><p>代码模式。。。。。。</p>
+<p>leveldb将随机读写转化为op log操作，极大地提供了了IO性能。最新的数据都在memble中。op log文件超过一定大小，就会做check point将数据持久化到sstable中.<br>使用了Log-Structure-Tree</p>
+<p><img src="leveldb.JPG" alt="actor"></p>
+<h1 id="1-基本数据结构"><a href="#1-基本数据结构" class="headerlink" title="1.基本数据结构"></a>1.基本数据结构</h1><h2 id="1-1-Slice"><a href="#1-1-Slice" class="headerlink" title="1.1 Slice"></a>1.1 Slice</h2><p>最基本的数据结构，包含数据的长度，以及数据的指针。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="keyword">char</span>* data_;</span><br><span class="line"><span class="keyword">size_t</span> size_;</span><br></pre></td></tr></table></figure>
+
+<p>提供的方法注意有以下：</p>
+<pre><code>* 构造函数
+* 一些compare操作，如==，！=
+* start_with</code></pre><h2 id="1-2-Arena"><a href="#1-2-Arena" class="headerlink" title="1.2 Arena"></a>1.2 Arena</h2><p>Arena是leveldb的简单内存池。<br>有一个vector来保存分配的memory blocks。<br>Arena提供了两种申请内存的函数：</p>
+<ul>
+<li>直接申请内存</li>
+<li>申请对齐内存</li>
+</ul>
+<h2 id="1-3-Skip-list-（跳表）"><a href="#1-3-Skip-list-（跳表）" class="headerlink" title="1.3 Skip list （跳表）"></a>1.3 Skip list （跳表）</h2><p>memtable的kv数据都存储在skip list中</p>
+<h2 id="1-4-Cache"><a href="#1-4-Cache" class="headerlink" title="1.4 Cache"></a>1.4 Cache</h2><h2 id="1-5-HandleTable"><a href="#1-5-HandleTable" class="headerlink" title="1.5 HandleTable"></a>1.5 HandleTable</h2><p>leveldb中的hash tabel,性能比C++内置的hash table更好。</p>
+<h2 id="1-6-ValueType-db-dbformat-h"><a href="#1-6-ValueType-db-dbformat-h" class="headerlink" title="1.6 ValueType(db/dbformat.h)"></a>1.6 ValueType(db/dbformat.h)</h2><p>levelDB更新某个key时，不会直接操作db中的数据，每次操作都是直接插入一份kv数据，具体的数据合并和清除由后台的compact完成。每次put，db中就会新插入一份kv数据，delete操作相当于Put空的value。使用ValueTpye来区分是否是删除数据。</p>
+<h2 id="1-7-SequenceNumber-db-dbformat-h"><a href="#1-7-SequenceNumber-db-dbformat-h" class="headerlink" title="1.7 SequenceNumber(db/dbformat.h)"></a>1.7 SequenceNumber(db/dbformat.h)</h2><p>leveldb的每次更新（put/delete)操作都拥有一个版本，由SequnceNumber来标识，整个db有一个全局值保存着当前使用的SequenceNumber。存储时，SequenceNumber只占了56 bits,ValueType占剩余的8bit</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">-------------------------------</span><br><span class="line">|56 bit         |    8 bit    |</span><br><span class="line">-------------------------------</span><br><span class="line">|sequnceNumber  |   valueType |</span><br><span class="line">-------------------------------</span><br></pre></td></tr></table></figure>
+
+<h2 id="1-8-userkey"><a href="#1-8-userkey" class="headerlink" title="1.8 userkey"></a>1.8 userkey</h2><p>用户层面传入的key,使用Slice格式</p>
+<h2 id="1-9-ParsedInternalKey-db-dbformat-h"><a href="#1-9-ParsedInternalKey-db-dbformat-h" class="headerlink" title="1.9 ParsedInternalKey(db/dbformat.h)"></a>1.9 ParsedInternalKey(db/dbformat.h)</h2><p>db内部操作的key，需要把user key以及sequencenumber,valueType 一起作为db中的key.</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">ParsedInternalKey</span> &#123;</span></span><br><span class="line">  Slice user_key;</span><br><span class="line">  SequenceNumber sequence;</span><br><span class="line">  ValueType type;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="1-10-InternalKey-db-dbformat-h"><a href="#1-10-InternalKey-db-dbformat-h" class="headerlink" title="1.10 InternalKey(db/dbformat.h)"></a>1.10 InternalKey(db/dbformat.h)</h2><p>应该是把上面的ParsedInternalKey的所有string包装在一起。<br>helper class userful for DBImpl::Get()</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// We construct a char array of the form:</span></span><br><span class="line"><span class="comment">//    klength  varint32               &lt;-- start_</span></span><br><span class="line"><span class="comment">//    userkey  char[klength]          &lt;-- kstart_</span></span><br><span class="line"><span class="comment">//    tag      uint64</span></span><br><span class="line"><span class="comment">//                                    &lt;-- end_</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">---------------------------------------------------------</span><br><span class="line">start        |    kstart         |      end             |</span><br><span class="line">---------------------------------------------------------</span><br><span class="line">userkey_len  |     userkey_data  | SequenceNumber&amp;Value |</span><br><span class="line">---------------------------------------------------------</span><br><span class="line">(varint32)   |    (userkey_len)  |  (uint64)            |</span><br><span class="line">---------------------------------------------------------</span><br></pre></td></tr></table></figure>
+
+<p>对 memtable 进行 lookup 时使用 [start,end], 对 sstable lookup 时使用[kstart, end]。<strong>啥意思？？？？？</strong></p>
+<h2 id="1-11-Comparator"><a href="#1-11-Comparator" class="headerlink" title="1.11 Comparator"></a>1.11 Comparator</h2><h2 id="InternalKeyComparator-db-dbformat-h"><a href="#InternalKeyComparator-db-dbformat-h" class="headerlink" title="InternalKeyComparator(db/dbformat.h)"></a>InternalKeyComparator(db/dbformat.h)</h2><p>db内部做key排序时使用的比较方法。排序时，会先使用user-comparator比较user-key,如果user-key相同，再比较SequenceNubmber的大小。因为SequenceNumber在db中全局递增，对于相同的user-key,最新的更新排在前面，在查找时会被先找到。</p>
+<p>InternalKeyComparator 中 FindShortestSeparator()/ FindShortSuccessor()的实现，仅从传入的内部key参数，解析出user-key，然后再调用user-comparator的对应接口。</p>
+<h2 id="WriteBatch-db-write-batch-cc"><a href="#WriteBatch-db-write-batch-cc" class="headerlink" title="WriteBatch(db/write_batch.cc)"></a>WriteBatch(db/write_batch.cc)</h2><p>将多个操作（put/delete）封装成WriteBatch。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">// WriteBatch::rep_ :=</span><br><span class="line">//    sequence: fixed64</span><br><span class="line">//    count: fixed32</span><br><span class="line">//    data: record[count]</span><br><span class="line">// record :=</span><br><span class="line">//    kTypeValue varstring varstring         |</span><br><span class="line">//    kTypeDeletion varstring</span><br><span class="line">// varstring :=</span><br><span class="line">//    len: varint32</span><br><span class="line">//    data: uint8[len]</span><br></pre></td></tr></table></figure>
+
+<h2 id="Memtable-db-memtable-cc-skiplist-h"><a href="#Memtable-db-memtable-cc-skiplist-h" class="headerlink" title="Memtable(db/memtable.cc/skiplist.h)"></a>Memtable(db/memtable.cc/skiplist.h)</h2><p>db数据在内存中的存储格式，写操作的数据会先写入到memtable中，memtable的实现是skiplist。<br>当memtable的大小达到一定阈值后，就会变成只读的imemtable。同时生成一个新的memtable来供写入。<br>后台运行的compact进程会负责将imemetable dump成新的sstable。</p>
+<h2 id="sstable-table-table-cc"><a href="#sstable-table-table-cc" class="headerlink" title="sstable(table/table.cc)"></a>sstable(table/table.cc)</h2><p>db数据持久化文件，提供只读。</p>
+<h2 id="block-table-block-cc"><a href="#block-table-block-cc" class="headerlink" title="block(table/block.cc)"></a>block(table/block.cc)</h2><p>sstable的数据由一个个的block组成。当持久化数据时，多份kv聚合成一个block写入；<br>读取数据时也是以block单位做IO。sstable的索引信息会保存符合key-range的block在文件中的offset/size(blockHandle)</p>
+<h2 id="BlockHandle-table-format-h"><a href="#BlockHandle-table-format-h" class="headerlink" title="BlockHandle(table/format.h)"></a>BlockHandle(table/format.h)</h2><p>block的元信息（位于sstable的offset/size)封装成BlockHandle.</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BlockHandle</span> &#123;</span></span><br><span class="line"> <span class="comment">// .......</span></span><br><span class="line"> <span class="keyword">private</span>:</span><br><span class="line">  <span class="keyword">uint64_t</span> offset_;</span><br><span class="line">  <span class="keyword">uint64_t</span> size_;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h2 id="FileNumber-db-dbformat-h"><a href="#FileNumber-db-dbformat-h" class="headerlink" title="FileNumber(db/dbformat.h)"></a>FileNumber(db/dbformat.h)</h2><h2 id="Compact"><a href="#Compact" class="headerlink" title="Compact"></a>Compact</h2><p>db中有一个Compact后台进程</p>
+<h2 id="Compaction-db-version-set-cc"><a href="#Compaction-db-version-set-cc" class="headerlink" title="Compaction(db/version_set.cc)"></a>Compaction(db/version_set.cc)</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Compaction</span> &#123;</span></span><br><span class="line"> <span class="keyword">public</span>:</span><br><span class="line">  <span class="comment">//......</span></span><br><span class="line">  <span class="function"><span class="keyword">int</span> <span class="title">level</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> level_; &#125; <span class="comment">//当前compacted的level层，merge成level+1层</span></span><br><span class="line">  <span class="function">VersionEdit* <span class="title">edit</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> &amp;edit_; &#125; <span class="comment">// compact 时当前的 Version</span></span><br><span class="line">  <span class="function"><span class="keyword">int</span> <span class="title">num_input_files</span><span class="params">(<span class="keyword">int</span> which)</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> inputs_[which].size(); &#125;</span><br><span class="line"></span><br><span class="line"> <span class="keyword">private</span>:</span><br><span class="line">  <span class="keyword">int</span> level_;</span><br><span class="line">  <span class="keyword">uint64_t</span> max_output_file_size_;</span><br><span class="line">  Version* input_version_;</span><br><span class="line">  VersionEdit edit_;</span><br><span class="line"></span><br><span class="line">  <span class="comment">//inputs_[0]为 level-n 的 sstable 文件信息，</span></span><br><span class="line">  <span class="comment">// inputs_[1]为 level-n+1 的 sstable 文件信息</span></span><br><span class="line">  <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;FileMetaData*&gt; inputs_[<span class="number">2</span>];  </span><br><span class="line"></span><br><span class="line">  <span class="comment">// (parent == level_ + 1, grandparent == level_ + 2)</span></span><br><span class="line">  <span class="comment">// compact 最终会生成一系列 level-n+1 的 sstable， </span></span><br><span class="line">  <span class="comment">// 而如果生成的 sstable 与 level-n+2 中有过多的 overlap 的话，当 compact level-n+1 时，会产生过多的 merge，为了尽量避免这种情况，compact 过程中 </span></span><br><span class="line">  <span class="comment">// 需要检查与 level-n+2 中产生 overlap 的 size 并与</span></span><br><span class="line">  <span class="comment">// 阈值 kMaxGrandParentOverlapBytes 做比较，</span></span><br><span class="line">  <span class="comment">// 以便提前中止 compact。</span></span><br><span class="line">  <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;FileMetaData*&gt; grandparents_;</span><br><span class="line">  <span class="comment">// 记录 compact 时 grandparents_中已经 overlap 的 index</span></span><br><span class="line">  <span class="keyword">size_t</span> grandparent_index_;  </span><br><span class="line">  <span class="keyword">bool</span> seen_key_;             <span class="comment">// Some output key has been seen</span></span><br><span class="line">  <span class="comment">// Bytes of overlap between current output and grandparent files</span></span><br><span class="line">  <span class="keyword">int64_t</span> overlapped_bytes_;  </span><br><span class="line"></span><br><span class="line"> </span><br><span class="line">  <span class="keyword">size_t</span> level_ptrs_[config::kNumLevels];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Version-db-version-set-cc"><a href="#Version-db-version-set-cc" class="headerlink" title="Version(db/version_set.cc)"></a>Version(db/version_set.cc)</h2><p>将每次compact后的最新数据状态定义为Version，也就是当前db元信息以及每个 level上具有最新数据状态的sstable集合。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Version</span> &#123;</span></span><br><span class="line"> <span class="keyword">private</span>:</span><br><span class="line">  VersionSet* vset_;  <span class="comment">// Version属于的VersionSet </span></span><br><span class="line">  Version* next_;     </span><br><span class="line">  <span class="keyword">int</span> refs_;          <span class="comment">// 该Version的引用数</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// 每一层的文件</span></span><br><span class="line">  <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;FileMetaData*&gt; files_[config::kNumLevels];</span><br><span class="line"></span><br><span class="line">  <span class="comment">//下一个需要compact的文件（基于seek次数）</span></span><br><span class="line">  FileMetaData* file_to_compact_;</span><br><span class="line">  <span class="keyword">int</span> file_to_compact_level_;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Level that should be compacted next and its compaction score.</span></span><br><span class="line">  <span class="comment">// Score &lt; 1 means compaction is not strictly needed.  These fields</span></span><br><span class="line">  <span class="comment">// are initialized by Finalize().</span></span><br><span class="line">  <span class="keyword">double</span> compaction_score_;</span><br><span class="line">  <span class="keyword">int</span> compaction_level_;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>refs_</p>
+<p>compact 会在某个 level 上新加入或者删除一些sstable，但可能这个时候， 那些要删除的 sstable 正在被读，为了处理这样的读写竞争情况，基于 sstable 文件一旦生成就不会 改动的特点，每个Version加入引用计数，读以及解除读操作会将引用计数相应加减一。这样， db中可能有多个Version 同时存在(提供服务)，它们通过链表链接起来。当 Version的引用计数为 0并且不是当前最新的 Version 时，它会从链表中移除，对应的，该Version内的 sstable 就可以删除了 (这些废弃的sstable会在下一次compact完成时被清理掉)。</p>
+</li>
+<li><p>compaction_score</p>
+<ul>
+<li>在从sstable中查找数据时，每一层的sstable的key分布，以及size都会影响读取的效率。可以预想的最佳情形可能是level-0中最多有一个sstable，level-1 以及之上的各level中key-range分布均匀，期望更多的查找可以遍历最少的level即可定位到。</li>
+<li>这样的理想状态叫做：leveldb处于均衡状态。compaction_score_的分值越高，代表该level越不均衡，越应该优先进行compact。</li>
+<li>取每层的compaction_score_最大值作为该Version的compaction_score_，同时记录该层的compaction_level_</li>
+</ul>
+</li>
+<li><p>file_to_compact_</p>
+<ul>
+<li>如果对于一个sstable多次查找，则说明低层的sstable没有提供很好的hit率，倾向于认为compact可以提高均衡状态。但一个文件的寻道次数达到一定阈值（allowed_seeks)，就对其进行compact。</li>
+</ul>
+</li>
+</ul>
+<h2 id="VersionSet-db-version-set-cc"><a href="#VersionSet-db-version-set-cc" class="headerlink" title="VersionSet(db/version_set.cc)"></a>VersionSet(db/version_set.cc)</h2><p>整个db的状态都由VersionSet管理着，其中包括当前Version的状态以及其他正在被使用的Version状态。</p>
+<h2 id="VersionEdit-db-version-edit-cc"><a href="#VersionEdit-db-version-edit-cc" class="headerlink" title="VersionEdit(db/version_edit.cc)"></a>VersionEdit(db/version_edit.cc)</h2><p>compact过程中会有一系列改变Version的操作，如 filenumber增加，删除sstalbe，为了缩小VersionSet的切换，将这些操作封装成VersionEdit,当compact完成时，将 VersionEdit 中的操作一次应用到当前 Version 即可得到最新状态的 Version。</p>
+<h2 id="VersionSet-Builder-db-version-set-cc"><a href="#VersionSet-Builder-db-version-set-cc" class="headerlink" title="VersionSet::Builder(db/version_set.cc)"></a>VersionSet::Builder(db/version_set.cc)</h2><p>辅助类，将所有VersionEdit中的操作应用到Version中。</p>
+<h2 id="Manifest-db-version-set-cc"><a href="#Manifest-db-version-set-cc" class="headerlink" title="Manifest(db/version_set.cc)"></a>Manifest(db/version_set.cc)</h2><p>为了重启db后可以恢复推出前的状态，需要将db中的状态保存下来。这些信息就在manifest中。为了使db更快地恢复，manifest不会只保存当前的状态，而是将历史的状态都保存下来。又考虑到每次状态的完全保存需要的空间和耗费比较多。所以在开始时，manifest保存完整的状态信息（VersionSet::WriteSnapshot()),接下来只保存每次compact产生的操作（VersinEdit)，重启db时，根据开头的状态，依次将后续的VersionEdit replay，即可恢复到退出前的状态。</p>
+<h1 id="存储结构"><a href="#存储结构" class="headerlink" title="存储结构"></a>存储结构</h1><p>前面提到了memtable中存储的是InternalKey</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">---------------------------------------------------------</span><br><span class="line">start        |    kstart         |      end             |</span><br><span class="line">---------------------------------------------------------</span><br><span class="line">userkey_len  |     userkey_data  | SequenceNumber&amp;Value |</span><br><span class="line">---------------------------------------------------------</span><br><span class="line">(varint32)   |    (userkey_len)  |  (uint64)            |</span><br><span class="line">---------------------------------------------------------</span><br></pre></td></tr></table></figure>
+
+<p>MemTable的Add操作：<br>主要是构造插入Mmetable中的数据，包括InternalKey和value，然后调用SkipList的Insert函数来插入数据。<br><strong>排序按照userkey递增，sequenceNumber递减，这样可以保证相同userkey的快照排到一起，且最新的数据排在前面</strong></p>
+<blockquote>
+<p>思考： 在写入时，为什么不直接把原有的key替换呢，为了保证快照读吗？</p>
+</blockquote>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> MemTable::Add(SequenceNumber s, ValueType type, <span class="keyword">const</span> Slice&amp; key,</span><br><span class="line">                   <span class="keyword">const</span> Slice&amp; value) &#123;</span><br><span class="line">  <span class="comment">// Format of an entry is concatenation of:</span></span><br><span class="line">  <span class="comment">//  key_size     : varint32 of internal_key.size()</span></span><br><span class="line">  <span class="comment">//  key bytes    : char[internal_key.size()]</span></span><br><span class="line">  <span class="comment">//  value_size   : varint32 of value.size()</span></span><br><span class="line">  <span class="comment">//  value bytes  : char[value.size()]</span></span><br><span class="line">  <span class="keyword">size_t</span> key_size = key.size();</span><br><span class="line">  <span class="keyword">size_t</span> val_size = value.size();</span><br><span class="line">  <span class="comment">//这里添加的8byte即是SequenceNumber及ValueType所需的64bit</span></span><br><span class="line">  <span class="keyword">size_t</span> internal_key_size = key_size + <span class="number">8</span>;</span><br><span class="line">  <span class="keyword">const</span> <span class="keyword">size_t</span> encoded_len = VarintLength(internal_key_size) +</span><br><span class="line">                             internal_key_size + VarintLength(val_size) +</span><br><span class="line">                             val_size;</span><br><span class="line">  <span class="keyword">char</span>* buf = arena_.Allocate(encoded_len); <span class="comment">//从arena中申请分配内存</span></span><br><span class="line">  <span class="keyword">char</span>* p = EncodeVarint32(buf, internal_key_size); <span class="comment">//向buf中写入internal_key_size</span></span><br><span class="line">  <span class="built_in">memcpy</span>(p, key.data(), key_size); <span class="comment">//向buf中写入key的数据</span></span><br><span class="line">  p += key_size;</span><br><span class="line">  EncodeFixed64(p, (s &lt;&lt; <span class="number">8</span>) | type); <span class="comment">//再将sequenceNumber和valueType写入</span></span><br><span class="line">  p += <span class="number">8</span>;</span><br><span class="line">  p = EncodeVarint32(p, val_size); <span class="comment">//写入value大小</span></span><br><span class="line">  <span class="built_in">memcpy</span>(p, value.data(), val_size); <span class="comment">//写入value的值</span></span><br><span class="line">  assert(p + val_size == buf + encoded_len);</span><br><span class="line">  table_.Insert(buf); <span class="comment">//调用Skiplist来插入数据</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>MemTable的Get操作：</p>
+<ul>
+<li>构造查找</li>
+<li>调用Skiplist的Iterator。SkipList中的迭代器也就是调用FindGreaterOrEqual</li>
+<li>判断返回结果的user_key是否和查找key相等，如相等，判断ValueType:<ul>
+<li>KTypeValue,返回结果</li>
+<li>KTypeDelete,返回 NotFound<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">bool</span> MemTable::Get(<span class="keyword">const</span> LookupKey&amp; key, <span class="built_in">std</span>::<span class="built_in">string</span>* value, Status* s) &#123;</span><br><span class="line">  <span class="comment">//memkey即 userkeylen+userky</span></span><br><span class="line">  Slice memkey = key.memtable_key();</span><br><span class="line">  Table::<span class="function">Iterator <span class="title">iter</span><span class="params">(&amp;table_)</span></span>;</span><br><span class="line">  <span class="comment">//Seek中调用的其实就是FindGreaterOrEqual</span></span><br><span class="line">  iter.Seek(memkey.data());</span><br><span class="line">  <span class="keyword">if</span> (iter.Valid()) &#123;</span><br><span class="line">    <span class="comment">// entry format is:</span></span><br><span class="line">    <span class="comment">//    klength  varint32</span></span><br><span class="line">    <span class="comment">//    userkey  char[klength]</span></span><br><span class="line">    <span class="comment">//    tag      uint64</span></span><br><span class="line">    <span class="comment">//    vlength  varint32</span></span><br><span class="line">    <span class="comment">//    value    char[vlength]</span></span><br><span class="line">    <span class="comment">// Check that it belongs to same user key.  We do not check the</span></span><br><span class="line">    <span class="comment">// sequence number since the Seek() call above should have skipped</span></span><br><span class="line">    <span class="comment">// all entries with overly large sequence numbers.</span></span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span>* entry = iter.key();</span><br><span class="line">    <span class="keyword">uint32_t</span> key_length;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span>* key_ptr = GetVarint32Ptr(entry, entry + <span class="number">5</span>, &amp;key_length);</span><br><span class="line">    <span class="comment">//如何返回的不大于key的prev[]，所有还需要再比较key是否相同</span></span><br><span class="line">    <span class="keyword">if</span> (comparator_.comparator.user_comparator()-&gt;Compare(</span><br><span class="line">            Slice(key_ptr, key_length - <span class="number">8</span>), key.user_key()) == <span class="number">0</span>) &#123;</span><br><span class="line">      <span class="comment">// Correct user key</span></span><br><span class="line">      <span class="keyword">const</span> <span class="keyword">uint64_t</span> tag = DecodeFixed64(key_ptr + key_length - <span class="number">8</span>);</span><br><span class="line">      <span class="keyword">switch</span> (<span class="keyword">static_cast</span>&lt;ValueType&gt;(tag &amp; <span class="number">0xff</span>)) &#123;</span><br><span class="line">        <span class="keyword">case</span> kTypeValue: &#123;</span><br><span class="line">          Slice v = GetLengthPrefixedSlice(key_ptr + key_length);</span><br><span class="line">          value-&gt;assign(v.data(), v.size());</span><br><span class="line">          <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">case</span> kTypeDeletion:</span><br><span class="line">          *s = Status::NotFound(Slice());</span><br><span class="line">          <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="SkipList"><a href="#SkipList" class="headerlink" title="SkipList"></a>SkipList</h2><p>SkipList的数据结构</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SkipList</span> &#123;</span></span><br><span class="line"> <span class="keyword">private</span>:</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">Node</span>;</span></span><br><span class="line">  <span class="keyword">const</span> SkipList* list_;</span><br><span class="line">  Node* node_;</span><br><span class="line"></span><br><span class="line"> <span class="keyword">public</span>:</span><br><span class="line">  <span class="function"><span class="keyword">explicit</span> <span class="title">SkipList</span><span class="params">(Comparator cmp, Arena* arena)</span></span>;</span><br><span class="line"></span><br><span class="line">  SkipList(<span class="keyword">const</span> SkipList&amp;) = <span class="keyword">delete</span>;</span><br><span class="line">  SkipList&amp; <span class="keyword">operator</span>=(<span class="keyword">const</span> SkipList&amp;) = <span class="keyword">delete</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">//插入数据</span></span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">Insert</span><span class="params">(<span class="keyword">const</span> Key&amp; key)</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Returns true iff an entry that compares equal to key is in the list.</span></span><br><span class="line">  <span class="function"><span class="keyword">bool</span> <span class="title">Contains</span><span class="params">(<span class="keyword">const</span> Key&amp; key)</span> <span class="keyword">const</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 迭代器</span></span><br><span class="line">  <span class="class"><span class="keyword">class</span> <span class="title">Iterator</span> &#123;</span></span><br><span class="line">  <span class="comment">//......</span></span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line"> <span class="keyword">private</span>:</span><br><span class="line">  <span class="keyword">enum</span> &#123; kMaxHeight = <span class="number">12</span> &#125;;</span><br><span class="line">  <span class="function"><span class="keyword">inline</span> <span class="keyword">int</span> <span class="title">GetMaxHeight</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> max_height_.load(<span class="built_in">std</span>::memory_order_relaxed);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function">Node* <span class="title">NewNode</span><span class="params">(<span class="keyword">const</span> Key&amp; key, <span class="keyword">int</span> height)</span></span>;</span><br><span class="line">  <span class="function"><span class="keyword">int</span> <span class="title">RandomHeight</span><span class="params">()</span></span>;</span><br><span class="line">  <span class="comment">//......</span></span><br><span class="line"></span><br><span class="line">  <span class="function">Node* <span class="title">FindGreaterOrEqual</span><span class="params">(<span class="keyword">const</span> Key&amp; key, Node** prev)</span> <span class="keyword">const</span></span>;</span><br><span class="line">  <span class="comment">// Immutable after construction</span></span><br><span class="line">  Comparator <span class="keyword">const</span> compare_;</span><br><span class="line">  Arena* <span class="keyword">const</span> arena_;  <span class="comment">// Arena used for allocations of nodes</span></span><br><span class="line">  Node* <span class="keyword">const</span> head_;</span><br><span class="line">  <span class="built_in">std</span>::atomic&lt;<span class="keyword">int</span>&gt; max_height_;  <span class="comment">// Height of the entire list</span></span><br><span class="line">  <span class="comment">// Read/written only by Insert().</span></span><br><span class="line">  Random rnd_;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>SkipList的插入操作：</p>
+<ul>
+<li>首先找到不小于当前key的插入位置，FindGreaterOrEqual函数返回在每个level层上的prev node.</li>
+<li>随机产生一个高度</li>
+<li>通过prev[i],在所有高度上插入该节点<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> SkipList&lt;Key, Comparator&gt;::Insert(<span class="keyword">const</span> Key&amp; key) &#123;</span><br><span class="line">  <span class="comment">// TODO(opt): We can use a barrier-free variant of FindGreaterOrEqual()</span></span><br><span class="line">  <span class="comment">// here since Insert() is externally synchronized.</span></span><br><span class="line">  Node* prev[kMaxHeight];</span><br><span class="line">  Node* x = FindGreaterOrEqual(key, prev); <span class="comment">//找到不小于当前key的位置</span></span><br><span class="line"></span><br><span class="line">  assert(x == <span class="literal">nullptr</span> || !Equal(key, x-&gt;key)); <span class="comment">//由于key中包含sequencenumber，所以key不应该重复</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">int</span> height = RandomHeight(); <span class="comment">//为当前node随机产生一个高度</span></span><br><span class="line">  <span class="keyword">if</span> (height &gt; GetMaxHeight()) &#123; <span class="comment">//这里GetMaxHeight()返回的就是 max_height_</span></span><br><span class="line">    <span class="comment">//如果这个高度比当前所有高度都高，那么每个在当前高度之上的prev[i]都应该为head</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = GetMaxHeight(); i &lt; height; i++) &#123;</span><br><span class="line">      prev[i] = head_;   </span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//这里对GetMaxHeight()不需要做额外的读同步，</span></span><br><span class="line">    max_height_.store(height, <span class="built_in">std</span>::memory_order_relaxed);</span><br><span class="line">  &#125;</span><br><span class="line">  x = NewNode(key, height);</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; height; i++) &#123;</span><br><span class="line">    <span class="comment">// NoBarrier_SetNext() suffices since we will add a barrier when</span></span><br><span class="line">    <span class="comment">// we publish a pointer to "x" in prev[i].</span></span><br><span class="line">    x-&gt;NoBarrier_SetNext(i, prev[i]-&gt;NoBarrier_Next(i));</span><br><span class="line">    prev[i]-&gt;SetNext(i, x);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p>FindGreaterOrEqual的大致过程：</p>
+<ol>
+<li>从最高层开始，往后查找</li>
+<li>如果在当前层找到插入位置，记录下前一个节点prev</li>
+<li>在往下一层查找</li>
+<li>循环第二步</li>
+</ol>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">SkipList&lt;Key, Comparator&gt;::FindGreaterOrEqual(<span class="keyword">const</span> Key&amp; key,</span><br><span class="line">                                              Node** prev) <span class="keyword">const</span> &#123;</span><br><span class="line">  Node* x = head_;</span><br><span class="line">  <span class="keyword">int</span> level = GetMaxHeight() - <span class="number">1</span>;</span><br><span class="line">  <span class="comment">//从最高层往下查找</span></span><br><span class="line">  <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">    Node* next = x-&gt;Next(level);</span><br><span class="line">    <span class="keyword">if</span> (KeyIsAfterNode(key, next)) &#123;</span><br><span class="line">     <span class="comment">//当前key大于next的值，那么还需要继续往后查找</span></span><br><span class="line">      x = next;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="comment">//当前key不大于next的值，那么在当前level上，x就是要插入的位置</span></span><br><span class="line">      <span class="keyword">if</span> (prev != <span class="literal">nullptr</span>) prev[level] = x;</span><br><span class="line">      <span class="keyword">if</span> (level == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> next;</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 往下一层继续查找</span></span><br><span class="line">        level--;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Arena"><a href="#Arena" class="headerlink" title="Arena"></a>Arena</h2><p>为了便于内存使用，提高内存使用效率，以及更好地管理内存。level使用了Arena来管理内存。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Arena</span>&#123;</span></span><br><span class="line">  <span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">// 新分配内存</span></span><br><span class="line">    <span class="function"><span class="keyword">char</span>* <span class="title">Allocate</span><span class="params">(<span class="keyword">size_t</span> bytes)</span></span>;</span><br><span class="line">    <span class="comment">// 分配对齐内存</span></span><br><span class="line">    <span class="function"><span class="keyword">char</span>* <span class="title">AllocateAligned</span><span class="params">(<span class="keyword">size_t</span> bytes)</span></span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span>:</span><br><span class="line">  <span class="function"><span class="keyword">char</span>* <span class="title">AllocateFallback</span><span class="params">(<span class="keyword">size_t</span> bytes)</span></span>;</span><br><span class="line">  <span class="function"><span class="keyword">char</span>* <span class="title">AllocateNewBlock</span><span class="params">(<span class="keyword">size_t</span> block_bytes)</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">//当前分配的block，剩余的内存位置</span></span><br><span class="line">  <span class="keyword">char</span>* alloc_ptr_;</span><br><span class="line">  <span class="comment">//当前分配的block,剩余内存的大小</span></span><br><span class="line">  <span class="keyword">size_t</span> alloc_bytes_remaining_;</span><br><span class="line">  <span class="comment">// 已经分配的block</span></span><br><span class="line">  <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">char</span>*&gt; blocks_;</span><br><span class="line">  <span class="comment">//累计分配的内存大小</span></span><br><span class="line">  <span class="built_in">std</span>::atomic&lt;<span class="keyword">size_t</span>&gt; memory_usage_;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>分配内存也很简单</p>
+<p>如果当前需要的内存小于剩余内存，直接将当前block的剩余内存分配。<br>否则就调用AllocateFallback申请新的内存。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">inline</span> <span class="keyword">char</span>* Arena::Allocate(<span class="keyword">size_t</span> bytes) &#123;</span><br><span class="line">  assert(bytes &gt; <span class="number">0</span>);</span><br><span class="line">  <span class="keyword">if</span> (bytes &lt;= alloc_bytes_remaining_) &#123;</span><br><span class="line">    <span class="keyword">char</span>* result = alloc_ptr_;</span><br><span class="line">    alloc_ptr_ += bytes;</span><br><span class="line">    alloc_bytes_remaining_ -= bytes;</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> AllocateFallback(bytes);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Arena每次以kBlockSize（4096）为单位向系统申请内存。<br>需要注意的是调用AllocateFallback的前提是当前block已经没有足够的内存可以分配。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">char</span>* Arena::AllocateFallback(<span class="keyword">size_t</span> bytes) &#123;</span><br><span class="line">  <span class="keyword">if</span> (bytes &gt; kBlockSize / <span class="number">4</span>) &#123;</span><br><span class="line">    <span class="comment">// Object is more than a quarter of our block size.  Allocate it separately</span></span><br><span class="line">    <span class="comment">// to avoid wasting too much space in leftover bytes.</span></span><br><span class="line">    <span class="comment">//这是为什么？？？？？？？？</span></span><br><span class="line">    <span class="comment">//大于block size的1/4就单独分配内存</span></span><br><span class="line">    <span class="keyword">char</span>* result = AllocateNewBlock(bytes);</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 已经没有空闲内存，所以新申请内存，这样会浪费掉当前block的剩余内存</span></span><br><span class="line">  alloc_ptr_ = AllocateNewBlock(kBlockSize);</span><br><span class="line">  alloc_bytes_remaining_ = kBlockSize;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">char</span>* result = alloc_ptr_;</span><br><span class="line">  alloc_ptr_ += bytes;</span><br><span class="line">  alloc_bytes_remaining_ -= bytes;</span><br><span class="line">  <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// util/arena.cc line 58</span></span><br><span class="line"><span class="keyword">char</span>* Arena::AllocateNewBlock(<span class="keyword">size_t</span> block_bytes) &#123;</span><br><span class="line">  <span class="keyword">char</span>* result = <span class="keyword">new</span> <span class="keyword">char</span>[block_bytes];</span><br><span class="line">  blocks_.push_back(result);</span><br><span class="line">  memory_usage_.fetch_add(block_bytes + <span class="keyword">sizeof</span>(<span class="keyword">char</span>*),</span><br><span class="line">                          <span class="built_in">std</span>::memory_order_relaxed);</span><br><span class="line">  <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="block-of-sstable-table-block-builder-cc-table-block-cc"><a href="#block-of-sstable-table-block-builder-cc-table-block-cc" class="headerlink" title="block of sstable (table/block_builder.cc table/block.cc)"></a>block of sstable (table/block_builder.cc table/block.cc)</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Block</span> &#123;</span></span><br><span class="line"> <span class="keyword">public</span>:</span><br><span class="line">  <span class="comment">//......</span></span><br><span class="line"> <span class="keyword">private</span>:</span><br><span class="line">  <span class="class"><span class="keyword">class</span> <span class="title">Iter</span>;</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">uint32_t</span> NumRestarts() <span class="keyword">const</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> <span class="keyword">char</span>* data_; </span><br><span class="line">  <span class="keyword">size_t</span> size_;</span><br><span class="line">  <span class="keyword">uint32_t</span> restart_offset_;  <span class="comment">// 记录restart的位置</span></span><br><span class="line">  <span class="keyword">bool</span> owned_;               <span class="comment">// Block owns data_[]</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>数据在一个block中存储如下：</p>
+<p><strong>关于key做前缀压缩</strong></p>
+<ul>
+<li>一个key/value形成一个entry</li>
+<li>entry是key值经过前缀压缩存储的，即对于每一个key，只需要记录与前一key相同的长度，以及剩余不同部分的key即可。</li>
+<li>由于写入到block中的key/value都是由上层的memtable dump下来，或者是由上层的sstable merge的，所以key都是相对有效的 这样虽然有效地节省了存储空间，但是在查找key时，就需要从block的开头开始查找，非常低效。</li>
+<li>所以设置一个block_restart_interval，表示每轮压缩只包含这么多entry，超出就开始新的一轮压缩。restarts中记录了每一次开始新一轮压缩的位置，num_of_restarts记录了总的轮数。</li>
+</ul>
+<p><strong>压缩后key/value的存储</strong></p>
+<ul>
+<li>shared_bytes 表示与前一个key相同的长度</li>
+<li>unshared_bytes 表示剩余不同的长度</li>
+<li>value_bytes 表示value部分的长度</li>
+<li>unshared_bytes 不同部分的key的值</li>
+<li>value_data value部分的值</li>
+</ul>
+<p><strong>trailer</strong></p>
+<ul>
+<li>每个 block 后面都会有 5 个字节的 trailer。</li>
+<li>1 个字节的 type 表示 block 内的数据是 否进行了压缩(比如使用了 snappy 压缩)，4 个字节的 crc 记录 block 数据的校验码。</li>
+</ul>
+<p><img src="block_cc.jpg" alt="avtor"></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BlockBuilder</span> &#123;</span></span><br><span class="line"> <span class="keyword">public</span>:</span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">Add</span><span class="params">(<span class="keyword">const</span> Slice&amp; key, <span class="keyword">const</span> Slice&amp; value)</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Finish building the block and return a slice that refers to the</span></span><br><span class="line">  <span class="comment">// block contents.  The returned slice will remain valid for the</span></span><br><span class="line">  <span class="comment">// lifetime of this builder or until Reset() is called.</span></span><br><span class="line">  <span class="function">Slice <span class="title">Finish</span><span class="params">()</span></span>;</span><br><span class="line">  <span class="comment">//......</span></span><br><span class="line"> <span class="keyword">private</span>:</span><br><span class="line">  <span class="keyword">const</span> Options* options_;</span><br><span class="line">  <span class="built_in">std</span>::<span class="built_in">string</span> buffer_;              <span class="comment">// Destination buffer</span></span><br><span class="line">  <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">uint32_t</span>&gt; restarts_;  <span class="comment">// 记录每轮前缀压缩的起始点</span></span><br><span class="line">  <span class="keyword">int</span> counter_;                     <span class="comment">// 从开始新的一轮压缩，已经加入的entry数量</span></span><br><span class="line">  <span class="keyword">bool</span> finished_;                   <span class="comment">// Has Finish() been called?</span></span><br><span class="line">  <span class="built_in">std</span>::<span class="built_in">string</span> last_key_;            <span class="comment">// 每个block的last_key_</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>BlockBuilder会负责加入key/value。</p>
+<ol>
+<li>找到当前key和last_key相同的长度。</li>
+<li>如果counter_小于block_restart_interval，那么继续在该轮中进行压缩，找到相同的key前缀。</li>
+<li>如果counter_大于block_restart_interval：<ul>
+<li>那么重新开始新的一轮，在restarts_记录下开始新一轮的位置；</li>
+<li>counter_重置为0；</li>
+</ul>
+</li>
+<li>构造entry,写入到buffer_</li>
+<li>更细last_key_<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> BlockBuilder::Add(<span class="keyword">const</span> Slice&amp; key, <span class="keyword">const</span> Slice&amp; value) &#123;</span><br><span class="line">  <span class="function">Slice <span class="title">last_key_piece</span><span class="params">(last_key_)</span></span>;</span><br><span class="line">  <span class="comment">//.......</span></span><br><span class="line">  <span class="keyword">size_t</span> shared = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">if</span> (counter_ &lt; options_-&gt;block_restart_interval) &#123;</span><br><span class="line">    <span class="comment">// 找到当前key和last_key相同的长度</span></span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">size_t</span> min_length = <span class="built_in">std</span>::min(last_key_piece.size(), key.size());</span><br><span class="line">    <span class="keyword">while</span> ((shared &lt; min_length) &amp;&amp; (last_key_piece[shared] == key[shared])) &#123;</span><br><span class="line">      shared++;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">// 重新开始一轮压缩</span></span><br><span class="line">    restarts_.push_back(buffer_.size());</span><br><span class="line">    counter_ = <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">const</span> <span class="keyword">size_t</span> non_shared = key.size() - shared;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Add "&lt;shared&gt;&lt;non_shared&gt;&lt;value_size&gt;" to buffer_</span></span><br><span class="line">  PutVarint32(&amp;buffer_, shared);</span><br><span class="line">  PutVarint32(&amp;buffer_, non_shared);</span><br><span class="line">  PutVarint32(&amp;buffer_, value.size());</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Add string delta to buffer_ followed by value</span></span><br><span class="line">  buffer_.append(key.data() + shared, non_shared);</span><br><span class="line">  buffer_.append(value.data(), value.size());</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Update state</span></span><br><span class="line">  last_key_.resize(shared);</span><br><span class="line">  last_key_.append(key.data() + shared, non_shared);</span><br><span class="line">  assert(Slice(last_key_) == key);</span><br><span class="line">  counter_++;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<p>block的查询是封装在Iter类中<br>Iter中的Seek函数负责查找：二分查找</p>
+<p>restarts_中记录了每一轮压缩的开始位置，通过二分查找，找到key所在的压缩区间，再查询该key是否在该区间中。</p>
+<p>BlockHandle指向一个block，BlockHandle相当于block在sstalbe中的索引信息。</p>
+<ul>
+<li>拥有两个参数：offset_和size_</li>
+<li>offset指该block在sstable中的位置</li>
+<li>size指block大小，<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BlockHandle</span> &#123;</span></span><br><span class="line"> <span class="keyword">public</span>:</span><br><span class="line">  <span class="comment">//......</span></span><br><span class="line"> <span class="keyword">private</span>:</span><br><span class="line">  <span class="keyword">uint64_t</span> offset_;</span><br><span class="line">  <span class="keyword">uint64_t</span> size_;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h2 id="sstalbe"><a href="#sstalbe" class="headerlink" title="sstalbe"></a>sstalbe</h2><p>table中的主要数据结构</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Table</span>:</span>:Rep &#123;</span><br><span class="line">  </span><br><span class="line">  Options options;</span><br><span class="line">  Status status;</span><br><span class="line">  RandomAccessFile* file;</span><br><span class="line">  <span class="keyword">uint64_t</span> cache_id;</span><br><span class="line">  FilterBlockReader* filter;</span><br><span class="line">  <span class="keyword">const</span> <span class="keyword">char</span>* filter_data;</span><br><span class="line"></span><br><span class="line">  BlockHandle metaindex_handle;  <span class="comment">// Handle to metaindex_block: saved from footer</span></span><br><span class="line">  Block* index_block;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>tableHandle</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">TableBuilder</span>:</span>:Rep &#123;</span><br><span class="line">  Options options;</span><br><span class="line">  Options index_block_options;</span><br><span class="line">  WritableFile* file;</span><br><span class="line">  <span class="keyword">uint64_t</span> offset;</span><br><span class="line">  Status status;</span><br><span class="line">  BlockBuilder data_block;</span><br><span class="line">  BlockBuilder index_block;</span><br><span class="line">  <span class="built_in">std</span>::<span class="built_in">string</span> last_key;</span><br><span class="line">  <span class="keyword">int64_t</span> num_entries;</span><br><span class="line">  <span class="keyword">bool</span> closed;  <span class="comment">// Either Finish() or Abandon() has been called.</span></span><br><span class="line">  FilterBlockBuilder* filter_block;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">bool</span> pending_index_entry;</span><br><span class="line">  BlockHandle pending_handle;  <span class="comment">// Handle to add to index block</span></span><br><span class="line"></span><br><span class="line">  <span class="built_in">std</span>::<span class="built_in">string</span> compressed_output;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>如果是新开的block(pending_index_entry为true),那么需要加入index_entry。key为last_key,value为该block的offerset/size。注意这里的key不是直接去上一个block的最后一个key，而是找到最短的一个字符串，能区分开上一个block的最后一个key，和当前block的第一个key即可，这样可以很好地节省内存开销，因为index_block为load到内存里面。</li>
+<li>将key/value插入，data_block.Add(key, value),即调用BlockBuilder::Add()</li>
+<li>如果data_block size大于阈值，则调用Flush()来写入磁盘<ul>
+<li>Flush()函数首先调用BlockBuilder::WriteBlock()，再调用BlockBuilder::Finish()</li>
+<li>对data_block数据做可选压缩处理</li>
+<li>将压缩后的数据写入磁盘</li>
+</ul>
+</li>
+<li>block重置（block-&gt;reset())<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> TableBuilder::Add(<span class="keyword">const</span> Slice&amp; key, <span class="keyword">const</span> Slice&amp; value) &#123;</span><br><span class="line">  Rep* r = rep_;</span><br><span class="line">  assert(!r-&gt;closed);</span><br><span class="line">  <span class="keyword">if</span> (!ok()) <span class="keyword">return</span>;</span><br><span class="line">  <span class="keyword">if</span> (r-&gt;num_entries &gt; <span class="number">0</span>) &#123;</span><br><span class="line">    assert(r-&gt;options.comparator-&gt;Compare(key, Slice(r-&gt;last_key)) &gt; <span class="number">0</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (r-&gt;pending_index_entry) &#123;</span><br><span class="line">    assert(r-&gt;data_block.empty());</span><br><span class="line">    r-&gt;options.comparator-&gt;FindShortestSeparator(&amp;r-&gt;last_key, key);</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> handle_encoding;</span><br><span class="line">    r-&gt;pending_handle.EncodeTo(&amp;handle_encoding);</span><br><span class="line">    r-&gt;index_block.Add(r-&gt;last_key, Slice(handle_encoding));</span><br><span class="line">    r-&gt;pending_index_entry = <span class="literal">false</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (r-&gt;filter_block != <span class="literal">nullptr</span>) &#123;</span><br><span class="line">    r-&gt;filter_block-&gt;AddKey(key);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  r-&gt;last_key.assign(key.data(), key.size());</span><br><span class="line">  r-&gt;num_entries++;</span><br><span class="line">  r-&gt;data_block.Add(key, value);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> <span class="keyword">size_t</span> estimated_block_size = r-&gt;data_block.CurrentSizeEstimate();</span><br><span class="line">  <span class="keyword">if</span> (estimated_block_size &gt;= r-&gt;options.block_size) &#123;</span><br><span class="line">    Flush();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<p>TableBuilder::Finish()</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line">Status TableBuilder::Finish() &#123;</span><br><span class="line">  Rep* r = rep_;</span><br><span class="line">  Flush();</span><br><span class="line">  assert(!r-&gt;closed);</span><br><span class="line">  r-&gt;closed = <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line">  BlockHandle filter_block_handle, metaindex_block_handle, index_block_handle;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Write filter block</span></span><br><span class="line">  <span class="keyword">if</span> (ok() &amp;&amp; r-&gt;filter_block != <span class="literal">nullptr</span>) &#123;</span><br><span class="line">    WriteRawBlock(r-&gt;filter_block-&gt;Finish(), kNoCompression,</span><br><span class="line">                  &amp;filter_block_handle);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Write metaindex block</span></span><br><span class="line">  <span class="keyword">if</span> (ok()) &#123;</span><br><span class="line">    <span class="function">BlockBuilder <span class="title">meta_index_block</span><span class="params">(&amp;r-&gt;options)</span></span>;</span><br><span class="line">    <span class="keyword">if</span> (r-&gt;filter_block != <span class="literal">nullptr</span>) &#123;</span><br><span class="line">      <span class="comment">// Add mapping from "filter.Name" to location of filter data</span></span><br><span class="line">      <span class="built_in">std</span>::<span class="built_in">string</span> key = <span class="string">"filter."</span>;</span><br><span class="line">      key.append(r-&gt;options.filter_policy-&gt;Name());</span><br><span class="line">      <span class="built_in">std</span>::<span class="built_in">string</span> handle_encoding;</span><br><span class="line">      filter_block_handle.EncodeTo(&amp;handle_encoding);</span><br><span class="line">      meta_index_block.Add(key, handle_encoding);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// TODO(postrelease): Add stats and other meta blocks</span></span><br><span class="line">    WriteBlock(&amp;meta_index_block, &amp;metaindex_block_handle);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Write index block</span></span><br><span class="line">  <span class="keyword">if</span> (ok()) &#123;</span><br><span class="line">    <span class="keyword">if</span> (r-&gt;pending_index_entry) &#123;</span><br><span class="line">      r-&gt;options.comparator-&gt;FindShortSuccessor(&amp;r-&gt;last_key);</span><br><span class="line">      <span class="built_in">std</span>::<span class="built_in">string</span> handle_encoding;</span><br><span class="line">      r-&gt;pending_handle.EncodeTo(&amp;handle_encoding);</span><br><span class="line">      r-&gt;index_block.Add(r-&gt;last_key, Slice(handle_encoding));</span><br><span class="line">      r-&gt;pending_index_entry = <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    WriteBlock(&amp;r-&gt;index_block, &amp;index_block_handle);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Write footer</span></span><br><span class="line">  <span class="keyword">if</span> (ok()) &#123;</span><br><span class="line">    Footer footer;</span><br><span class="line">    footer.set_metaindex_handle(metaindex_block_handle);</span><br><span class="line">    footer.set_index_handle(index_block_handle);</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> footer_encoding;</span><br><span class="line">    footer.EncodeTo(&amp;footer_encoding);</span><br><span class="line">    r-&gt;status = r-&gt;file-&gt;Append(footer_encoding);</span><br><span class="line">    <span class="keyword">if</span> (r-&gt;status.ok()) &#123;</span><br><span class="line">      r-&gt;offset += footer_encoding.size();</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> r-&gt;status;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+          <div class="post-eof"></div>
+        
+      </footer>
+  </div>
+  
+  
+  
+  </article>
+
+    
+        <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block home">
+    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/10/13/GoLang/go rpc 源码分析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="阿娟">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="发现问题并解决问题">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+            
+            <a href="/2019/10/13/GoLang/go rpc 源码分析/" class="post-title-link" itemprop="url">GO RPC 源码分析</a>
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              
+                
+              
+
+              <time title="Created: 2019-10-13 21:07:20" itemprop="dateCreated datePublished" datetime="2019-10-13T21:07:20+08:00">2019-10-13</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2019-10-14 10:08:20" itemprop="dateModified" datetime="2019-10-14T10:08:20+08:00">2019-10-14</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Go/" itemprop="url" rel="index"><span itemprop="name">Go</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>这部分来自GO API</p>
+<h1 id="1-GO-RPC-使用"><a href="#1-GO-RPC-使用" class="headerlink" title="1. GO RPC 使用"></a>1. GO RPC 使用</h1><p>这是一个简单的例子。一个服务端想要导出Arith类型的一个对象：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> server</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Args <span class="keyword">struct</span> &#123;</span><br><span class="line">	A, B <span class="keyword">int</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Quotient <span class="keyword">struct</span> &#123;</span><br><span class="line">	Quo, Rem <span class="keyword">int</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Arith <span class="keyword">int</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(t *Arith)</span> <span class="title">Multiply</span><span class="params">(args *Args, reply *<span class="keyword">int</span>)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">	*reply = args.A * args.B</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(t *Arith)</span> <span class="title">Divide</span><span class="params">(args *Args, quo *Quotient)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> args.B == <span class="number">0</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> errors.New(<span class="string">"divide by zero"</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	quo.Quo = args.A / args.B</span><br><span class="line">	quo.Rem = args.A % args.B</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>服务端会调用（用于HTTP服务）：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    arith := <span class="built_in">new</span>(Arith)</span><br><span class="line">    rpc.Register(arith)</span><br><span class="line">    rpc.HandleHTTP()</span><br><span class="line">    l, e := net.Listen(<span class="string">"tcp"</span>, <span class="string">":1234"</span>)</span><br><span class="line">    <span class="keyword">if</span> e != <span class="literal">nil</span> &#123;</span><br><span class="line">	    log.Fatal(<span class="string">"listen error:"</span>, e)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">go</span> http.Serve(l, <span class="literal">nil</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>此时，客户端可看到服务”Arith”及它的方法”Arith.Multiply”、”Arith.Divide”。</p>
+<p>要调用方法，客户端首先连接到服务端：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">client, err := rpc.DialHTTP(<span class="string">"tcp"</span>, serverAddress + <span class="string">":1234"</span>)</span><br><span class="line"><span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">	log.Fatal(<span class="string">"dialing:"</span>, err)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后，客户端可以执行远程调用：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Synchronous call</span></span><br><span class="line">args := &amp;server.Args&#123;<span class="number">7</span>,<span class="number">8</span>&#125;</span><br><span class="line"><span class="keyword">var</span> reply <span class="keyword">int</span></span><br><span class="line">err = client.Call(<span class="string">"Arith.Multiply"</span>, args, &amp;reply)</span><br><span class="line"><span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">	log.Fatal(<span class="string">"arith error:"</span>, err)</span><br><span class="line">&#125;</span><br><span class="line">fmt.Printf(<span class="string">"Arith: %d*%d=%d"</span>, args.A, args.B, reply)</span><br></pre></td></tr></table></figure>
+
+<p>或：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Asynchronous call</span></span><br><span class="line">quotient := <span class="built_in">new</span>(Quotient)</span><br><span class="line">divCall := client.Go(<span class="string">"Arith.Divide"</span>, args, quotient, <span class="literal">nil</span>)</span><br><span class="line">replyCall := &lt;-divCall.Done	<span class="comment">// will be equal to divCall</span></span><br><span class="line"><span class="comment">// check errors, print, etc.</span></span><br></pre></td></tr></table></figure>
+
+<p>服务端的实现应为客户端提供简单、类型安全的包装。</p>
+<h1 id="2-从客户端来分析"><a href="#2-从客户端来分析" class="headerlink" title="2.从客户端来分析"></a>2.从客户端来分析</h1><p>客户端提供了两种发放来和server建立连接，分别是rpc.DialHTTP以及rpc.Dail。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Dial connects to an RPC server at the specified network address.</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Dial</span><span class="params">(network, address <span class="keyword">string</span>)</span> <span class="params">(*Client, error)</span></span> &#123;</span><br><span class="line">	conn, err := net.Dial(network, address)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span>, err</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> NewClient(conn), <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在Dial中会调用net.Dail来建立与服务器端的连接，然后通过该连接来创建客户端。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewClient</span><span class="params">(conn io.ReadWriteCloser)</span> *<span class="title">Client</span></span> &#123;</span><br><span class="line">	encBuf := bufio.NewWriter(conn)</span><br><span class="line">	client := &amp;gobClientCodec&#123;conn, gob.NewDecoder(conn), gob.NewEncoder(encBuf), encBuf&#125;</span><br><span class="line">	<span class="keyword">return</span> NewClientWithCodec(client)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// NewClientWithCodec is like NewClient but uses the specified</span></span><br><span class="line"><span class="comment">// codec to encode requests and decode responses.</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewClientWithCodec</span><span class="params">(codec ClientCodec)</span> *<span class="title">Client</span></span> &#123;</span><br><span class="line">	client := &amp;Client&#123;</span><br><span class="line">		codec:   codec,</span><br><span class="line">		pending: <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="keyword">uint64</span>]*Call),</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">go</span> client.input()</span><br><span class="line">	<span class="keyword">return</span> client</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>client的参数如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Client <span class="keyword">struct</span> &#123;</span><br><span class="line">	codec ClientCodec <span class="comment">//ClientCodec 是一个接口。</span></span><br><span class="line">                      <span class="comment">//可以从上面的初始化代码看出，传给codec是一个gobClientCodec。</span></span><br><span class="line"></span><br><span class="line">	reqMutex sync.Mutex <span class="comment">// protects following</span></span><br><span class="line">	request  Request</span><br><span class="line"></span><br><span class="line">	mutex    sync.Mutex <span class="comment">// protects following</span></span><br><span class="line">	seq      <span class="keyword">uint64</span></span><br><span class="line">	pending  <span class="keyword">map</span>[<span class="keyword">uint64</span>]*Call <span class="comment">//用来记录当前没有得到返回的Call</span></span><br><span class="line">	closing  <span class="keyword">bool</span> <span class="comment">// user has called Close</span></span><br><span class="line">	shutdown <span class="keyword">bool</span> <span class="comment">// server has told us to stop</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>client.input()主要用于接受server的返回值，后面再细讲吧。</p>
+<p>然后client通过Call或者Go来请求服务。</p>
+<p>Call是Synchronous调用，而Go是Asynchronous调用，Call其实就是调用Go，不过等到Go中的结果返回才返回结果给客户端。下面的代码非常清晰。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Call invokes the named function, waits for it to complete, and returns its error status.</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(client *Client)</span> <span class="title">Call</span><span class="params">(serviceMethod <span class="keyword">string</span>, args <span class="keyword">interface</span>&#123;&#125;, reply <span class="keyword">interface</span>&#123;&#125;)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">	call := &lt;-client.Go(serviceMethod, args, reply, <span class="built_in">make</span>(<span class="keyword">chan</span> *Call, <span class="number">1</span>)).Done</span><br><span class="line">	<span class="keyword">return</span> call.Error</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>重点来看一下Go的实现：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(client *Client)</span> <span class="title">Go</span><span class="params">(serviceMethod <span class="keyword">string</span>, args <span class="keyword">interface</span>&#123;&#125;, reply <span class="keyword">interface</span>&#123;&#125;, done <span class="keyword">chan</span> *Call)</span> *<span class="title">Call</span></span> &#123;</span><br><span class="line">	call := <span class="built_in">new</span>(Call)</span><br><span class="line">	call.ServiceMethod = serviceMethod</span><br><span class="line">	call.Args = args</span><br><span class="line">	call.Reply = reply</span><br><span class="line">	<span class="keyword">if</span> done == <span class="literal">nil</span> &#123;</span><br><span class="line">		done = <span class="built_in">make</span>(<span class="keyword">chan</span> *Call, <span class="number">10</span>) <span class="comment">// buffered.</span></span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		<span class="comment">// If caller passes done != nil, it must arrange that</span></span><br><span class="line">		<span class="comment">// done has enough buffer for the number of simultaneous</span></span><br><span class="line">		<span class="comment">// RPCs that will be using that channel. If the channel</span></span><br><span class="line">		<span class="comment">// is totally unbuffered, it's best not to run at all.</span></span><br><span class="line">		<span class="keyword">if</span> <span class="built_in">cap</span>(done) == <span class="number">0</span> &#123;</span><br><span class="line">			log.Panic(<span class="string">"rpc: done channel is unbuffered"</span>)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	call.Done = done</span><br><span class="line">	client.send(call)</span><br><span class="line">	<span class="keyword">return</span> call</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>逻辑非常简单，就是构造call参数后，调用send来发送请求。<br>下面看看send的实现：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(client *Client)</span> <span class="title">send</span><span class="params">(call *Call)</span></span> &#123;</span><br><span class="line">	client.reqMutex.Lock()</span><br><span class="line">	<span class="keyword">defer</span> client.reqMutex.Unlock()</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Register this call.</span></span><br><span class="line">	client.mutex.Lock()</span><br><span class="line">	<span class="keyword">if</span> client.shutdown || client.closing &#123;</span><br><span class="line">		client.mutex.Unlock()</span><br><span class="line">		call.Error = ErrShutdown</span><br><span class="line">		call.done()</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	seq := client.seq</span><br><span class="line">	client.seq++</span><br><span class="line">	client.pending[seq] = call</span><br><span class="line">	client.mutex.Unlock()</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Encode and send the request.</span></span><br><span class="line">	client.request.Seq = seq</span><br><span class="line">	client.request.ServiceMethod = call.ServiceMethod</span><br><span class="line">	err := client.codec.WriteRequest(&amp;client.request, call.Args)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		client.mutex.Lock()</span><br><span class="line">		call = client.pending[seq]</span><br><span class="line">		<span class="built_in">delete</span>(client.pending, seq)</span><br><span class="line">		client.mutex.Unlock()</span><br><span class="line">		<span class="keyword">if</span> call != <span class="literal">nil</span> &#123;</span><br><span class="line">			call.Error = err</span><br><span class="line">			call.done()</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>用client的pending来记录下发送给server的call，在WriteRequest中将请求发动给服务器端。<br>如果在发送过程中就出现错误，那么会删除pending中的Call，并且返回错误给client。当然发送成功的Call，会在input中来接收返回信息。<br>WriteRequest的具体实现如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *gobClientCodec)</span> <span class="title">WriteRequest</span><span class="params">(r *Request, body <span class="keyword">interface</span>&#123;&#125;)</span> <span class="params">(err error)</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> err = c.enc.Encode(r); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> err = c.enc.Encode(body); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> c.encBuf.Flush()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>gobClientCodec的enc在初始化时是初始化为了与服务器端建立连接的conn，所以会把请求写入到conn中，相当于发送请求给服务器端。</p>
+<p>接下来在看在client端是如何接收服务器端的返回数据的。代码就在input函数里。</p>
+<p>input函数里有一for循环，一直尝试从conn中读取数据。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> err == <span class="literal">nil</span> &#123;</span><br><span class="line">	response = Response&#123;&#125;</span><br><span class="line">	err = client.codec.ReadResponseHeader(&amp;response)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">break</span></span><br><span class="line">	&#125;</span><br><span class="line">	seq := response.Seq</span><br><span class="line">	client.mutex.Lock()</span><br><span class="line">	call := client.pending[seq]</span><br><span class="line">	<span class="built_in">delete</span>(client.pending, seq)</span><br><span class="line">	client.mutex.Unlock()</span><br><span class="line"></span><br><span class="line">	<span class="keyword">switch</span> &#123;</span><br><span class="line">       <span class="keyword">case</span> call == <span class="literal">nil</span>:</span><br><span class="line">       <span class="comment">//如果没有得到call，那么应该是在send中发生了错误，call已经从pending中删除了。但是仍然需要把数据从conn中读出来.在decode过程中：If e is nil, the value will be discarded.</span></span><br><span class="line">		err = client.codec.ReadResponseBody(<span class="literal">nil</span>)</span><br><span class="line">		<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">			err = errors.New(<span class="string">"reading error body: "</span> + err.Error())</span><br><span class="line">		&#125;</span><br><span class="line">	<span class="keyword">case</span> response.Error != <span class="string">""</span>:</span><br><span class="line">		<span class="comment">// We've got an error response. Give this to the request;</span></span><br><span class="line">		<span class="comment">// any subsequent requests will get the ReadResponseBody</span></span><br><span class="line">		<span class="comment">// error if there is one.</span></span><br><span class="line">		call.Error = ServerError(response.Error)</span><br><span class="line">		err = client.codec.ReadResponseBody(<span class="literal">nil</span>)</span><br><span class="line">		<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">			err = errors.New(<span class="string">"reading error body: "</span> + err.Error())</span><br><span class="line">		&#125;</span><br><span class="line">		call.done()</span><br><span class="line">	<span class="keyword">default</span>:</span><br><span class="line">		err = client.codec.ReadResponseBody(call.Reply)</span><br><span class="line">		<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">			call.Error = errors.New(<span class="string">"reading body "</span> + err.Error())</span><br><span class="line">		&#125;</span><br><span class="line">		call.done()</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果读到了header，则删除pending中对应的call，然后再去读取对应的body部分。</p>
+<p>如果过程中有任何的错误发生，则会跳出for循环，然后关闭client，并返回所有pending中的call错误。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">client.mutex.Lock()</span><br><span class="line">client.shutdown = <span class="literal">true</span></span><br><span class="line">closing := client.closing</span><br><span class="line"><span class="keyword">if</span> err == io.EOF &#123;</span><br><span class="line">	<span class="keyword">if</span> closing &#123;</span><br><span class="line">		err = ErrShutdown</span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		err = io.ErrUnexpectedEOF</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">for</span> _, call := <span class="keyword">range</span> client.pending &#123;</span><br><span class="line">	call.Error = err</span><br><span class="line">	call.done()</span><br><span class="line">&#125;</span><br><span class="line">client.mutex.Unlock()</span><br><span class="line">client.reqMutex.Unlock()</span><br><span class="line"><span class="keyword">if</span> debugLog &amp;&amp; err != io.EOF &amp;&amp; !closing &#123;</span><br><span class="line">	log.Println(<span class="string">"rpc: client protocol error:"</span>, err)</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="3-从服务器端来分析"><a href="#3-从服务器端来分析" class="headerlink" title="3.从服务器端来分析"></a>3.从服务器端来分析</h1><p>首先需要注册服务</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(server *Server)</span> <span class="title">Accept</span><span class="params">(lis net.Listener)</span></span> &#123;</span><br><span class="line">	<span class="keyword">for</span> &#123;</span><br><span class="line">		conn, err := lis.Accept()</span><br><span class="line">		<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">			log.Print(<span class="string">"rpc.Serve: accept:"</span>, err.Error())</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">go</span> server.ServeConn(conn)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Accept负责在监听端口接收connections,并且通过ServeConn来处理每个connections的reqeust。</p>
+<p>ServeConn的实现</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(server *Server)</span> <span class="title">ServeConn</span><span class="params">(conn io.ReadWriteCloser)</span></span> &#123;</span><br><span class="line">	buf := bufio.NewWriter(conn)</span><br><span class="line">	srv := &amp;gobServerCodec&#123;</span><br><span class="line">		rwc:    conn,</span><br><span class="line">		dec:    gob.NewDecoder(conn),</span><br><span class="line">		enc:    gob.NewEncoder(buf),</span><br><span class="line">		encBuf: buf,</span><br><span class="line">	&#125;</span><br><span class="line">	server.ServeCodec(srv)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>ServeCode的实现</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(server *Server)</span> <span class="title">ServeCodec</span><span class="params">(codec ServerCodec)</span></span> &#123;</span><br><span class="line">	sending := <span class="built_in">new</span>(sync.Mutex)</span><br><span class="line">	wg := <span class="built_in">new</span>(sync.WaitGroup)</span><br><span class="line">	<span class="keyword">for</span> &#123;</span><br><span class="line">		service, mtype, req, argv, replyv, keepReading, err := server.readRequest(codec)</span><br><span class="line">		<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">if</span> debugLog &amp;&amp; err != io.EOF &#123;</span><br><span class="line">				log.Println(<span class="string">"rpc:"</span>, err)</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">if</span> !keepReading &#123;</span><br><span class="line">				<span class="keyword">break</span></span><br><span class="line">			&#125;</span><br><span class="line">			<span class="comment">// send a response if we actually managed to read a header.</span></span><br><span class="line">			<span class="keyword">if</span> req != <span class="literal">nil</span> &#123;</span><br><span class="line">				server.sendResponse(sending, req, invalidRequest, codec, err.Error())</span><br><span class="line">				server.freeRequest(req)</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">continue</span></span><br><span class="line">		&#125;</span><br><span class="line">		wg.Add(<span class="number">1</span>)</span><br><span class="line">		<span class="keyword">go</span> service.call(server, sending, wg, mtype, req, argv, replyv, codec)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// We've seen that there are no more requests.</span></span><br><span class="line">	<span class="comment">// Wait for responses to be sent before closing codec.</span></span><br><span class="line">	wg.Wait()</span><br><span class="line">	codec.Close()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>ServeCodec使用具体的gobServerCodec来读取conn中的request，即代码中server.readRequest(codec)。如果读取request没有发生错误，那么调用service 的call。call其实就是调用某个具体的函数，下面再讲解。如果发生错误，那么需要将错误写入到conn中，以此来反馈给client，这里不展开。</p>
+<p>service.call的实现</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *service)</span> <span class="title">call</span><span class="params">(server *Server, sending *sync.Mutex, wg *sync.WaitGroup, mtype *methodType, req *Request, argv, replyv reflect.Value, codec ServerCodec)</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> wg != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">defer</span> wg.Done()</span><br><span class="line">	&#125;</span><br><span class="line">	mtype.Lock()</span><br><span class="line">	mtype.numCalls++</span><br><span class="line">	mtype.Unlock()</span><br><span class="line">	function := mtype.method.Func</span><br><span class="line">	<span class="comment">// Invoke the method, providing a new value for the reply.</span></span><br><span class="line">	returnValues := function.Call([]reflect.Value&#123;s.rcvr, argv, replyv&#125;)</span><br><span class="line">	<span class="comment">// The return value for the method is an error.</span></span><br><span class="line">	errInter := returnValues[<span class="number">0</span>].Interface()</span><br><span class="line">	errmsg := <span class="string">""</span></span><br><span class="line">	<span class="keyword">if</span> errInter != <span class="literal">nil</span> &#123;</span><br><span class="line">		errmsg = errInter.(error).Error()</span><br><span class="line">	&#125;</span><br><span class="line">	server.sendResponse(sending, req, replyv.Interface(), codec, errmsg)</span><br><span class="line">	server.freeRequest(req)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+          <div class="post-eof"></div>
+        
+      </footer>
+  </div>
+  
+  
+  
+  </article>
+
+    
+        <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block home">
     <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/10/10/分布式论文阅读/GFS/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -265,11 +1223,19 @@
                 
               
 
-              <time title="Created: 2019-10-10 15:08:00 / Modified: 16:04:21" itemprop="dateCreated datePublished" datetime="2019-10-10T15:08:00+08:00">2019-10-10</time>
+              <time title="Created: 2019-10-10 15:08:00" itemprop="dateCreated datePublished" datetime="2019-10-10T15:08:00+08:00">2019-10-10</time>
             </span>
           
             
 
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2019-10-13 16:44:42" itemprop="dateModified" datetime="2019-10-13T16:44:42+08:00">2019-10-13</time>
+              </span>
             
           
             <span class="post-meta-item">
@@ -335,8 +1301,90 @@
 </ul>
 <h2 id="2-4-Single-Master"><a href="#2-4-Single-Master" class="headerlink" title="2.4 Single Master"></a>2.4 Single Master</h2><p>只有一个master大大地简化了设计。</p>
 <p>client从master那儿得到应该到哪个chunkserver上获取数据，然后client直接与chunkserver交互。</p>
-<p>注意需要最小化master的读写，避免master成为性能瓶颈。<br><img src="/.io//gfs-architecture.jpg" alt="gsf-architecture"></p>
-<p>首先，使用固定大小的chunk size。client将</p>
+<p>注意需要最小化master的读写，避免master成为性能瓶颈。<br><img src="GFS/gfs-architecture.jpg" alt="gsf-architecture"></p>
+<ol>
+<li>使用固定大小的chunk size。client将文件名以及该chunk在该文件中的字节偏移转化成chunk index发送给master。</li>
+<li>master接收到后，返回给client相应的chunck handler以及它的位置。</li>
+<li>client缓存下该信息，使用file name以及chunk index作为key.</li>
+<li>client发送给离自己最近的replicas。（后面读取该chunk也不需要和master交互，除非相应的数据过期）</li>
+</ol>
+<h2 id="2-5-Chunk-Size的选择"><a href="#2-5-Chunk-Size的选择" class="headerlink" title="2.5 Chunk Size的选择"></a>2.5 Chunk Size的选择</h2><p>GFS选择64MB作为chunk size大小，比一般的都大，原因如下：</p>
+<ol>
+<li>减少client与master的交互，因为对同一chunk的读写，只需要一次reqeust.(因为client只需要知道复制该chunk的chunkserver的位置即可) 加上读写通常是连续的，即对同一chunk，所以非常有用。</li>
+<li>chunk更大，那么client可以在一个chunk上做更多的操作，这样client和chunkserver可建立持久化连接，来减少网络开销。</li>
+<li>master可以存储更少的元信息，那么master可以元信息存储在in-memory中。</li>
+</ol>
+<p>当然，较大的chunk size也有一些缺点：</p>
+<p>//TODO</p>
+<h2 id="2-6-元信息"><a href="#2-6-元信息" class="headerlink" title="2.6 元信息"></a>2.6 元信息</h2><p>master存储三个元信息：</p>
+<ul>
+<li>the file and chunk namespaces</li>
+<li>the mapping from files to chunks</li>
+<li>the locations of each chunk’s replicas</li>
+</ul>
+<p>前面两个信息通过logging的方式来持久化。最后一个信息不需要，因为master启动后可以和chunkserver交互来再次获得。</p>
+<h3 id="2-6-1-In-Memory-Data-Structures"><a href="#2-6-1-In-Memory-Data-Structures" class="headerlink" title="2.6.1 In-Memory Data Structures"></a>2.6.1 In-Memory Data Structures</h3><p>master的元信息数据都在In-Memory中，所以非常高效。<br>且master可以很容易高效地周期性地scan所有信息来完成垃圾回收，re-replication，当有chunckserver fail时来完成负载均衡等。</p>
+<h3 id="2-6-2-Chunk-Locations"><a href="#2-6-2-Chunk-Locations" class="headerlink" title="2.6.2 Chunk Locations"></a>2.6.2 Chunk Locations</h3><p>master无需持久化chunk’s replicas的位置，因为它可以通过心跳机制来获取它们的位置。<br>(是不是在心跳信息中，也告知master chunk是否存入磁盘中)</p>
+<h3 id="2-6-3-Operation-Log"><a href="#2-6-3-Operation-Log" class="headerlink" title="2.6.3 Operation Log"></a>2.6.3 Operation Log</h3><p>Operation log 记录了元数据改变的历史操作。为了避免丢失数据，会在本地和远程都备份。当备份到本地和远程后才会返回结果给client(这样不会很低效吗！)</p>
+<p>为了使master快速启动，需要设置checkpoint。这样大大减少了日志量，master只需要replay checkpoint之后的少量日志即可。</p>
+<blockquote>
+<p>checkpint是通过将日志压缩为B-tree,启动后直接载入内存，即可进行namespace的查找，无需另外的parsing</p>
+</blockquote>
+<p>创建checkpoint是需要时间的，怎么做到在创建checkpoint时，client是不会感知到延迟的呢？</p>
+<blockquote>
+<p>在准备创建checkpoint时，会先创建新的log file，然后该新log file继续服务，旧的log file在另外的线程中进行处理来创建checkpoint.</p>
+</blockquote>
+<h3 id="2-7-一致性模型"><a href="#2-7-一致性模型" class="headerlink" title="2.7 一致性模型"></a>2.7 一致性模型</h3><p>为了高效和简化，GFS使用了弱一致性。</p>
+<ul>
+<li>File namespace的改变是原子的</li>
+<li></li>
+<li></li>
+<li>在一系列成功的改变后，GFS接下来会：<ul>
+<li>以相同的order应用在所有其他replica的chunk上</li>
+<li>使用chunk version 去检测是否有replica过期<br>（一个stale的replica不再会做任何更改，且不会返回自己的位置当client向master请求replica的位置时）<blockquote>
+<p>需要注意的是，client缓存了chunk locations。所以在chunk过期前，client还是可能于一个stale的chunk交互）</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li>在成功更改后，组件failuer仍然可能导致数据毁坏。GFS一旦检测到问题出现，就会马上从正常的replica中恢复数据。</li>
+</ul>
+<h2 id="3-系统-interactions"><a href="#3-系统-interactions" class="headerlink" title="3 系统 interactions"></a>3 系统 interactions</h2><p>系统的设计考虑所有操作都减少master的参与。</p>
+<h3 id="3-1-Leases-and-Mutation-Order"><a href="#3-1-Leases-and-Mutation-Order" class="headerlink" title="3.1 Leases and Mutation Order"></a>3.1 Leases and Mutation Order</h3><p>mutation操作是指改变元信息或者是改变chunk内容。<br>master会授予某个replica某些chunk的租期（60s)，该replica就被成为primary。primary决定某个顺序来执行对chunk的修改，其他replica根据相同的顺序来执行。</p>
+<p>master通过心跳来授予租期，primary在完成mutation后可以继续向master申请租期。master也可以在租期过期前，重新分配租期。（如果master想要组织一个mutations，比如file的名字被修改）</p>
+<p>采用数据流和控制流分离的方法。</p>
+<p>具体的过程如下：</p>
+<ol>
+<li><p>client向master询问哪个chunkserver有当前的租期以及其他replica的位置。如果当前没有chunkserver持有租期，那么master会授予一个。</p>
+</li>
+<li><p>master回复primary的identity以及其他replica的位置。客户端会缓存这些数据。只有当primary不可达或租期过期，client才需要再次请求master。</p>
+</li>
+<li><p>客户端会把数据push到所有的replicas.传输的方式如下：</p>
+<blockquote>
+<p>如果需要push数据给S1-S4,client首先把数据发给离自己最近的replica S1,S1再发给离自己最近的S2,依次类推。</p>
+</blockquote>
+<p> 每个chunkserver都会缓存数据到内部的LRU.</p>
+</li>
+<li><p>所有replicas都有数据后，client发送write指令给primary.primary会给所有mutations分配serial number，然后应用到自己的state.</p>
+</li>
+<li><p>primary会转发write request给所有其他的replica,安装serial number来应用到自己的state.</p>
+</li>
+<li><p>replica完成后会回复primary,自己已经完成了操作。</p>
+</li>
+<li><p>primary回复client,如何有任何error,也返回给client.(如果错误发生在primary，那么primary将不再分配serial number以及转发)</p>
+</li>
+</ol>
+<h3 id="3-3-Atomic-Record-Appends"><a href="#3-3-Atomic-Record-Appends" class="headerlink" title="3.3 Atomic Record Appends"></a>3.3 Atomic Record Appends</h3><h2 id="5-1-高可用性"><a href="#5-1-高可用性" class="headerlink" title="5.1 高可用性"></a>5.1 高可用性</h2><p>主要有两个方法来保证高可用性：Fast recovery ，replication</p>
+<h3 id="5-1-1-Fast-Recovery"><a href="#5-1-1-Fast-Recovery" class="headerlink" title="5.1.1 Fast Recovery"></a>5.1.1 Fast Recovery</h3><p>master和chunkserver都设计为存储状态，能在几秒内恢复。</p>
+<h3 id="5-1-2-Chunk-Replication"><a href="#5-1-2-Chunk-Replication" class="headerlink" title="5.1.2 Chunk Replication"></a>5.1.2 Chunk Replication</h3><p>每个chunk都会复制到多个chunkserver上，且这些chunkserver在不同的机架上。</p>
+<h3 id="5-1-2-Master-Replication"><a href="#5-1-2-Master-Replication" class="headerlink" title="5.1.2 Master Replication"></a>5.1.2 Master Replication</h3><p>对master的任何修改需要先写入日志，才会执行。任何一个master进程fail 都可以快速重启。<br>“shadow” master 提供只读，可以稍微落后于真正的master</p>
+<h2 id="5-2-Data-Integrity"><a href="#5-2-Data-Integrity" class="headerlink" title="5.2 Data Integrity"></a>5.2 Data Integrity</h2><p>GFS的修改，特别是前面讨论的原子记录附加，并不保证相同的副本。因此，<strong>每个chunkserver必须通过维护校验和独立地验证其副本的完整性。</strong></p>
+<p>每个chunk被分为64KB的blocks,每个都有一个对应的32位的checksum。<br>checksum和其他metadata一样，会在memory中存储，同样也会通过log的方式持久化到硬盘。</p>
+<ul>
+<li>对于read操作，chunkserver会验证对应data block的checksum ，然后再返回数据。</li>
+<li>如果发现有错误，chunserver会返回错误给requestor，并且报告reports mismatch给master。</li>
+<li>requestor收到错误后，会再向其他replica发送请求，master将会从其他replica中克隆chunk。</li>
+</ul>
 
         
       
@@ -547,350 +1595,6 @@ tmpScreen.movey(<span class="number">4</span>); <span class="comment">//改变�
   
   
   <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/09/13/编程基础/c++/c++基础/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="阿娟">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="发现问题并解决问题">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-            
-            <a href="/2019/09/13/编程基础/c++/c++基础/" class="post-title-link" itemprop="url">C++基础</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              
-                
-              
-
-              <time title="Created: 2019-09-13 12:50:00" itemprop="dateCreated datePublished" datetime="2019-09-13T12:50:00+08:00">2019-09-13</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2019-09-21 19:39:39" itemprop="dateModified" datetime="2019-09-21T19:39:39+08:00">2019-09-21</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/编程基础/" itemprop="url" rel="index"><span itemprop="name">编程基础</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>在大多数系统中，main返回的值被用来指示特定状态。返回0表示成功，非0的返回值的含义由系统定义，通常用来指出错误类型。</p>
-<p>集成开发环境（Integrated Development Environment)IDE，将编译器与其他程序创建和分析工具包装在一起。</p>
-<h2 id="输入输出"><a href="#输入输出" class="headerlink" title="输入输出"></a>输入输出</h2><p>C++没有定义任何的输入输出语句，取而代之的是一个全面的标准库来提供IO机制。<br>标准输入输出对象：cin cout cerr clog</p>
-<p>std::cout&lt;&lt;”enter some thing”&lt;&lt;std::endl;</p>
-<p>endl是一个操纵符。写入的效果是结束当前行，并将与设备关联的缓冲区中的内容刷到设备中。<br>缓存刷新操作可以保证到目前为止程序所产生的所有输出都真正写入到输出流中，而不是仅仅停留内存中等待写入流。</p>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2019/09/13/编程基础/c++/c++基础/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-          <div class="post-eof"></div>
-        
-      </footer>
-  </div>
-  
-  
-  
-  </article>
-
-    
-        <article itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/09/13/区块链/比特币原理/比特币交易脚本及交易数据(二)/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="阿娟">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="发现问题并解决问题">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-            
-            <a href="/2019/09/13/区块链/比特币原理/比特币交易脚本及交易数据(二)/" class="post-title-link" itemprop="url">比特币交易脚本及交易数据(二)</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              
-                
-              
-
-              <time title="Created: 2019-09-13 12:50:00" itemprop="dateCreated datePublished" datetime="2019-09-13T12:50:00+08:00">2019-09-13</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2019-02-23 08:48:34" itemprop="dateModified" datetime="2019-02-23T08:48:34+08:00">2019-02-23</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/区块链/" itemprop="url" rel="index"><span itemprop="name">区块链</span></a></span>
-
-                
-                
-                  , 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/区块链/比特币原理/" itemprop="url" rel="index"><span itemprop="name">比特币原理</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="1-比特币交易的数据结构"><a href="#1-比特币交易的数据结构" class="headerlink" title="1. 比特币交易的数据结构"></a>1. 比特币交易的数据结构</h1><h2 id="1-1比特币区块的结构"><a href="#1-1比特币区块的结构" class="headerlink" title="1.1比特币区块的结构"></a>1.1比特币区块的结构</h2><p>每个区块包含5个结构：none,区块大小，区块头信息，交易数据，交易详情</p>
-<ol>
-<li>魔法数 <strong>什么意思？？？？</strong><br>占4个字节</li>
-</ol>
-<ul>
-<li>正式网络中魔法数：0xD9B48EF9(实际区块中存储为小头位序，显示为F9 BE B4 D9)</li>
-<li>正式网络中魔法数：0x709110B(实际区块中存储为小头位序，显示为0B 11 09 07)</li>
-<li>正式网络中魔法数：0xDAB5BFFA(实际区块中存储为小头位序，显示为FA FB B4 DA)</li>
-</ul>
-<ol start="2">
-<li><p>区块大小<br>占4个字节</p>
-</li>
-<li><p>区块头</p></li></ol>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2019/09/13/区块链/比特币原理/比特币交易脚本及交易数据(二)/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-          <div class="post-eof"></div>
-        
-      </footer>
-  </div>
-  
-  
-  
-  </article>
-
-    
-        <article itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/09/13/区块链/比特币原理/比特币地址生成算法/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="阿娟">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="发现问题并解决问题">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-            
-            <a href="/2019/09/13/区块链/比特币原理/比特币地址生成算法/" class="post-title-link" itemprop="url">比特币地址生成算法及私钥生成算法</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              
-                
-              
-
-              <time title="Created: 2019-09-13 12:50:00" itemprop="dateCreated datePublished" datetime="2019-09-13T12:50:00+08:00">2019-09-13</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2019-02-22 17:29:50" itemprop="dateModified" datetime="2019-02-22T17:29:50+08:00">2019-02-22</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/区块链/" itemprop="url" rel="index"><span itemprop="name">区块链</span></a></span>
-
-                
-                
-                  , 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/区块链/比特币原理/" itemprop="url" rel="index"><span itemprop="name">比特币原理</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>（注：资料来自千峰教育的区块链课程）</p>
-<h1 id="1-比特币地址的生成步骤"><a href="#1-比特币地址的生成步骤" class="headerlink" title="1. 比特币地址的生成步骤"></a>1. 比特币地址的生成步骤</h1><ol>
-<li>比特币是建立在数学加密基础上的，中本聪使用了椭圆曲线数字签名算法(ECDSA)来产生私钥及公钥</li>
-</ol>
-<p>ECC 椭圆曲线加密学</p>
-<ul>
-<li>ECDSA（Elliptic curve digital signature algorithm,椭圆曲线数字签名算法)</li>
-<li>具体来说，比特币系统中的椭圆曲线是Certicom推荐的SECP256K1算法</li>
-<li>Certicom是国际上著名的椭圆曲线密码技术公司。而SECP256K1算法由于其构造的特殊性，优化后性能比其他曲线算法提高30%</li></ul>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2019/09/13/区块链/比特币原理/比特币地址生成算法/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-          <div class="post-eof"></div>
-        
-      </footer>
-  </div>
-  
-  
-  
-  </article>
-
-    
-        <article itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block home">
     <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/09/13/区块链/比特币原理/比特币交易脚本及交易数据(一)/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1004,313 +1708,6 @@ tmpScreen.movey(<span class="number">4</span>); <span class="comment">//改变�
   </article>
 
     
-        <article itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/09/13/玩转linux/linux使用/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="阿娟">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="发现问题并解决问题">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-            
-            <a href="/2019/09/13/玩转linux/linux使用/" class="post-title-link" itemprop="url">linux使用</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              
-                
-              
-
-              <time title="Created: 2019-09-13 12:50:00" itemprop="dateCreated datePublished" datetime="2019-09-13T12:50:00+08:00">2019-09-13</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2019-02-21 10:30:26" itemprop="dateModified" datetime="2019-02-21T10:30:26+08:00">2019-02-21</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/linux/" itemprop="url" rel="index"><span itemprop="name">linux</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p><strong>cpu个数:</strong><br>cat /proc/cpuinfo | grep name | cut -f2 -d: | uniq -c</p>
-<p><strong>cpu核心数:</strong><br>cat /proc/cpuinfo| grep “physical id”| sort| uniq| wc -l</p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-          <div class="post-eof"></div>
-        
-      </footer>
-  </div>
-  
-  
-  
-  </article>
-
-    
-        <article itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/09/13/区块链/比特币原理/ECDSA交易签名及签名验证/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="阿娟">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="发现问题并解决问题">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-            
-            <a href="/2019/09/13/区块链/比特币原理/ECDSA交易签名及签名验证/" class="post-title-link" itemprop="url">ECDSA交易签名及签名验证</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              
-                
-              
-
-              <time title="Created: 2019-09-13 12:49:58" itemprop="dateCreated datePublished" datetime="2019-09-13T12:49:58+08:00">2019-09-13</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2019-02-21 19:56:02" itemprop="dateModified" datetime="2019-02-21T19:56:02+08:00">2019-02-21</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/区块链/" itemprop="url" rel="index"><span itemprop="name">区块链</span></a></span>
-
-                
-                
-                  , 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/区块链/比特币原理/" itemprop="url" rel="index"><span itemprop="name">比特币原理</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>（注明：资源来自千峰教育课程内容）</p>
-<h1 id="1-签名序列号-DER"><a href="#1-签名序列号-DER" class="headerlink" title="1. 签名序列号(DER)"></a>1. 签名序列号(DER)</h1><p>DER (Distinguished encoding rules,可辨别编码规则)<br>椭圆曲线加密算法对数据签名可以产生两个组成的签名Sig,通常称为R和S<br>计算出R和S后，需要使用DER国家标准编码方案，将其序列化为16进制字节码格式<br>椭圆曲线的数字签名其实是R和S值得序列化字节码</p>
-<h1 id="2-签名各个数字的含义"><a href="#2-签名各个数字的含义" class="headerlink" title="2.签名各个数字的含义"></a>2.签名各个数字的含义</h1>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2019/09/13/区块链/比特币原理/ECDSA交易签名及签名验证/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-          <div class="post-eof"></div>
-        
-      </footer>
-  </div>
-  
-  
-  
-  </article>
-
-    
-        <article itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block home">
-    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/09/13/区块链/比特币原理/区块头/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="阿娟">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="发现问题并解决问题">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-            
-            <a href="/2019/09/13/区块链/比特币原理/区块头/" class="post-title-link" itemprop="url">区块头</a>
-          
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              
-                
-              
-
-              <time title="Created: 2019-09-13 12:49:58" itemprop="dateCreated datePublished" datetime="2019-09-13T12:49:58+08:00">2019-09-13</time>
-            </span>
-          
-            
-
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2019-03-03 19:35:22" itemprop="dateModified" datetime="2019-03-03T19:35:22+08:00">2019-03-03</time>
-              </span>
-            
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/区块链/" itemprop="url" rel="index"><span itemprop="name">区块链</span></a></span>
-
-                
-                
-                  , 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/区块链/比特币原理/" itemprop="url" rel="index"><span itemprop="name">比特币原理</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>version 版本号<br>hashPrevBlock前一区块的HSAH<br>hashMerkleRoot Merkle根节点HASH值<br>Time时间戳<br>Bits 当前目标HASH值<br>Nonce 随机数 </p>
-
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-          <div class="post-eof"></div>
-        
-      </footer>
-  </div>
-  
-  
-  
-  </article>
-
-    
   </div>
 
   
@@ -1360,7 +1757,7 @@ tmpScreen.movey(<span class="number">4</span>); <span class="comment">//改变�
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">73</span>
+          <span class="site-state-item-count">78</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1386,7 +1783,7 @@ tmpScreen.movey(<span class="number">4</span>); <span class="comment">//改变�
             <a href="/tags/">
           
         
-        <span class="site-state-item-count">49</span>
+        <span class="site-state-item-count">51</span>
         <span class="site-state-item-name">tags</span>
         </a>
       </div>
@@ -1407,7 +1804,7 @@ tmpScreen.movey(<span class="number">4</span>); <span class="comment">//改变�
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>

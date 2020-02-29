@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.4.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: 'Copy',
+      copy_success: 'Copied',
+      copy_failure: 'Copy failed'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="IPFS - Content Addressed, Versioned, P2P File SystemInterPlanetary File System(IPFS)是一个p2p的分布式文件系统，它将所有的电脑通过同一文件系统连接起来。某种程度上将，IPFS类似Web，但是更像是BitTorrent swarm,在一个Git仓库中交换objects。IPFS基于内容寻址的hyper links来">
+<meta name="keywords" content="ipfs,分布式存储">
+<meta property="og:type" content="article">
+<meta property="og:title" content="IPFS阅读整理">
+<meta property="og:url" content="https://yuajuan.github.io/2019/10/31/分布式基本理论/ipfs比皮书阅读整理/index.html">
+<meta property="og:site_name" content="发现问题并解决问题">
+<meta property="og:description" content="IPFS - Content Addressed, Versioned, P2P File SystemInterPlanetary File System(IPFS)是一个p2p的分布式文件系统，它将所有的电脑通过同一文件系统连接起来。某种程度上将，IPFS类似Web，但是更像是BitTorrent swarm,在一个Git仓库中交换objects。IPFS基于内容寻址的hyper links来">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2019-11-11T07:55:00.086Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="IPFS阅读整理">
+<meta name="twitter:description" content="IPFS - Content Addressed, Versioned, P2P File SystemInterPlanetary File System(IPFS)是一个p2p的分布式文件系统，它将所有的电脑通过同一文件系统连接起来。某种程度上将，IPFS类似Web，但是更像是BitTorrent swarm,在一个Git仓库中交换objects。IPFS基于内容寻址的hyper links来">
+  <link rel="canonical" href="https://yuajuan.github.io/2019/10/31/分布式基本理论/ipfs比皮书阅读整理/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>IPFS阅读整理 | 发现问题并解决问题</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">发现问题并解决问题</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">心之所向，不慌不忙</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-about">
+      
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>About</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>Tags</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>Categories</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-commonweal">
+      
+    
+
+    <a href="/404/" rel="section"><i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br>Commonweal 404</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block post">
+    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2019/10/31/分布式基本理论/ipfs比皮书阅读整理/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="阿娟">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="发现问题并解决问题">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">IPFS阅读整理
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              
+                
+              
+
+              <time title="Created: 2019-10-31 16:19:02" itemprop="dateCreated datePublished" datetime="2019-10-31T16:19:02+08:00">2019-10-31</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2019-11-11 15:55:00" itemprop="dateModified" datetime="2019-11-11T15:55:00+08:00">2019-11-11</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/分布式基本理论/" itemprop="url" rel="index"><span itemprop="name">分布式基本理论</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="IPFS-Content-Addressed-Versioned-P2P-File-System"><a href="#IPFS-Content-Addressed-Versioned-P2P-File-System" class="headerlink" title="IPFS - Content Addressed, Versioned, P2P File System"></a>IPFS - Content Addressed, Versioned, P2P File System</h1><p>InterPlanetary File System(IPFS)是一个p2p的分布式文件系统，它将所有的电脑通过同一文件系统连接起来。<br>某种程度上将，IPFS类似Web，但是更像是BitTorrent swarm,在一个Git仓库中交换objects。<br>IPFS基于内容寻址的hyper links来提供一个高吞吐量的content-addressed block storage 模型。<br>IPFS形成一个Merkle DAG，这是一种可以构建versioned file systems，blockchains以及持久化web的数据结构。<br>IPFS结合分布式hashtable,激励模型的block exchange,self-certifying namespace。<br>IPFS没有单点失败，且nodes之间不需要去相信彼此。</p>
+<h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>Napster, KaZaA, 和 BitTorrent 部署了大规模的分布式文件系统，但是这些具体的应用都不是提供一个基础架构来让开发者基于此，搭建上层应用。一方面可能是因为，大多数的需求场景已经有足够好的系统来提供服务了，例如“HTTP”。但是随着数据增多，“HTTP”架构可能不再适用了。</p>
+<p>IPFS的原则就是：</p>
+<blockquote>
+<p>The central IPFS principle is modeling all data as part of the same Merkle DAG.</p>
+</blockquote>
+<h1 id="背景知识"><a href="#背景知识" class="headerlink" title="背景知识"></a>背景知识</h1><ul>
+<li><p>分布式hash表</p>
+</li>
+<li><p>Block Exchanges</p>
+<blockquote>
+<p>受BitTorrent的影响，IPFS的设计包含如下：</p>
+<ul>
+<li>奖励做出贡献的节点，惩罚只获取资源的节点</li>
+<li>节点会track每个file pieces的availability，优先发送pieces最少的。</li>
+<li></li>
+</ul>
+</blockquote>
+</li>
+<li><p>版本控制系统-Git<br>Git通过Merkle DAG来记录filesystem tree的修改。</p>
+</li>
+<li><p>Self-Certified Filesystems-SFS</p>
+</li>
+</ul>
+<h1 id="IPFS-DESIGN"><a href="#IPFS-DESIGN" class="headerlink" title="IPFS DESIGN"></a>IPFS DESIGN</h1><p>IPFS是一个分布式文件系统，综合了之前的p2p系统的成功的idea，包括：DHTs,BItTorrent,Git,SFS。</p>
+<p>IPFS协议分为如下几个子协议：</p>
+<ul>
+<li>Identities</li>
+<li>Network</li>
+<li>Routing</li>
+<li>Exchange</li>
+<li>Object</li>
+<li>Files</li>
+<li>Naming</li>
+</ul>
+<h3 id="Identities"><a href="#Identities" class="headerlink" title="Identities"></a>Identities</h3><h3 id="Network"><a href="#Network" class="headerlink" title="Network"></a>Network</h3><ol>
+<li>Transport: IPFS can use any transport protocol, and is best suited for WebRTC DataChannels (for browser connectivity) or uTP(LEDBAT [14]).</li>
+<li>Reliability: IPFS can provide reliability if underlying networks do not provide it, using uTP (LEDBAT [14]) or SCTP.</li>
+<li>Connectivity: IPFS also uses the ICE NAT traversal techniques.</li>
+<li>Integrity: optionally checks integrity of messages us- ing a hash checksum.</li>
+<li>Authenticity: optionally checks authenticity of mes- sages using HMAC with sender’s public key.</li>
+</ol>
+<h4 id="Note-on-Peer-Address"><a href="#Note-on-Peer-Address" class="headerlink" title="Note on Peer Address"></a>Note on Peer Address</h4><p> IPFS可以使用任何网络，且不依赖于IP.IPFS可以在overlay网络中使用。IPFS使用multiaddr来提供地址给下层网络。multiaddr可以表达地址和协议，包括支持的封装。例如：<br> <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"> # an SCTP/IPv4 connection </span><br><span class="line"> /ip4/10.20.30.40/sctp/1234/</span><br><span class="line"># an SCTP/IPv4 connection proxied over TCP/IPv4 </span><br><span class="line">/ip4/5.6.7.8/tcp/5678/ip4/1.2.3.4/sctp/1234/</span><br></pre></td></tr></table></figure></p>
+<h3 id="Routing"><a href="#Routing" class="headerlink" title="Routing"></a>Routing</h3><p>IPFS node需要一个Routing System能够找到其他peer的network地址并且能够获取服务于某个object的所有节点。IPFS基于S/Kademlia以及Coral使用DSHT。存储时，如果小value(不大于1KB)就直接存储在DHT中，如果大于1KB就存储该值的references。</p>
+<h3 id="Blokc-Exchange-BitSwap-Protocal"><a href="#Blokc-Exchange-BitSwap-Protocal" class="headerlink" title="Blokc Exchange-BitSwap Protocal"></a>Blokc Exchange-BitSwap Protocal</h3><p>在IPFS中，peer使用基于BitTorrent的激励机制–bitSwap交换block，以达到来分发数据的目的。类似于BitTorrent,在BitSwap，peer需要的object在want_list中，并且可以分发的object在have_list中。但是在BitTorrent中有个限制，这些object都需要在一个torrent中，但是在BitSwap中没有这个限制。</p>
+<p>BitSwap是一个持久的市场，节点可以在这里获取他们需要的数据块。由于barter系统的存在，那么隐含了虚拟currency可以被创建，这就需要一个全局的账本来追踪currency的owership和transfer.</p>
+<p>有时候peers需要的object，该节点也没有。该节点也需要去向其他邻居获取。于此同时，该节点也有自己需要的object,但是这个的优先级会低于peers找该节点寻求的object，这样可以很好地激励节点缓存和广播稀少的pieces,即使他们本身对这些pieces并没有兴趣。</p>
+<h4 id="3-4-1-BitSwap-Credit"><a href="#3-4-1-BitSwap-Credit" class="headerlink" title="3.4.1 BitSwap Credit"></a>3.4.1 BitSwap Credit</h4><h4 id="3-4-2-BitSwap-Strategy"><a href="#3-4-2-BitSwap-Strategy" class="headerlink" title="3.4.2 BitSwap Strategy"></a>3.4.2 BitSwap Strategy</h4><h4 id="3-4-3-BitSwap-Ledger"><a href="#3-4-3-BitSwap-Ledger" class="headerlink" title="3.4.3 BitSwap Ledger"></a>3.4.3 BitSwap Ledger</h4><h3 id="3-4-4-BitSwap-Specification"><a href="#3-4-4-BitSwap-Specification" class="headerlink" title="3.4.4 BitSwap Specification"></a>3.4.4 BitSwap Specification</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Additional state kept</span></span><br><span class="line"><span class="keyword">type</span> BitSwap <span class="keyword">struct</span> &#123;</span><br><span class="line">ledgers <span class="keyword">map</span>[NodeId]Ledger</span><br><span class="line"><span class="comment">// Ledgers known to this node, inc inactive</span></span><br><span class="line">active <span class="keyword">map</span>[NodeId]Peer</span><br><span class="line"><span class="comment">// currently open connections to other nodes</span></span><br><span class="line">need_list []Multihash</span><br><span class="line"><span class="comment">// checksums of blocks this node needs</span></span><br><span class="line">have_list []Multihash</span><br><span class="line"><span class="comment">// checksums of blocks this node has &#125;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Peer <span class="keyword">struct</span> &#123;</span><br><span class="line">    nodeid NodeId</span><br><span class="line">    ledger Ledger</span><br><span class="line">    <span class="comment">// Ledger between the node and this peer</span></span><br><span class="line">    last_seen Timestamp</span><br><span class="line">    <span class="comment">// timestamp of last received message</span></span><br><span class="line">    want_list []Multihash</span><br><span class="line">    <span class="comment">// checksums of all blocks wanted by peer // includes blocks wanted by peer’s peers</span></span><br><span class="line">    <span class="comment">// Protocol interface:</span></span><br><span class="line">    <span class="keyword">interface</span> Peer &#123;</span><br><span class="line">    open (nodeid :NodeId, ledger :Ledger); send_want_list (want_list :WantList); send_block (block :Block) -&gt; (complete :Bool); <span class="built_in">close</span> (final :Bool);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+    </div>
+
+    
+    
+    
+        
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/ipfs/" rel="tag"># ipfs</a>
+            
+              <a href="/tags/分布式存储/" rel="tag"># 分布式存储</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2019/10/20/分布式基本理论/leveldb/level源码解析/" rel="next" title="leveldb源码理解">
+                  <i class="fa fa-chevron-left"></i> leveldb源码理解
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2019/12/05/区块链/hyperledger  fabric源码解读/committer/" rel="prev" title="hyperledger fabric 源码解读 --committer">
+                  hyperledger fabric 源码解读 --committer <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#IPFS-Content-Addressed-Versioned-P2P-File-System"><span class="nav-number">1.</span> <span class="nav-text">IPFS - Content Addressed, Versioned, P2P File System</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Introduction"><span class="nav-number">2.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#背景知识"><span class="nav-number">3.</span> <span class="nav-text">背景知识</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#IPFS-DESIGN"><span class="nav-number">4.</span> <span class="nav-text">IPFS DESIGN</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Identities"><span class="nav-number">4.0.1.</span> <span class="nav-text">Identities</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Network"><span class="nav-number">4.0.2.</span> <span class="nav-text">Network</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Note-on-Peer-Address"><span class="nav-number">4.0.2.1.</span> <span class="nav-text">Note on Peer Address</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Routing"><span class="nav-number">4.0.3.</span> <span class="nav-text">Routing</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Blokc-Exchange-BitSwap-Protocal"><span class="nav-number">4.0.4.</span> <span class="nav-text">Blokc Exchange-BitSwap Protocal</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#3-4-1-BitSwap-Credit"><span class="nav-number">4.0.4.1.</span> <span class="nav-text">3.4.1 BitSwap Credit</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-4-2-BitSwap-Strategy"><span class="nav-number">4.0.4.2.</span> <span class="nav-text">3.4.2 BitSwap Strategy</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-4-3-BitSwap-Ledger"><span class="nav-number">4.0.4.3.</span> <span class="nav-text">3.4.3 BitSwap Ledger</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-4-BitSwap-Specification"><span class="nav-number">4.0.5.</span> <span class="nav-text">3.4.4 BitSwap Specification</span></a></li></ol></li></ol></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">阿娟</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">78</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">25</span>
+        <span class="site-state-item-name">categories</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">51</span>
+        <span class="site-state-item-name">tags</span>
+        </a>
+      </div>
+    
+  </nav>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">阿娟</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.9.0</div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.4.0</div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+
+
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.0"></script><script src="/js/motion.js?v=7.4.0"></script>
+<script src="/js/schemes/pisces.js?v=7.4.0"></script>
+<script src="/js/next-boot.js?v=7.4.0"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

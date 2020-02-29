@@ -63,12 +63,12 @@
 <meta property="og:site_name" content="发现问题并解决问题">
 <meta property="og:description" content="1. 设计上的考虑 1.1 组件失败是常见的 1.2 文件很大 文件很大且都包含很很多application的数据。直接管理成百上&amp;gt; 千kb大小的文件并不明知。所以采用block的方式来管理。   1.3 多数应用场景是append 数据，而不是重写已有的数据 1.4合作设计application以及file system api有利于整个系统 为了简化系统牺牲了一定的一致性。设计了原子的a">
 <meta property="og:locale" content="en">
-<meta property="og:image" content="https://yuajuan.github.io/.io//gfs-architecture.jpg">
-<meta property="og:updated_time" content="2019-10-10T08:04:21.647Z">
+<meta property="og:image" content="https://yuajuan.github.io/2019/10/10/分布式论文阅读/GFS/GFS/gfs-architecture.jpg">
+<meta property="og:updated_time" content="2019-10-13T08:44:42.829Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="The google File System 论文理解">
 <meta name="twitter:description" content="1. 设计上的考虑 1.1 组件失败是常见的 1.2 文件很大 文件很大且都包含很很多application的数据。直接管理成百上&amp;gt; 千kb大小的文件并不明知。所以采用block的方式来管理。   1.3 多数应用场景是append 数据，而不是重写已有的数据 1.4合作设计application以及file system api有利于整个系统 为了简化系统牺牲了一定的一致性。设计了原子的a">
-<meta name="twitter:image" content="https://yuajuan.github.io/.io//gfs-architecture.jpg">
+<meta name="twitter:image" content="https://yuajuan.github.io/2019/10/10/分布式论文阅读/GFS/GFS/gfs-architecture.jpg">
   <link rel="canonical" href="https://yuajuan.github.io/2019/10/10/分布式论文阅读/GFS/">
 
 
@@ -272,11 +272,19 @@
                 
               
 
-              <time title="Created: 2019-10-10 15:08:00 / Modified: 16:04:21" itemprop="dateCreated datePublished" datetime="2019-10-10T15:08:00+08:00">2019-10-10</time>
+              <time title="Created: 2019-10-10 15:08:00" itemprop="dateCreated datePublished" datetime="2019-10-10T15:08:00+08:00">2019-10-10</time>
             </span>
           
             
 
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2019-10-13 16:44:42" itemprop="dateModified" datetime="2019-10-13T16:44:42+08:00">2019-10-13</time>
+              </span>
             
           
             <span class="post-meta-item">
@@ -342,8 +350,90 @@
 </ul>
 <h2 id="2-4-Single-Master"><a href="#2-4-Single-Master" class="headerlink" title="2.4 Single Master"></a>2.4 Single Master</h2><p>只有一个master大大地简化了设计。</p>
 <p>client从master那儿得到应该到哪个chunkserver上获取数据，然后client直接与chunkserver交互。</p>
-<p>注意需要最小化master的读写，避免master成为性能瓶颈。<br><img src="/.io//gfs-architecture.jpg" alt="gsf-architecture"></p>
-<p>首先，使用固定大小的chunk size。client将</p>
+<p>注意需要最小化master的读写，避免master成为性能瓶颈。<br><img src="GFS/gfs-architecture.jpg" alt="gsf-architecture"></p>
+<ol>
+<li>使用固定大小的chunk size。client将文件名以及该chunk在该文件中的字节偏移转化成chunk index发送给master。</li>
+<li>master接收到后，返回给client相应的chunck handler以及它的位置。</li>
+<li>client缓存下该信息，使用file name以及chunk index作为key.</li>
+<li>client发送给离自己最近的replicas。（后面读取该chunk也不需要和master交互，除非相应的数据过期）</li>
+</ol>
+<h2 id="2-5-Chunk-Size的选择"><a href="#2-5-Chunk-Size的选择" class="headerlink" title="2.5 Chunk Size的选择"></a>2.5 Chunk Size的选择</h2><p>GFS选择64MB作为chunk size大小，比一般的都大，原因如下：</p>
+<ol>
+<li>减少client与master的交互，因为对同一chunk的读写，只需要一次reqeust.(因为client只需要知道复制该chunk的chunkserver的位置即可) 加上读写通常是连续的，即对同一chunk，所以非常有用。</li>
+<li>chunk更大，那么client可以在一个chunk上做更多的操作，这样client和chunkserver可建立持久化连接，来减少网络开销。</li>
+<li>master可以存储更少的元信息，那么master可以元信息存储在in-memory中。</li>
+</ol>
+<p>当然，较大的chunk size也有一些缺点：</p>
+<p>//TODO</p>
+<h2 id="2-6-元信息"><a href="#2-6-元信息" class="headerlink" title="2.6 元信息"></a>2.6 元信息</h2><p>master存储三个元信息：</p>
+<ul>
+<li>the file and chunk namespaces</li>
+<li>the mapping from files to chunks</li>
+<li>the locations of each chunk’s replicas</li>
+</ul>
+<p>前面两个信息通过logging的方式来持久化。最后一个信息不需要，因为master启动后可以和chunkserver交互来再次获得。</p>
+<h3 id="2-6-1-In-Memory-Data-Structures"><a href="#2-6-1-In-Memory-Data-Structures" class="headerlink" title="2.6.1 In-Memory Data Structures"></a>2.6.1 In-Memory Data Structures</h3><p>master的元信息数据都在In-Memory中，所以非常高效。<br>且master可以很容易高效地周期性地scan所有信息来完成垃圾回收，re-replication，当有chunckserver fail时来完成负载均衡等。</p>
+<h3 id="2-6-2-Chunk-Locations"><a href="#2-6-2-Chunk-Locations" class="headerlink" title="2.6.2 Chunk Locations"></a>2.6.2 Chunk Locations</h3><p>master无需持久化chunk’s replicas的位置，因为它可以通过心跳机制来获取它们的位置。<br>(是不是在心跳信息中，也告知master chunk是否存入磁盘中)</p>
+<h3 id="2-6-3-Operation-Log"><a href="#2-6-3-Operation-Log" class="headerlink" title="2.6.3 Operation Log"></a>2.6.3 Operation Log</h3><p>Operation log 记录了元数据改变的历史操作。为了避免丢失数据，会在本地和远程都备份。当备份到本地和远程后才会返回结果给client(这样不会很低效吗！)</p>
+<p>为了使master快速启动，需要设置checkpoint。这样大大减少了日志量，master只需要replay checkpoint之后的少量日志即可。</p>
+<blockquote>
+<p>checkpint是通过将日志压缩为B-tree,启动后直接载入内存，即可进行namespace的查找，无需另外的parsing</p>
+</blockquote>
+<p>创建checkpoint是需要时间的，怎么做到在创建checkpoint时，client是不会感知到延迟的呢？</p>
+<blockquote>
+<p>在准备创建checkpoint时，会先创建新的log file，然后该新log file继续服务，旧的log file在另外的线程中进行处理来创建checkpoint.</p>
+</blockquote>
+<h3 id="2-7-一致性模型"><a href="#2-7-一致性模型" class="headerlink" title="2.7 一致性模型"></a>2.7 一致性模型</h3><p>为了高效和简化，GFS使用了弱一致性。</p>
+<ul>
+<li>File namespace的改变是原子的</li>
+<li></li>
+<li></li>
+<li>在一系列成功的改变后，GFS接下来会：<ul>
+<li>以相同的order应用在所有其他replica的chunk上</li>
+<li>使用chunk version 去检测是否有replica过期<br>（一个stale的replica不再会做任何更改，且不会返回自己的位置当client向master请求replica的位置时）<blockquote>
+<p>需要注意的是，client缓存了chunk locations。所以在chunk过期前，client还是可能于一个stale的chunk交互）</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li>在成功更改后，组件failuer仍然可能导致数据毁坏。GFS一旦检测到问题出现，就会马上从正常的replica中恢复数据。</li>
+</ul>
+<h2 id="3-系统-interactions"><a href="#3-系统-interactions" class="headerlink" title="3 系统 interactions"></a>3 系统 interactions</h2><p>系统的设计考虑所有操作都减少master的参与。</p>
+<h3 id="3-1-Leases-and-Mutation-Order"><a href="#3-1-Leases-and-Mutation-Order" class="headerlink" title="3.1 Leases and Mutation Order"></a>3.1 Leases and Mutation Order</h3><p>mutation操作是指改变元信息或者是改变chunk内容。<br>master会授予某个replica某些chunk的租期（60s)，该replica就被成为primary。primary决定某个顺序来执行对chunk的修改，其他replica根据相同的顺序来执行。</p>
+<p>master通过心跳来授予租期，primary在完成mutation后可以继续向master申请租期。master也可以在租期过期前，重新分配租期。（如果master想要组织一个mutations，比如file的名字被修改）</p>
+<p>采用数据流和控制流分离的方法。</p>
+<p>具体的过程如下：</p>
+<ol>
+<li><p>client向master询问哪个chunkserver有当前的租期以及其他replica的位置。如果当前没有chunkserver持有租期，那么master会授予一个。</p>
+</li>
+<li><p>master回复primary的identity以及其他replica的位置。客户端会缓存这些数据。只有当primary不可达或租期过期，client才需要再次请求master。</p>
+</li>
+<li><p>客户端会把数据push到所有的replicas.传输的方式如下：</p>
+<blockquote>
+<p>如果需要push数据给S1-S4,client首先把数据发给离自己最近的replica S1,S1再发给离自己最近的S2,依次类推。</p>
+</blockquote>
+<p> 每个chunkserver都会缓存数据到内部的LRU.</p>
+</li>
+<li><p>所有replicas都有数据后，client发送write指令给primary.primary会给所有mutations分配serial number，然后应用到自己的state.</p>
+</li>
+<li><p>primary会转发write request给所有其他的replica,安装serial number来应用到自己的state.</p>
+</li>
+<li><p>replica完成后会回复primary,自己已经完成了操作。</p>
+</li>
+<li><p>primary回复client,如何有任何error,也返回给client.(如果错误发生在primary，那么primary将不再分配serial number以及转发)</p>
+</li>
+</ol>
+<h3 id="3-3-Atomic-Record-Appends"><a href="#3-3-Atomic-Record-Appends" class="headerlink" title="3.3 Atomic Record Appends"></a>3.3 Atomic Record Appends</h3><h2 id="5-1-高可用性"><a href="#5-1-高可用性" class="headerlink" title="5.1 高可用性"></a>5.1 高可用性</h2><p>主要有两个方法来保证高可用性：Fast recovery ，replication</p>
+<h3 id="5-1-1-Fast-Recovery"><a href="#5-1-1-Fast-Recovery" class="headerlink" title="5.1.1 Fast Recovery"></a>5.1.1 Fast Recovery</h3><p>master和chunkserver都设计为存储状态，能在几秒内恢复。</p>
+<h3 id="5-1-2-Chunk-Replication"><a href="#5-1-2-Chunk-Replication" class="headerlink" title="5.1.2 Chunk Replication"></a>5.1.2 Chunk Replication</h3><p>每个chunk都会复制到多个chunkserver上，且这些chunkserver在不同的机架上。</p>
+<h3 id="5-1-2-Master-Replication"><a href="#5-1-2-Master-Replication" class="headerlink" title="5.1.2 Master Replication"></a>5.1.2 Master Replication</h3><p>对master的任何修改需要先写入日志，才会执行。任何一个master进程fail 都可以快速重启。<br>“shadow” master 提供只读，可以稍微落后于真正的master</p>
+<h2 id="5-2-Data-Integrity"><a href="#5-2-Data-Integrity" class="headerlink" title="5.2 Data Integrity"></a>5.2 Data Integrity</h2><p>GFS的修改，特别是前面讨论的原子记录附加，并不保证相同的副本。因此，<strong>每个chunkserver必须通过维护校验和独立地验证其副本的完整性。</strong></p>
+<p>每个chunk被分为64KB的blocks,每个都有一个对应的32位的checksum。<br>checksum和其他metadata一样，会在memory中存储，同样也会通过log的方式持久化到硬盘。</p>
+<ul>
+<li>对于read操作，chunkserver会验证对应data block的checksum ，然后再返回数据。</li>
+<li>如果发现有错误，chunserver会返回错误给requestor，并且报告reports mismatch给master。</li>
+<li>requestor收到错误后，会再向其他replica发送请求，master将会从其他replica中克隆chunk。</li>
+</ul>
 
     </div>
 
@@ -378,6 +468,10 @@
             <span class="post-nav-divider"></span>
 
             <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2019/10/13/GoLang/go rpc 源码分析/" rel="prev" title="GO RPC 源码分析">
+                  GO RPC 源码分析 <i class="fa fa-chevron-right"></i>
+                </a>
               
             </div>
           </div>
@@ -426,7 +520,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-设计上的考虑"><span class="nav-number">1.</span> <span class="nav-text">1. 设计上的考虑</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-设计概述"><span class="nav-number">2.</span> <span class="nav-text">2.设计概述</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-Assumptions"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 Assumptions</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-2-Interface"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 Interface</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-3-架构设计"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 架构设计</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-4-Single-Master"><span class="nav-number">2.4.</span> <span class="nav-text">2.4 Single Master</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-设计上的考虑"><span class="nav-number">1.</span> <span class="nav-text">1. 设计上的考虑</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-设计概述"><span class="nav-number">2.</span> <span class="nav-text">2.设计概述</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-Assumptions"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 Assumptions</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-2-Interface"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 Interface</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-3-架构设计"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 架构设计</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-4-Single-Master"><span class="nav-number">2.4.</span> <span class="nav-text">2.4 Single Master</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-5-Chunk-Size的选择"><span class="nav-number">2.5.</span> <span class="nav-text">2.5 Chunk Size的选择</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-6-元信息"><span class="nav-number">2.6.</span> <span class="nav-text">2.6 元信息</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-6-1-In-Memory-Data-Structures"><span class="nav-number">2.6.1.</span> <span class="nav-text">2.6.1 In-Memory Data Structures</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-6-2-Chunk-Locations"><span class="nav-number">2.6.2.</span> <span class="nav-text">2.6.2 Chunk Locations</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-6-3-Operation-Log"><span class="nav-number">2.6.3.</span> <span class="nav-text">2.6.3 Operation Log</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-7-一致性模型"><span class="nav-number">2.6.4.</span> <span class="nav-text">2.7 一致性模型</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-系统-interactions"><span class="nav-number">2.7.</span> <span class="nav-text">3 系统 interactions</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-Leases-and-Mutation-Order"><span class="nav-number">2.7.1.</span> <span class="nav-text">3.1 Leases and Mutation Order</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-Atomic-Record-Appends"><span class="nav-number">2.7.2.</span> <span class="nav-text">3.3 Atomic Record Appends</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-1-高可用性"><span class="nav-number">2.8.</span> <span class="nav-text">5.1 高可用性</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-1-Fast-Recovery"><span class="nav-number">2.8.1.</span> <span class="nav-text">5.1.1 Fast Recovery</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-2-Chunk-Replication"><span class="nav-number">2.8.2.</span> <span class="nav-text">5.1.2 Chunk Replication</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-2-Master-Replication"><span class="nav-number">2.8.3.</span> <span class="nav-text">5.1.2 Master Replication</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-2-Data-Integrity"><span class="nav-number">2.9.</span> <span class="nav-text">5.2 Data Integrity</span></a></li></ol></li></ol></div>
         
       </div>
       <!--/noindex-->
@@ -441,7 +535,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">73</span>
+          <span class="site-state-item-count">78</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -467,7 +561,7 @@
             <a href="/tags/">
           
         
-        <span class="site-state-item-count">49</span>
+        <span class="site-state-item-count">51</span>
         <span class="site-state-item-name">tags</span>
         </a>
       </div>
@@ -488,7 +582,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>
