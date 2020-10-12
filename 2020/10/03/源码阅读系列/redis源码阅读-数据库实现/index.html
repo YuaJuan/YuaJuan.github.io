@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.4.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: 'Copy',
+      copy_success: 'Copied',
+      copy_failure: 'Copy failed'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="12345678910111213141516真正的数据存放在dict里面。这里不难理解，redis存储的数据本身就是key_value的形式，那么用字典来保存数据是非常合理的。expires里面保存了过期时间的key集合。typedef struct redisDb &amp;#123;    dict *dict;                 /* The keyspace for this DB">
+<meta name="keywords" content="redis">
+<meta property="og:type" content="article">
+<meta property="og:title" content="redis源码阅读 - 数据库实现">
+<meta property="og:url" content="https://yuajuan.github.io/2020/10/03/源码阅读系列/redis源码阅读-数据库实现/index.html">
+<meta property="og:site_name" content="发现问题并解决问题">
+<meta property="og:description" content="12345678910111213141516真正的数据存放在dict里面。这里不难理解，redis存储的数据本身就是key_value的形式，那么用字典来保存数据是非常合理的。expires里面保存了过期时间的key集合。typedef struct redisDb &amp;#123;    dict *dict;                 /* The keyspace for this DB">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2020-10-12T07:25:59.376Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="redis源码阅读 - 数据库实现">
+<meta name="twitter:description" content="12345678910111213141516真正的数据存放在dict里面。这里不难理解，redis存储的数据本身就是key_value的形式，那么用字典来保存数据是非常合理的。expires里面保存了过期时间的key集合。typedef struct redisDb &amp;#123;    dict *dict;                 /* The keyspace for this DB">
+  <link rel="canonical" href="https://yuajuan.github.io/2020/10/03/源码阅读系列/redis源码阅读-数据库实现/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>redis源码阅读 - 数据库实现 | 发现问题并解决问题</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">发现问题并解决问题</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">心之所向，不慌不忙</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-about">
+      
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>About</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>Tags</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>Categories</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-commonweal">
+      
+    
+
+    <a href="/404/" rel="section"><i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br>Commonweal 404</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block post">
+    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2020/10/03/源码阅读系列/redis源码阅读-数据库实现/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="阿娟">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="发现问题并解决问题">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">redis源码阅读 - 数据库实现
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              
+                
+              
+
+              <time title="Created: 2020-10-03 22:07:24" itemprop="dateCreated datePublished" datetime="2020-10-03T22:07:24+08:00">2020-10-03</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-10-12 15:25:59" itemprop="dateModified" datetime="2020-10-12T15:25:59+08:00">2020-10-12</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/源码阅读系列/" itemprop="url" rel="index"><span itemprop="name">源码阅读系列</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">真正的数据存放在dict里面。</span><br><span class="line">这里不难理解，redis存储的数据本身就是key_value的形式，那么用字典来保存数据是非常合理的。</span><br><span class="line">expires里面保存了过期时间的key集合。</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">redisDb</span> &#123;</span></span><br><span class="line">    dict *dict;                 <span class="comment">/* The keyspace for this DB */</span></span><br><span class="line">    dict *expires;              <span class="comment">/* Timeout of keys with a timeout set */</span></span><br><span class="line">    dict *blocking_keys;        <span class="comment">/* Keys with clients waiting for data (BLPOP)*/</span></span><br><span class="line">    dict *ready_keys;           <span class="comment">/* Blocked keys that received a PUSH */</span></span><br><span class="line">    dict *watched_keys;         <span class="comment">/* WATCHED keys for MULTI/EXEC CAS */</span></span><br><span class="line">    <span class="keyword">int</span> id;                     <span class="comment">/* Database ID */</span></span><br><span class="line">    <span class="keyword">long</span> <span class="keyword">long</span> avg_ttl;          <span class="comment">/* Average TTL, just for stats */</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> expires_cursor; <span class="comment">/* Cursor of the active expire cycle. */</span></span><br><span class="line">    <span class="built_in">list</span> *defrag_later;         <span class="comment">/* List of key names to attempt to defrag one by one, gradually. */</span></span><br><span class="line">&#125; redisDb;</span><br></pre></td></tr></table></figure>
+
+<a id="more"></a>
+<p>dict的实现就是前面讲到的字典</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">typedef struct dict &#123;</span><br><span class="line">    dictType *type;</span><br><span class="line">    void *privdata;</span><br><span class="line">    dictht ht[2];</span><br><span class="line">    long rehashidx; /* rehashing not in progress if rehashidx == -1 */</span><br><span class="line">    unsigned long iterators; /* number of iterators currently running */</span><br><span class="line">&#125; dict;</span><br></pre></td></tr></table></figure>
+
+<p>需要异步去处理的事情</p>
+<ul>
+<li><ul>
+<li>Active expired keys collection (it is also performed in a lazy way on</li>
+</ul>
+</li>
+<li>lookup).</li>
+<li>过期key的收集（同样也有惰性删除来处理）</li>
+<li><ul>
+<li>Software watchdog.</li>
+</ul>
+</li>
+<li><ul>
+<li>Update some statistic.</li>
+</ul>
+</li>
+<li>增量rehash</li>
+<li>触发BGSAVE/AOF</li>
+<li><ul>
+<li>Clients timeout of different kinds.</li>
+</ul>
+</li>
+<li><ul>
+<li>Replication reconnection.</li>
+</ul>
+</li>
+<li><ul>
+<li>Many more…</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">int serverCron(struct aeEventLoop *eventLoop, long long id, void *clientData)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">void initServer(void) &#123;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">/* Function called at startup to load RDB or AOF file in memory. */</span><br><span class="line">void loadDataFromDisk(void) &#123;</span><br></pre></td></tr></table></figure>
+
+<h1 id="过期删除键策略"><a href="#过期删除键策略" class="headerlink" title="过期删除键策略"></a>过期删除键策略</h1><h2 id="定时删除策略"><a href="#定时删除策略" class="headerlink" title="定时删除策略"></a>定时删除策略</h2><ol>
+<li>定义： 在设置键的同时，创建一个定时器（timer),到时间时，立即执行对键的删除。</li>
+<li>优点： 内存友好，能保证过期时尽快删除。</li>
+<li>缺点： CPU不友好，过期键较多的情况下，删除过期键会占用相当多CPU时间。</li>
+</ol>
+<h2 id="惰性删除策略"><a href="#惰性删除策略" class="headerlink" title="惰性删除策略"></a>惰性删除策略</h2><ol>
+<li>定义： 每次从数据库中取值时，先判断键是否过期，如果过期删除该键。</li>
+<li>优点： 对CPU友好。</li>
+<li>缺点： 对内存不友好。</li>
+</ol>
+<h2 id="定期删除策略"><a href="#定期删除策略" class="headerlink" title="定期删除策略"></a>定期删除策略</h2><ol>
+<li>定义： 每隔一段时间，对expire键空寂进行坚持，删除过期键。</li>
+<li>优点： 可通过限制删除操作执行的时长和频率来减少删除操作对CPU时间的影响。</li>
+</ol>
+<h1 id="RDB文件"><a href="#RDB文件" class="headerlink" title="RDB文件"></a>RDB文件</h1><p><a href="https://blog.csdn.net/liu1390910/article/details/79728569" target="_blank" rel="noopener">https://blog.csdn.net/liu1390910/article/details/79728569</a></p>
+<h2 id="lazy-free的定义"><a href="#lazy-free的定义" class="headerlink" title="lazy free的定义"></a>lazy free的定义</h2><p>lazy free即惰性删除或者延迟释放。<br>在删除键时，redis提供异步延时释放key内存的功能，把key释放操作放在bio(background I/O)单独的子线程中处理，主要目的是为了减少删除大key时对redis主线程的阻塞。<br>使用到lazy free的两处：</p>
+<ol>
+<li>DEL命令主动删除;</li>
+<li>过期key删除、maxmemory key驱逐淘汰删除;</li>
+</ol>
+<p>int dbAsyncDelete(redisDb *db, robj *key) 方法</p>
+<p>但实际上并不是所有的key都会采用lazy free，该方式的注释写明了，只有当key大于一定量时，才会放在lazy list里等待异步删除，否则直接同步删除。</p>
+<p>在删除expires字典中的key时，不会删除key的对象，因为和main字典是共享的key，为什么就不删除呢？</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">dbAsyncDelete</span><span class="params">(redisDb *db, robj *key)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//dictGenericDelete,这里dictDelete调用会直接释放空间，为什么？</span></span><br><span class="line">    <span class="keyword">if</span> (dictSize(db-&gt;expires) &gt; <span class="number">0</span>) dictDelete(db-&gt;expires,key-&gt;ptr);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//dictUnlink函数，只是找到key，并解除改key和dict的关系，具体来说，就是在哈希表的链表中去掉该key</span></span><br><span class="line">    <span class="comment">//这样如果有其他线程要访问，就无法find该key，但是实际上并没有做真正的删除，删除是在下面的代码进行的。</span></span><br><span class="line">    dictEntry *de = dictUnlink(db-&gt;dict,key-&gt;ptr);</span><br><span class="line">    <span class="keyword">if</span> (de) &#123;</span><br><span class="line">        robj *val = dictGetVal(de);</span><br><span class="line">        <span class="keyword">size_t</span> free_effort = lazyfreeGetFreeEffort(val);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//首先判断删除该key的free_effort，大于阈值且val的引用为1才放在bio中处理，否则直接删除</span></span><br><span class="line">        <span class="keyword">if</span> (free_effort &gt; LAZYFREE_THRESHOLD &amp;&amp; val-&gt;refcount == <span class="number">1</span>) &#123;</span><br><span class="line">            atomicIncr(lazyfree_objects,<span class="number">1</span>);</span><br><span class="line">            bioCreateBackgroundJob(BIO_LAZY_FREE,val,<span class="literal">NULL</span>,<span class="literal">NULL</span>);</span><br><span class="line">            dictSetVal(db-&gt;dict,de,<span class="literal">NULL</span>); <span class="comment">//把val设置为空</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//直接删除,奇怪的是，为什么这里不需要判断引用是否为1了</span></span><br><span class="line">    <span class="keyword">if</span> (de) &#123;</span><br><span class="line">        dictFreeUnlinkedEntry(db-&gt;dict,de); <span class="comment">//如果val设置了为空，则只会释放key的空间，否则会释放val和key的内存空间</span></span><br><span class="line">        <span class="keyword">if</span> (server.cluster_enabled) slotToKeyDel(key-&gt;ptr);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>会放到BIO里进行的三种操作：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">#define BIO_CLOSE_FILE    0 /* Deferred close(2) syscall. */</span><br><span class="line">#define BIO_AOF_FSYNC     1 /* Deferred AOF fsync. */</span><br><span class="line">#define BIO_LAZY_FREE     2 /* Deferred objects freeing. */</span><br></pre></td></tr></table></figure>
+
+<p>真正指向bio的函数，该函数在bio线程创建时就会调用。<br>一共就3个bio线程，每个线程只负责处理上面一种任务。<br><strong>makeThreadKillable里面的几个内容什么意思</strong><br><strong>cpu亲和力</strong>是什么意思<br><strong>Block SIGALRM so we are sure that only the main thread will receive the watchdog signal</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> *<span class="title">bioProcessBackgroundJobs</span><span class="params">(<span class="keyword">void</span> *arg)</span> </span>&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">bio_job</span> *<span class="title">job</span>;</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> type = (<span class="keyword">unsigned</span> <span class="keyword">long</span>) arg;</span><br><span class="line">    <span class="keyword">sigset_t</span> sigset;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Check that the type is within the right interval. */</span></span><br><span class="line">    <span class="keyword">if</span> (type &gt;= BIO_NUM_OPS) &#123;</span><br><span class="line">        serverLog(LL_WARNING,</span><br><span class="line">            <span class="string">"Warning: bio thread started with wrong type %lu"</span>,type);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">switch</span> (type) &#123;</span><br><span class="line">    <span class="keyword">case</span> BIO_CLOSE_FILE:</span><br><span class="line">        redis_set_thread_title(<span class="string">"bio_close_file"</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> BIO_AOF_FSYNC:</span><br><span class="line">        redis_set_thread_title(<span class="string">"bio_aof_fsync"</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> BIO_LAZY_FREE:</span><br><span class="line">        redis_set_thread_title(<span class="string">"bio_lazy_free"</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//设置cpu的亲和性</span></span><br><span class="line">    redisSetCpuAffinity(server.bio_cpulist);</span><br><span class="line"></span><br><span class="line">    makeThreadKillable();</span><br><span class="line"></span><br><span class="line">    pthread_mutex_lock(&amp;bio_mutex[type]);</span><br><span class="line">    <span class="comment">/* Block SIGALRM so we are sure that only the main thread will</span></span><br><span class="line"><span class="comment">     * receive the watchdog signal. */</span></span><br><span class="line">    sigemptyset(&amp;sigset);</span><br><span class="line">    sigaddset(&amp;sigset, SIGALRM);</span><br><span class="line">    <span class="keyword">if</span> (pthread_sigmask(SIG_BLOCK, &amp;sigset, <span class="literal">NULL</span>))</span><br><span class="line">        serverLog(LL_WARNING,</span><br><span class="line">            <span class="string">"Warning: can't mask SIGALRM in bio.c thread: %s"</span>, strerror(errno));</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>) &#123;</span><br><span class="line">        listNode *ln;</span><br><span class="line"></span><br><span class="line">        <span class="comment">/* The loop always starts with the lock hold. */</span></span><br><span class="line">        <span class="keyword">if</span> (listLength(bio_jobs[type]) == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="comment">//线程等待在bio_newjob_cond condition上</span></span><br><span class="line">            pthread_cond_wait(&amp;bio_newjob_cond[type],&amp;bio_mutex[type]);</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">/* Pop the job from the queue. */</span></span><br><span class="line">        ln = listFirst(bio_jobs[type]);</span><br><span class="line">        job = ln-&gt;value;</span><br><span class="line">        <span class="comment">/* It is now possible to unlock the background system as we know have</span></span><br><span class="line"><span class="comment">         * a stand alone job structure to process.*/</span></span><br><span class="line">        pthread_mutex_unlock(&amp;bio_mutex[type]);</span><br><span class="line"></span><br><span class="line">        <span class="comment">/* Process the job accordingly to its type. */</span></span><br><span class="line">        <span class="keyword">if</span> (type == BIO_CLOSE_FILE) &#123;</span><br><span class="line">            close((<span class="keyword">long</span>)job-&gt;arg1);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (type == BIO_AOF_FSYNC) &#123;</span><br><span class="line">            redis_fsync((<span class="keyword">long</span>)job-&gt;arg1);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (type == BIO_LAZY_FREE) &#123;</span><br><span class="line">            <span class="comment">/* What we free changes depending on what arguments are set:</span></span><br><span class="line"><span class="comment">             * arg1 -&gt; free the object at pointer.</span></span><br><span class="line"><span class="comment">             * arg2 &amp; arg3 -&gt; free two dictionaries (a Redis DB).</span></span><br><span class="line"><span class="comment">             * only arg3 -&gt; free the skiplist. */</span></span><br><span class="line">            <span class="keyword">if</span> (job-&gt;arg1)</span><br><span class="line">                lazyfreeFreeObjectFromBioThread(job-&gt;arg1);</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span> (job-&gt;arg2 &amp;&amp; job-&gt;arg3)</span><br><span class="line">                lazyfreeFreeDatabaseFromBioThread(job-&gt;arg2,job-&gt;arg3);</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span> (job-&gt;arg3)</span><br><span class="line">                lazyfreeFreeSlotsMapFromBioThread(job-&gt;arg3);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            serverPanic(<span class="string">"Wrong job type in bioProcessBackgroundJobs()."</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        zfree(job);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//从list中将处理了的任务删除</span></span><br><span class="line">        <span class="comment">/* Lock again before reiterating the loop, if there are no longer</span></span><br><span class="line"><span class="comment">         * jobs to process we'll block again in pthread_cond_wait(). */</span></span><br><span class="line">        pthread_mutex_lock(&amp;bio_mutex[type]);</span><br><span class="line">        listDelNode(bio_jobs[type],ln);</span><br><span class="line">        bio_pending[type]--;</span><br><span class="line"></span><br><span class="line">        <span class="comment">/* Unblock threads blocked on bioWaitStepOfType() if any. */</span></span><br><span class="line">        <span class="comment">//这里好像没有用到</span></span><br><span class="line">        pthread_cond_broadcast(&amp;bio_step_cond[type]);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="一些补充知识"><a href="#一些补充知识" class="headerlink" title="一些补充知识"></a>一些补充知识</h1><h2 id="CPU亲和性"><a href="#CPU亲和性" class="headerlink" title="CPU亲和性"></a>CPU亲和性</h2><p>CPU affinity是一种调度属性，它可以将一个进程或者一组进程绑定到某个cpu核上。这样就避免了在多个cpu核上进行调度。<br>如何表示</p>
+<p>用bitmask的方式，置为1表示绑定该cpu<br>最低位表示第一个逻辑cpu，最高位表示最后一个逻辑cpu。<br>CPU affinity典型的表示方法是使用16进制,具体如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">0x00000001</span><br><span class="line">    is processor #0</span><br><span class="line"></span><br><span class="line">0x00000003</span><br><span class="line">    is processors #0 and #1</span><br><span class="line"></span><br><span class="line">0xFFFFFFFF</span><br><span class="line">    is all processors (#0 through #31)</span><br></pre></td></tr></table></figure>
+
+<h2 id="定义器在操作系统层是如何实现的"><a href="#定义器在操作系统层是如何实现的" class="headerlink" title="定义器在操作系统层是如何实现的"></a>定义器在操作系统层是如何实现的</h2>
+    </div>
+
+    
+    
+    
+        
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/redis/" rel="tag"># redis</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/10/03/源码阅读系列/redis源码阅读-网络实现/" rel="next" title="redis源码阅读 - 网络实现">
+                  <i class="fa fa-chevron-left"></i> redis源码阅读 - 网络实现
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2020/10/07/源码阅读系列/读完redis源码，自己实现一下/" rel="prev" title="">
+                   <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#过期删除键策略"><span class="nav-number">1.</span> <span class="nav-text">过期删除键策略</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#定时删除策略"><span class="nav-number">1.1.</span> <span class="nav-text">定时删除策略</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#惰性删除策略"><span class="nav-number">1.2.</span> <span class="nav-text">惰性删除策略</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#定期删除策略"><span class="nav-number">1.3.</span> <span class="nav-text">定期删除策略</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#RDB文件"><span class="nav-number">2.</span> <span class="nav-text">RDB文件</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#lazy-free的定义"><span class="nav-number">2.1.</span> <span class="nav-text">lazy free的定义</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#一些补充知识"><span class="nav-number">3.</span> <span class="nav-text">一些补充知识</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#CPU亲和性"><span class="nav-number">3.1.</span> <span class="nav-text">CPU亲和性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#定义器在操作系统层是如何实现的"><span class="nav-number">3.2.</span> <span class="nav-text">定义器在操作系统层是如何实现的</span></a></li></ol></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">阿娟</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">9</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">categories</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">tags</span>
+        </a>
+      </div>
+    
+  </nav>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">阿娟</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.9.0</div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.4.0</div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+
+
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.0"></script><script src="/js/motion.js?v=7.4.0"></script>
+<script src="/js/schemes/pisces.js?v=7.4.0"></script>
+<script src="/js/next-boot.js?v=7.4.0"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

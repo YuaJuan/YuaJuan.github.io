@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.4.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: 'Copy',
+      copy_success: 'Copied',
+      copy_failure: 'Copy failed'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="这部分数据结构主要redis为了优化内存而专门设计的。  整数集合intset数据结构: intset.h和intset.c 压缩列表ziplist数据结构： ziplist.h和ziplist.c  整数集合intset整数集合intset是集合键的底层实现之一，当一个集合只包含整数元素，并且这个集合的元素数量不多时，redis就会使用整数值元素。 1. 数据结构虽然contents里装元素的地">
+<meta name="keywords" content="redis">
+<meta property="og:type" content="article">
+<meta property="og:title" content="redis源码阅读(二) - 内存编码数据结构">
+<meta property="og:url" content="https://yuajuan.github.io/2020/10/02/源码阅读系列/redis源码阅读（二）-内存编码数据结构/index.html">
+<meta property="og:site_name" content="发现问题并解决问题">
+<meta property="og:description" content="这部分数据结构主要redis为了优化内存而专门设计的。  整数集合intset数据结构: intset.h和intset.c 压缩列表ziplist数据结构： ziplist.h和ziplist.c  整数集合intset整数集合intset是集合键的底层实现之一，当一个集合只包含整数元素，并且这个集合的元素数量不多时，redis就会使用整数值元素。 1. 数据结构虽然contents里装元素的地">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2020-10-03T12:49:02.865Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="redis源码阅读(二) - 内存编码数据结构">
+<meta name="twitter:description" content="这部分数据结构主要redis为了优化内存而专门设计的。  整数集合intset数据结构: intset.h和intset.c 压缩列表ziplist数据结构： ziplist.h和ziplist.c  整数集合intset整数集合intset是集合键的底层实现之一，当一个集合只包含整数元素，并且这个集合的元素数量不多时，redis就会使用整数值元素。 1. 数据结构虽然contents里装元素的地">
+  <link rel="canonical" href="https://yuajuan.github.io/2020/10/02/源码阅读系列/redis源码阅读（二）-内存编码数据结构/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>redis源码阅读(二) - 内存编码数据结构 | 发现问题并解决问题</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">发现问题并解决问题</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">心之所向，不慌不忙</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-about">
+      
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>About</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>Tags</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>Categories</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-commonweal">
+      
+    
+
+    <a href="/404/" rel="section"><i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br>Commonweal 404</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block post">
+    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2020/10/02/源码阅读系列/redis源码阅读（二）-内存编码数据结构/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="阿娟">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="发现问题并解决问题">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">redis源码阅读(二) - 内存编码数据结构
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              
+                
+              
+
+              <time title="Created: 2020-10-02 20:53:41" itemprop="dateCreated datePublished" datetime="2020-10-02T20:53:41+08:00">2020-10-02</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-10-03 20:49:02" itemprop="dateModified" datetime="2020-10-03T20:49:02+08:00">2020-10-03</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/源码阅读系列/" itemprop="url" rel="index"><span itemprop="name">源码阅读系列</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>这部分数据结构主要redis为了优化内存而专门设计的。</p>
+<ul>
+<li>整数集合intset数据结构: intset.h和intset.c</li>
+<li>压缩列表ziplist数据结构： ziplist.h和ziplist.c</li>
+</ul>
+<h1 id="整数集合intset"><a href="#整数集合intset" class="headerlink" title="整数集合intset"></a>整数集合intset</h1><p>整数集合intset是集合键的底层实现之一，当一个集合只包含整数元素，并且这个集合的元素数量不多时，redis就会使用整数值元素。</p>
+<h2 id="1-数据结构"><a href="#1-数据结构" class="headerlink" title="1. 数据结构"></a>1. 数据结构</h2><p>虽然contents里装元素的地方，但元素不一定是int8_t的。<br>encoding代表了整数集合中元素的编码方式，int8_t,int16_t,int32_t,int64_t。</p>
+<a id="more"></a>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">intset</span> &#123;</span></span><br><span class="line">    <span class="keyword">uint32_t</span> encoding;</span><br><span class="line">    <span class="keyword">uint32_t</span> length;</span><br><span class="line">    <span class="keyword">int8_t</span> contents[];</span><br><span class="line">&#125; intset;</span><br></pre></td></tr></table></figure>
+
+<p>但加入intset中的元素大于当前编码的大小时，就会对编码进行升级。<br>注意升级是不可逆转的，没有降级这样的操作。</p>
+<h2 id="2-升级"><a href="#2-升级" class="headerlink" title="2. 升级"></a>2. 升级</h2><p>intset中contents的元素是按从大到小的顺序排列的，如果触发了intsetUpgradeAndAdd，那么该元素要么小于之前的所有元素，那么大于之前的所有元素，所以要么放在contents的最前面，要么放在contents的最后面。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> intset *<span class="title">intsetUpgradeAndAdd</span><span class="params">(intset *is, <span class="keyword">int64_t</span> value)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">uint8_t</span> curenc = intrev32ifbe(is-&gt;encoding); <span class="comment">//原来的编码方式</span></span><br><span class="line">    <span class="comment">//根据新的value求的编码方式,编码方式其实使用该类型的所占字节大小来表示的</span></span><br><span class="line">    <span class="comment">//比如int64_t，返回的是sizeof(int64_t)</span></span><br><span class="line">    <span class="keyword">uint8_t</span> newenc = _intsetValueEncoding(value); </span><br><span class="line">    <span class="keyword">int</span> length = intrev32ifbe(is-&gt;length);</span><br><span class="line">    <span class="comment">//区别正负数，负数一定放在原来数组的最前面，整数一定放在原来数组的最后面</span></span><br><span class="line">    <span class="keyword">int</span> prepend = value &lt; <span class="number">0</span> ? <span class="number">1</span> : <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    is-&gt;encoding = intrev32ifbe(newenc);</span><br><span class="line">    is = intsetResize(is,intrev32ifbe(is-&gt;length)+<span class="number">1</span>); <span class="comment">//重新设置contents的大小</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">//_intsetGetEncoded 会计算原来的元素重新编码后的结果</span></span><br><span class="line">    <span class="keyword">while</span>(length--)</span><br><span class="line">        _intsetSet(is,length+prepend,_intsetGetEncoded(is,length,curenc));</span><br><span class="line"></span><br><span class="line">    <span class="comment">//如果是整数，放在第一个位置，否则放在最后的位置</span></span><br><span class="line">    <span class="keyword">if</span> (prepend)</span><br><span class="line">        _intsetSet(is,<span class="number">0</span>,value);</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        _intsetSet(is,intrev32ifbe(is-&gt;length),value);</span><br><span class="line">    is-&gt;length = intrev32ifbe(intrev32ifbe(is-&gt;length)+<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">return</span> is;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里大家肯定会觉得奇怪，为什么contents声明为了int8_t,后面还可以放入int16_t,int32_t的元素呢？</p>
+<pre><code>int8_t contents[]这样的定义，contents其实是一个指向int8_t类型的指针，在具体操作时，只需要进行一个指针类型的强转即可。比如下面的例子：
+
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">int64_t</span> _intsetGetEncoded(intset *is, <span class="keyword">int</span> pos, <span class="keyword">uint8_t</span> enc) &#123;</span><br><span class="line">    <span class="keyword">int64_t</span> v64;</span><br><span class="line">    <span class="keyword">int32_t</span> v32;</span><br><span class="line">    <span class="keyword">int16_t</span> v16;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (enc == INTSET_ENC_INT64) &#123;</span><br><span class="line">        <span class="built_in">memcpy</span>(&amp;v64,((<span class="keyword">int64_t</span>*)is-&gt;contents)+pos,<span class="keyword">sizeof</span>(v64));</span><br><span class="line">        memrev64ifbe(&amp;v64);</span><br><span class="line">        <span class="keyword">return</span> v64;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (enc == INTSET_ENC_INT32) &#123;</span><br><span class="line">        <span class="built_in">memcpy</span>(&amp;v32,((<span class="keyword">int32_t</span>*)is-&gt;contents)+pos,<span class="keyword">sizeof</span>(v32));</span><br><span class="line">        memrev32ifbe(&amp;v32);</span><br><span class="line">        <span class="keyword">return</span> v32;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">memcpy</span>(&amp;v16,((<span class="keyword">int16_t</span>*)is-&gt;contents)+pos,<span class="keyword">sizeof</span>(v16));</span><br><span class="line">        memrev16ifbe(&amp;v16);</span><br><span class="line">        <span class="keyword">return</span> v16;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+通过指针类型的转化+memcpy的方式来获取到数据。</code></pre><p><strong>大小端的转化什么意思？？？如何理解</strong></p>
+<h1 id="压缩列表-ziplist-h和ziplist-c"><a href="#压缩列表-ziplist-h和ziplist-c" class="headerlink" title="压缩列表 ziplist.h和ziplist.c"></a>压缩列表 ziplist.h和ziplist.c</h1><p>压缩列表是什么？<br>压缩列表是redis为了节约内存而专门设计的，它是一段连续的内存，内存里保存了不同编码方式的多个数据。<br>是列表键和哈希键的底层实现之一，当一个列表键只包含少量列表项，并且每个列表项是小整数值或短字符串，那么redis就会选择压缩列表来做列表键的底层实现。</p>
+<h1 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h1><p>一个ziplist包含以下内容：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;zlbytes&gt; &lt;zltail&gt; &lt;zllen&gt; &lt;entry&gt; &lt;entry&gt; ... &lt;entry&gt; &lt;zlend&gt;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>zlbytes： 该ziplist占用的总字节数，分配内存时使用；</li>
+<li>zltail： 压缩列表表尾距离列表起始点有多少字节；通过这个偏移量可以很快定位到表尾；</li>
+<li>zlen: entry的数量；</li>
+<li>entry: 真正存放数据的地方；</li>
+<li>zlend:特殊值0xFF（十进制255），用于标记压缩列表的末端。</li>
+</ul>
+<p>entry的结构</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;prevlen&gt; &lt;encoding&gt; &lt;entry-data&gt;</span><br></pre></td></tr></table></figure>
+
+<p>prevlen：表示前一个entry的字节数，用这个值可以向前遍历。</p>
+
+    </div>
+
+    
+    
+    
+        
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/redis/" rel="tag"># redis</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/10/01/源码阅读系列/redis源码阅读（一）- 数据结构/" rel="next" title="redis源码阅读(一) - 数据结构">
+                  <i class="fa fa-chevron-left"></i> redis源码阅读(一) - 数据结构
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2020/10/03/源码阅读系列/redis源码阅读（三）- 对象/" rel="prev" title="redis源码阅读(三) - 对象">
+                  redis源码阅读(三) - 对象 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#整数集合intset"><span class="nav-number">1.</span> <span class="nav-text">整数集合intset</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-数据结构"><span class="nav-number">1.1.</span> <span class="nav-text">1. 数据结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-升级"><span class="nav-number">1.2.</span> <span class="nav-text">2. 升级</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#压缩列表-ziplist-h和ziplist-c"><span class="nav-number">2.</span> <span class="nav-text">压缩列表 ziplist.h和ziplist.c</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#数据结构"><span class="nav-number">3.</span> <span class="nav-text">数据结构</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">阿娟</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">9</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">categories</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">tags</span>
+        </a>
+      </div>
+    
+  </nav>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">阿娟</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.9.0</div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.4.0</div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+
+
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.0"></script><script src="/js/motion.js?v=7.4.0"></script>
+<script src="/js/schemes/pisces.js?v=7.4.0"></script>
+<script src="/js/next-boot.js?v=7.4.0"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

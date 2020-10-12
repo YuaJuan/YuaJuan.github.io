@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.4.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: 'Copy',
+      copy_success: 'Copied',
+      copy_failure: 'Copy failed'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="首先从redis的数据结构看起，这部分代码可以单独来理解，redis中的主要数据结构有下面几种：  动态字符串：sds.h 和 sds.c  双端链表：adlist.h 和 adlist.c 字典：dict.h 和 dict.c 跳表：redis.h 中的 zskiplist 结构和 zskiplistNode 结构， 以及 t_zset.c 中所有以 zsl 开头的函数， 比如 zslCreat">
+<meta name="keywords" content="redis">
+<meta property="og:type" content="article">
+<meta property="og:title" content="redis源码阅读(一) - 数据结构">
+<meta property="og:url" content="https://yuajuan.github.io/2020/10/01/源码阅读系列/redis源码阅读（一）- 数据结构/index.html">
+<meta property="og:site_name" content="发现问题并解决问题">
+<meta property="og:description" content="首先从redis的数据结构看起，这部分代码可以单独来理解，redis中的主要数据结构有下面几种：  动态字符串：sds.h 和 sds.c  双端链表：adlist.h 和 adlist.c 字典：dict.h 和 dict.c 跳表：redis.h 中的 zskiplist 结构和 zskiplistNode 结构， 以及 t_zset.c 中所有以 zsl 开头的函数， 比如 zslCreat">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2020-10-09T14:25:29.055Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="redis源码阅读(一) - 数据结构">
+<meta name="twitter:description" content="首先从redis的数据结构看起，这部分代码可以单独来理解，redis中的主要数据结构有下面几种：  动态字符串：sds.h 和 sds.c  双端链表：adlist.h 和 adlist.c 字典：dict.h 和 dict.c 跳表：redis.h 中的 zskiplist 结构和 zskiplistNode 结构， 以及 t_zset.c 中所有以 zsl 开头的函数， 比如 zslCreat">
+  <link rel="canonical" href="https://yuajuan.github.io/2020/10/01/源码阅读系列/redis源码阅读（一）- 数据结构/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>redis源码阅读(一) - 数据结构 | 发现问题并解决问题</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">发现问题并解决问题</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">心之所向，不慌不忙</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-about">
+      
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>About</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>Tags</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>Categories</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-commonweal">
+      
+    
+
+    <a href="/404/" rel="section"><i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br>Commonweal 404</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block post">
+    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2020/10/01/源码阅读系列/redis源码阅读（一）- 数据结构/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="阿娟">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="发现问题并解决问题">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">redis源码阅读(一) - 数据结构
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              
+                
+              
+
+              <time title="Created: 2020-10-01 15:44:48" itemprop="dateCreated datePublished" datetime="2020-10-01T15:44:48+08:00">2020-10-01</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-10-09 22:25:29" itemprop="dateModified" datetime="2020-10-09T22:25:29+08:00">2020-10-09</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/源码阅读系列/" itemprop="url" rel="index"><span itemprop="name">源码阅读系列</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>首先从redis的数据结构看起，这部分代码可以单独来理解，redis中的主要数据结构有下面几种：</p>
+<ul>
+<li>动态字符串：sds.h 和 sds.c </li>
+<li>双端链表：adlist.h 和 adlist.c</li>
+<li>字典：dict.h 和 dict.c</li>
+<li>跳表：redis.h 中的 zskiplist 结构和 zskiplistNode 结构， 以及 t_zset.c 中所有以 zsl 开头的函数， 比如 zslCreate 、 zslInsert 、 zslDeleteNode等等</li>
+<li>HyperLogLog：hyperloglog.c 中的 hllhdr 结构， 以及所有以 hll 开头的函数</li>
+</ul>
+<h1 id="动态字符串-sds-h-和-sds-c"><a href="#动态字符串-sds-h-和-sds-c" class="headerlink" title="动态字符串(sds.h 和 sds.c)"></a>动态字符串(sds.h 和 sds.c)</h1><p>redis里，C字符串只会被用作字符串的字面常量，即用在一些不需要对字符串值进行修改的地方。<br>在其他情况下，会用到自己实现的动态字符串（simple dynamic string,SDS)。<br>sds的一些特性：</p>
+<ol>
+<li>可以进行长度控制</li>
+<li>二进制安全，即字符中间可以有’\0’</li>
+<li>自动进行扩容</li>
+</ol>
+<a id="more"></a>
+
+<p>sds的定义如下，这么做是为了兼容c字符串，使得sds也可以调用c字符串的api。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">char</span> *sds;</span><br></pre></td></tr></table></figure>
+
+<h2 id="1-数据定义"><a href="#1-数据定义" class="headerlink" title="1. 数据定义"></a>1. 数据定义</h2><p>真正的定义是在sdshdr##里面，分别定义了sdshdr8，sdshdr16，sdshdr32，sdshdr64</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> __<span class="title">attribute__</span> ((__<span class="title">packed__</span>)) <span class="title">sdshdr8</span> &#123;</span></span><br><span class="line">    <span class="keyword">uint8_t</span> len;  <span class="comment">//已经使用的长度</span></span><br><span class="line">    <span class="keyword">uint8_t</span> alloc; <span class="comment">//未使用的长度</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> flags; <span class="comment">//低3位表示sdshdr的类型,类型见下面，所以只需要3位来表示，高5位没有使用到</span></span><br><span class="line">    <span class="keyword">char</span> buf[];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p><strong>注意：</strong></p>
+<ol>
+<li>上面的buf[]是没有指定大小的，这样的定义只能放在结构体的最后；</li>
+<li><strong>attribute</strong> ((<strong>packed</strong>)) 让编译器紧凑地分配空间，而不是按照字节对齐；</li>
+<li>sdshdr8 使用的uint8_t,sdshd16使用的是uint16_t，很显然定义不同的sdshd是为了节省内存；</li>
+</ol>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SDS_TYPE_5  0</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SDS_TYPE_8  1</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SDS_TYPE_16 2</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SDS_TYPE_32 3</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SDS_TYPE_64 4</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="2-提供的操作api"><a href="#2-提供的操作api" class="headerlink" title="2. 提供的操作api"></a>2. 提供的操作api</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">sds <span class="title">sdsnewlen</span><span class="params">(<span class="keyword">const</span> <span class="keyword">void</span> *init, <span class="keyword">size_t</span> initlen)</span></span>;  </span><br><span class="line"><span class="function">sds <span class="title">sdsnew</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *init)</span></span>;</span><br><span class="line"><span class="function">sds <span class="title">sdsempty</span><span class="params">(<span class="keyword">void</span>)</span></span>;</span><br><span class="line"><span class="function">sds <span class="title">sdsdup</span><span class="params">(<span class="keyword">const</span> sds s)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">sdsfree</span><span class="params">(sds s)</span></span>; </span><br><span class="line"><span class="function">sds <span class="title">sdsgrowzero</span><span class="params">(sds s, <span class="keyword">size_t</span> len)</span></span>;</span><br><span class="line"><span class="function">sds <span class="title">sdscatlen</span><span class="params">(sds s, <span class="keyword">const</span> <span class="keyword">void</span> *t, <span class="keyword">size_t</span> len)</span></span>;</span><br><span class="line"><span class="function">sds <span class="title">sdscat</span><span class="params">(sds s, <span class="keyword">const</span> <span class="keyword">char</span> *t)</span></span>;   <span class="comment">//将c字符串t追加到s，如果s的内存不够，会先进行扩容</span></span><br><span class="line"><span class="function">sds <span class="title">sdscatsds</span><span class="params">(sds s, <span class="keyword">const</span> sds t)</span></span>;  <span class="comment">//将sds t追加到s，如果s的内存不够，会先进行扩容</span></span><br><span class="line"><span class="function">sds <span class="title">sdscpylen</span><span class="params">(sds s, <span class="keyword">const</span> <span class="keyword">char</span> *t, <span class="keyword">size_t</span> len)</span></span>; </span><br><span class="line"><span class="function">sds <span class="title">sdscpy</span><span class="params">(sds s, <span class="keyword">const</span> <span class="keyword">char</span> *t)</span></span>; <span class="comment">//复制字符串t到s，如果s的内存不够，会先进行扩容</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="3-具体的实现"><a href="#3-具体的实现" class="headerlink" title="3. 具体的实现"></a>3. 具体的实现</h2><p>先理解下面的两行代码，其实都是获得sdshdr的首地址。<br>后面的代码会常用到这两个宏定义。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SDS_HDR(T,s) ((struct sdshdr##T *)((s)-(sizeof(struct sdshdr##T))))</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SDS_HDR_VAR(T,s) struct sdshdr##T *sh = (void*)((s)-(sizeof(struct sdshdr##T)));</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>sds sdsnew(const char *init)函数</strong></p>
+<p>具体见代码注释</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">sds <span class="title">sdsnewlen</span><span class="params">(<span class="keyword">const</span> <span class="keyword">void</span> *init, <span class="keyword">size_t</span> initlen)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">void</span> *sh;</span><br><span class="line">    sds s;</span><br><span class="line">    <span class="keyword">char</span> type = sdsReqType(initlen); <span class="comment">//首先根据初始化字符串的长度来确定sdshr的类型</span></span><br><span class="line">    <span class="comment">/* Empty strings are usually created in order to append. Use type 8</span></span><br><span class="line"><span class="comment">     * since type 5 is not good at this. */</span></span><br><span class="line">    <span class="keyword">if</span> (type == SDS_TYPE_5 &amp;&amp; initlen == <span class="number">0</span>) type = SDS_TYPE_8;</span><br><span class="line">    <span class="keyword">int</span> hdrlen = sdsHdrSize(type);</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> *fp; <span class="comment">/* flags pointer. */</span></span><br><span class="line"></span><br><span class="line">    sh = s_malloc(hdrlen+initlen+<span class="number">1</span>);  <span class="comment">//hdrlen表示结构体的长度，因为字符串里需要先加入初始化字符串长度，所以需要加上initlen,加1是因为字符串最后需要'\0'</span></span><br><span class="line">    <span class="keyword">if</span> (sh == <span class="literal">NULL</span>) <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    <span class="keyword">if</span> (init==SDS_NOINIT)</span><br><span class="line">        init = <span class="literal">NULL</span>;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (!init)</span><br><span class="line">        <span class="built_in">memset</span>(sh, <span class="number">0</span>, hdrlen+initlen+<span class="number">1</span>); <span class="comment">//如果init中没有字符，那么全部初始化为0即可</span></span><br><span class="line">    s = (<span class="keyword">char</span>*)sh+hdrlen;   <span class="comment">//表示字符串的起始地址</span></span><br><span class="line">    fp = ((<span class="keyword">unsigned</span> <span class="keyword">char</span>*)s)<span class="number">-1</span>; <span class="comment">//这里表示的flags的地址，因为s转为了unsigned char*，所以减1就是移动了1个字节</span></span><br><span class="line">    <span class="keyword">switch</span>(type) &#123;</span><br><span class="line">        <span class="keyword">case</span> SDS_TYPE_5: &#123;</span><br><span class="line">            *fp = type | (initlen &lt;&lt; SDS_TYPE_BITS);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">case</span> SDS_TYPE_8: &#123;</span><br><span class="line">            SDS_HDR_VAR(<span class="number">8</span>,s);</span><br><span class="line">            sh-&gt;len = initlen;</span><br><span class="line">            sh-&gt;alloc = initlen;</span><br><span class="line">            *fp = type;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//.....其他SDS_TYPE_16，32,64也是一样的处理</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (initlen &amp;&amp; init)</span><br><span class="line">        <span class="built_in">memcpy</span>(s, init, initlen); <span class="comment">//字符串先填充进init字符串</span></span><br><span class="line">    s[initlen] = <span class="string">'\0'</span>;</span><br><span class="line">    <span class="keyword">return</span> s;</span><br></pre></td></tr></table></figure>
+
+<h3 id="sds-sdscat-sds-s-const-char-t-函数"><a href="#sds-sdscat-sds-s-const-char-t-函数" class="headerlink" title="sds sdscat(sds s, const char *t)函数"></a>sds sdscat(sds s, const char *t)函数</h3><p>c字符串的strcat函数,如果源字符串的长度不够，会出现覆盖。但是sdscat做这个做了优化，从代码里看看是如何做的。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">sds <span class="title">sdscat</span><span class="params">(sds s, <span class="keyword">const</span> <span class="keyword">char</span> *t)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> sdscatlen(s, t, <span class="built_in">strlen</span>(t));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>sdsMakeRoomFor为先分配足够多的内存，sds s是个新的内存空间了。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">sds <span class="title">sdscatlen</span><span class="params">(sds s, <span class="keyword">const</span> <span class="keyword">void</span> *t, <span class="keyword">size_t</span> len)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">size_t</span> curlen = sdslen(s);</span><br><span class="line"></span><br><span class="line">    s = sdsMakeRoomFor(s,len);</span><br><span class="line">    <span class="keyword">if</span> (s == <span class="literal">NULL</span>) <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    <span class="built_in">memcpy</span>(s+curlen, t, len);</span><br><span class="line">    sdssetlen(s, curlen+len);</span><br><span class="line">    s[curlen+len] = <span class="string">'\0'</span>;</span><br><span class="line">    <span class="keyword">return</span> s;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<pre><code>MakeRoomFor是如何扩充新长度的？
+只有当newlen大于当前sdshdr的alloc长度时，才会进行扩展。
+newlen是这次实际需要的字符串长度。
+如果当前长度newlen小于SDS_MAX_PREALLOC (默认为1024*1024)，那么实际扩展出的长度为newlen的2倍；
+否则的话实际扩展出的长度为newlen加上SDS_MAX_PREALLOC。</code></pre><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (newlen &lt; SDS_MAX_PREALLOC)</span><br><span class="line">      newlen *= <span class="number">2</span>;</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">      newlen += SDS_MAX_PREALLOC;</span><br></pre></td></tr></table></figure>
+
+<p><strong>注意在重新分配空间时，这里用到的是zrealloc，那么它与zalloc的区别是什么呢</strong></p>
+<pre><code>zrealloc函数原型是extern void *realloc(void *mem_address, unsigned int newsize)
+首先会去判断mem_address指向的地址是否有足够newsize的空间，如果有，直接扩大原来mem_address即可，并将mem_address返回即可。如果原地址空间不够，那么重新分配newsize大小的空间，并把原来mem_address的内容一一复制到新地址，mem_address原来指向的地址会被释放掉，并返回新地址。</code></pre><h3 id="sdslen-const-sds-s-函数"><a href="#sdslen-const-sds-s-函数" class="headerlink" title="sdslen(const sds s)函数"></a>sdslen(const sds s)函数</h3><p>这里获取flags是用s[-1],这里不难理解，由于结构体里是紧凑分配空间，所以字符串往前一个字节就是flags的地址。<br>static 修饰函数的作用：表明该静态函数只能被当前文件使用。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">inline</span> size_t <span class="title">sdslen</span><span class="params">(<span class="keyword">const</span> sds s)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> flags = s[<span class="number">-1</span>];  </span><br><span class="line">    <span class="keyword">switch</span>(flags&amp;SDS_TYPE_MASK) &#123;</span><br><span class="line">        <span class="keyword">case</span> SDS_TYPE_5:</span><br><span class="line">            <span class="keyword">return</span> SDS_TYPE_5_LEN(flags);</span><br><span class="line">        <span class="keyword">case</span> SDS_TYPE_8:</span><br><span class="line">            <span class="keyword">return</span> SDS_HDR(<span class="number">8</span>,s)-&gt;len;</span><br><span class="line">        <span class="keyword">case</span> SDS_TYPE_16:</span><br><span class="line">            <span class="keyword">return</span> SDS_HDR(<span class="number">16</span>,s)-&gt;len;</span><br><span class="line">        <span class="keyword">case</span> SDS_TYPE_32:</span><br><span class="line">            <span class="keyword">return</span> SDS_HDR(<span class="number">32</span>,s)-&gt;len;</span><br><span class="line">        <span class="keyword">case</span> SDS_TYPE_64:</span><br><span class="line">            <span class="keyword">return</span> SDS_HDR(<span class="number">64</span>,s)-&gt;len;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="双向链表实现（adlist-h-和-adlist-c）"><a href="#双向链表实现（adlist-h-和-adlist-c）" class="headerlink" title="双向链表实现（adlist.h 和 adlist.c）"></a>双向链表实现（adlist.h 和 adlist.c）</h1><h2 id="1-数据结构"><a href="#1-数据结构" class="headerlink" title="1. 数据结构"></a>1. 数据结构</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">listNode</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">listNode</span> *<span class="title">prev</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">listNode</span> *<span class="title">next</span>;</span></span><br><span class="line">    <span class="keyword">void</span> *value; <span class="comment">//这里用空指针，所以双向链表里可以加入任何类型的指针</span></span><br><span class="line">&#125; listNode;</span><br></pre></td></tr></table></figure>
+
+<p>双向链表的迭代器</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">listIter</span> &#123;</span></span><br><span class="line">    listNode *next;</span><br><span class="line">    <span class="keyword">int</span> direction;</span><br><span class="line">&#125; listIter;</span><br></pre></td></tr></table></figure>
+
+<p>双向链表的定义</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">list</span> &#123;</span></span><br><span class="line">    listNode *head;</span><br><span class="line">    listNode *tail;</span><br><span class="line">    <span class="keyword">void</span> *(*dup)(<span class="keyword">void</span> *ptr);</span><br><span class="line">    <span class="keyword">void</span> (*<span class="built_in">free</span>)(<span class="keyword">void</span> *ptr);</span><br><span class="line">    <span class="keyword">int</span> (*match)(<span class="keyword">void</span> *ptr, <span class="keyword">void</span> *key);</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> len;</span><br><span class="line">&#125; <span class="built_in">list</span>;</span><br></pre></td></tr></table></figure>
+
+<h1 id="字典（dict-h-和-dict-c）"><a href="#字典（dict-h-和-dict-c）" class="headerlink" title="字典（dict.h 和 dict.c）"></a>字典（dict.h 和 dict.c）</h1><h2 id="1-数据结构-1"><a href="#1-数据结构-1" class="headerlink" title="1. 数据结构"></a>1. 数据结构</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">dict</span> &#123;</span></span><br><span class="line">    dictType *type;</span><br><span class="line">    <span class="keyword">void</span> *privdata;</span><br><span class="line">    dictht ht[<span class="number">2</span>];</span><br><span class="line">    <span class="keyword">long</span> rehashidx;  <span class="comment">//rehash的index，表示当前需要rehash的索引位置，当为-1时，表示没有进行rehash，或者理解为rehash完成。</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> iterators; <span class="comment">//当前在进行迭代操作的数量</span></span><br><span class="line">&#125; dict;</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>真正存放数据的是dictht，即一个hashtable的实现，之所以为一个数组，是为了扩容用的。</li>
+<li>其中type和privdata是针对不同类型的键值对，为了创建多态字典而设计的。<ul>
+<li>type属性： 指向一个结构体，该结构体里定义一组用于操作类型特定键值对的函数指针；</li>
+<li>privadata属性： 保存了需要传给那些类型特定的可选参数；<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">dictType</span> &#123;</span></span><br><span class="line">    <span class="keyword">uint64_t</span> (*hashFunction)(<span class="keyword">const</span> <span class="keyword">void</span> *key);  <span class="comment">//计算哈希值的函数</span></span><br><span class="line">    <span class="keyword">void</span> *(*keyDup)(<span class="keyword">void</span> *privdata, <span class="keyword">const</span> <span class="keyword">void</span> *key);   <span class="comment">//复制键的函数</span></span><br><span class="line">    <span class="keyword">void</span> *(*valDup)(<span class="keyword">void</span> *privdata, <span class="keyword">const</span> <span class="keyword">void</span> *obj);   <span class="comment">//复制值的函数</span></span><br><span class="line">    <span class="keyword">int</span> (*keyCompare)(<span class="keyword">void</span> *privdata, <span class="keyword">const</span> <span class="keyword">void</span> *key1, <span class="keyword">const</span> <span class="keyword">void</span> *key2);  <span class="comment">//比较键的函数</span></span><br><span class="line">    <span class="keyword">void</span> (*keyDestructor)(<span class="keyword">void</span> *privdata, <span class="keyword">void</span> *key);   <span class="comment">//销毁键的函数</span></span><br><span class="line">    <span class="keyword">void</span> (*valDestructor)(<span class="keyword">void</span> *privdata, <span class="keyword">void</span> *obj);   <span class="comment">//销毁值的函数</span></span><br><span class="line">&#125; dictType;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+</li>
+</ol>
+<h2 id="2-哈希table"><a href="#2-哈希table" class="headerlink" title="2. 哈希table"></a>2. 哈希table</h2><h3 id="2-1-数据结构"><a href="#2-1-数据结构" class="headerlink" title="2.1 数据结构"></a>2.1 数据结构</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">dictht</span> &#123;</span></span><br><span class="line">    dictEntry **table;  <span class="comment">//这里是个一维的数组，但每个数组里保存的是dictEntry*，所以会有两个*</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> size; <span class="comment">//dictEntry的总数量</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> sizemask;  <span class="comment">//size-1的值</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> used; <span class="comment">//记录dictEntry使用的数量</span></span><br><span class="line">&#125; dictht;</span><br></pre></td></tr></table></figure>
+
+<p>每一个数据表示的结构</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">dictEntry</span> &#123;</span></span><br><span class="line">    <span class="keyword">void</span> *key;</span><br><span class="line">    <span class="keyword">union</span> &#123;  <span class="comment">//union结构来表达value值，同时只能有一个变量</span></span><br><span class="line">        <span class="keyword">void</span> *val;</span><br><span class="line">        <span class="keyword">uint64_t</span> u64;</span><br><span class="line">        <span class="keyword">int64_t</span> s64;</span><br><span class="line">        <span class="keyword">double</span> d;</span><br><span class="line">    &#125; v;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">dictEntry</span> *<span class="title">next</span>;</span> <span class="comment">//使用链地址法解决hash冲突，所以有next属性</span></span><br><span class="line">&#125; dictEntry;</span><br></pre></td></tr></table></figure>
+
+<p>问题🤔️：<br>union结构体编译器是如何为它分配内存的呢？</p>
+<h3 id="2-2-rehash"><a href="#2-2-rehash" class="headerlink" title="2.2 rehash"></a>2.2 rehash</h3><p><strong>什么时候会进行rehash?</strong><br>used/size大于或者小于某个值时，此时会进行rehash（扩展或者收缩）</p>
+<p><strong>size会变为多少?</strong></p>
+<ol>
+<li>如果是扩展操作，那么ht[1]的大小为第一个大于等于ht[0].used*2的2^n；</li>
+<li>如果是收缩操作，那么ht[1]的大小为第一个大于等于ht[0].used的2^n；</li>
+</ol>
+<p>加入新的entry</p>
+<p>首先调用_dictKeyIndex方法获取该entry应该放入的位置，如果该key已经存在，那么返回DICT_ERR。<br>在插入的时候采用了头插法，即将新的这个entry放在table对应的位置的首地址。<br>采用头插法的好处：<br>数据的局部性，新插入的数据，近期被访问的概率更大，所以放在前面的地址更高效。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Add an element to the target hash table */</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">dictAdd</span><span class="params">(dict *ht, <span class="keyword">void</span> *key, <span class="keyword">void</span> *val)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> index;</span><br><span class="line">    dictEntry *entry;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> ((index = _dictKeyIndex(ht, key)) == <span class="number">-1</span>)</span><br><span class="line">        <span class="keyword">return</span> DICT_ERR;</span><br><span class="line"></span><br><span class="line">    entry = hi_malloc(<span class="keyword">sizeof</span>(*entry));</span><br><span class="line">    <span class="keyword">if</span> (entry == <span class="literal">NULL</span>)</span><br><span class="line">        <span class="keyword">return</span> DICT_ERR;</span><br><span class="line">    <span class="comment">//采用头插入插入数据</span></span><br><span class="line">    entry-&gt;next = ht-&gt;table[index];</span><br><span class="line">    ht-&gt;table[index] = entry;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//设置entry的key和val值</span></span><br><span class="line">    dictSetHashKey(ht, entry, key);</span><br><span class="line">    dictSetHashVal(ht, entry, val);</span><br><span class="line">    ht-&gt;used++;</span><br><span class="line">    <span class="keyword">return</span> DICT_OK;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在_dictKeyIndex函数中：</p>
+<ol>
+<li><p>如果发现used等于了size了，那么会触发扩容。</p>
+</li>
+<li><p>计算entry应该放置的位置，是根据key计算hash，和sizemask来计算。</p>
+<blockquote>
+<p>因为size是2的n次方，sizemask是size-1,那么sizemask每一位都是1。举个例子，如果size=16,那么sizemask=15,转&gt;化为二进制即是1111,那么用key计算的hash值和sizemask来求与，保证每一位都参与计算。</p>
+</blockquote>
+</li>
+</ol>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">int</span> _dictKeyIndex(dict *ht, <span class="keyword">const</span> <span class="keyword">void</span> *key) &#123;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> h;</span><br><span class="line">    dictEntry *he;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//判断是否需要扩容</span></span><br><span class="line">    <span class="keyword">if</span> (_dictExpandIfNeeded(ht) == DICT_ERR)</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    <span class="comment">//计算该key应该放置的位置</span></span><br><span class="line">    h = dictHashKey(ht, key) &amp; ht-&gt;sizemask;</span><br><span class="line">    <span class="comment">// 因为是链地址法，如果需要一直往下找，判断是否有相同的key</span></span><br><span class="line">    he = ht-&gt;table[h];</span><br><span class="line">    <span class="keyword">while</span>(he) &#123;</span><br><span class="line">        <span class="keyword">if</span> (dictCompareHashKeys(ht, key, he-&gt;key))</span><br><span class="line">            <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">        he = he-&gt;next;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> h;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>判断是否需要扩容： 如果used等于了size了则触发扩容，所以可以看出默认的负载因子就是1.<br>dictExpand并不是做真正的rehash，它只会扩大内存，真正的rehash是在访问时，才进行的，这叫做渐进式rehash。<br>那么其他操作是如何知道当前如果rehash呢？rehashidx不是-1时，就应该进行rehash。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">int</span> _dictExpandIfNeeded(dict *ht) &#123;</span><br><span class="line">    <span class="comment">/* If the hash table is empty expand it to the initial size,</span></span><br><span class="line"><span class="comment">     * if the table is "full" double its size. */</span></span><br><span class="line">    <span class="keyword">if</span> (ht-&gt;size == <span class="number">0</span>)</span><br><span class="line">        <span class="keyword">return</span> dictExpand(ht, DICT_HT_INITIAL_SIZE);</span><br><span class="line">    <span class="keyword">if</span> (ht-&gt;used == ht-&gt;size) </span><br><span class="line">        <span class="keyword">return</span> dictExpand(ht, ht-&gt;size*<span class="number">2</span>);</span><br><span class="line">    <span class="keyword">return</span> DICT_OK;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>因为在rehash时，该线程就无法做其他操作，所以每次rehash是有限制的，如果遇到非空的slot,那么将这个slot进行rehash，如果遇到连续的空slot,最多访问10个空slot就会返回。<br>在最后如果发现原谅的dict已经全部被rehash了，那么释放掉原谅ht[0]的空间，执行d-&gt;ht[0] = d-&gt;ht[1]。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">dictRehash</span><span class="params">(dict *d, <span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> empty_visits = n*<span class="number">10</span>; <span class="comment">/* Max number of empty buckets to visit. */</span></span><br><span class="line">    <span class="keyword">if</span> (!dictIsRehashing(d)) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(n-- &amp;&amp; d-&gt;ht[<span class="number">0</span>].used != <span class="number">0</span>) &#123;</span><br><span class="line">        dictEntry *de, *nextde;</span><br><span class="line"></span><br><span class="line">        <span class="comment">/* Note that rehashidx can't overflow as we are sure there are more</span></span><br><span class="line"><span class="comment">         * elements because ht[0].used != 0 */</span></span><br><span class="line">        assert(d-&gt;ht[<span class="number">0</span>].size &gt; (<span class="keyword">unsigned</span> <span class="keyword">long</span>)d-&gt;rehashidx);</span><br><span class="line">        <span class="keyword">while</span>(d-&gt;ht[<span class="number">0</span>].table[d-&gt;rehashidx] == <span class="literal">NULL</span>) &#123;</span><br><span class="line">            d-&gt;rehashidx++;</span><br><span class="line">            <span class="keyword">if</span> (--empty_visits == <span class="number">0</span>) <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        de = d-&gt;ht[<span class="number">0</span>].table[d-&gt;rehashidx];</span><br><span class="line">        <span class="comment">/* Move all the keys in this bucket from the old to the new hash HT */</span></span><br><span class="line">        <span class="keyword">while</span>(de) &#123;</span><br><span class="line">            <span class="keyword">uint64_t</span> h;</span><br><span class="line"></span><br><span class="line">            nextde = de-&gt;next;</span><br><span class="line">            <span class="comment">/* Get the index in the new hash table */</span></span><br><span class="line">            h = dictHashKey(d, de-&gt;key) &amp; d-&gt;ht[<span class="number">1</span>].sizemask;</span><br><span class="line">            de-&gt;next = d-&gt;ht[<span class="number">1</span>].table[h];</span><br><span class="line">            d-&gt;ht[<span class="number">1</span>].table[h] = de;</span><br><span class="line">            d-&gt;ht[<span class="number">0</span>].used--;</span><br><span class="line">            d-&gt;ht[<span class="number">1</span>].used++;</span><br><span class="line">            de = nextde;</span><br><span class="line">        &#125;</span><br><span class="line">        d-&gt;ht[<span class="number">0</span>].table[d-&gt;rehashidx] = <span class="literal">NULL</span>;</span><br><span class="line">        d-&gt;rehashidx++;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Check if we already rehashed the whole table... */</span></span><br><span class="line">    <span class="keyword">if</span> (d-&gt;ht[<span class="number">0</span>].used == <span class="number">0</span>) &#123;</span><br><span class="line">        zfree(d-&gt;ht[<span class="number">0</span>].table);</span><br><span class="line">        d-&gt;ht[<span class="number">0</span>] = d-&gt;ht[<span class="number">1</span>];</span><br><span class="line">        _dictReset(&amp;d-&gt;ht[<span class="number">1</span>]);</span><br><span class="line">        d-&gt;rehashidx = <span class="number">-1</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* More to rehash... */</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="跳表"><a href="#跳表" class="headerlink" title="跳表"></a>跳表</h1><p>span用来记录当前节点到该层级的下一个节点的距离，这样可以方便计算某一个节点在有序链表中的排名。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* ZSETs use a specialized version of Skiplists */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">zskiplistNode</span> &#123;</span></span><br><span class="line">    sds ele;</span><br><span class="line">    <span class="keyword">double</span> score;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">zskiplistNode</span> *<span class="title">backward</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">zskiplistLevel</span> &#123;</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">zskiplistNode</span> *<span class="title">forward</span>;</span></span><br><span class="line">        <span class="keyword">unsigned</span> <span class="keyword">long</span> span;</span><br><span class="line">    &#125; level[];</span><br><span class="line">&#125; zskiplistNode;</span><br></pre></td></tr></table></figure>
+
+<h1 id="HyperLogLog"><a href="#HyperLogLog" class="headerlink" title="HyperLogLog"></a>HyperLogLog</h1><p>HyperLogLog是redis中用来做基数统计的。</p>
+<h2 id="什么是基数"><a href="#什么是基数" class="headerlink" title="什么是基数"></a>什么是基数</h2><p>即一组元素中不重复的所有元素，比如一组元素{1,2,2,3,4,5,5,5,6,7,7},不重复的数为{1,2,3,4,5,6,7},所以基数为7。</p>
+<h2 id="hyperLog用法"><a href="#hyperLog用法" class="headerlink" title="hyperLog用法"></a>hyperLog用法</h2><ul>
+<li>PFADD key element [element …] 添加指定元素到 HyperLogLog 中。</li>
+<li>PFCOUNT key [key …] 返回给定 HyperLogLog 的基数估算值。</li>
+<li>PFMERGE destkey sourcekey [sourcekey …] 将多个 HyperLogLog 合并为一个 HyperLogLog</li>
+</ul>
+<h2 id="hyperLog原理"><a href="#hyperLog原理" class="headerlink" title="hyperLog原理"></a>hyperLog原理</h2><h2 id="redis中HyperLog实现原理"><a href="#redis中HyperLog实现原理" class="headerlink" title="redis中HyperLog实现原理"></a>redis中HyperLog实现原理</h2><p>将值通过hash后得到64位的值，用前14位来计算桶位，2的14次方是16384，所以需要16384个桶位。剩下的50位的第一个1出现的位置，需要装入桶中，最大的值就是50，需要用6个bit来表示。理论上需要的内存大小16384*6=12k。</p>
+<h2 id="编码方式"><a href="#编码方式" class="headerlink" title="编码方式"></a>编码方式</h2><p>这里编码方式其实就是指redis中如何去实现上面讲到的16384*6。<br>redis中针对hyperLogLog有两种编码方式：稠密编码和稀疏编码</p>
+<ol>
+<li>稠密编码<br>稠密编码很容易理解：每6bit表达一个桶位即可。</li>
+<li>稀疏编码<br>虽然12k大小已经很小了，但redis对内存的优化是非常严格的。稀疏编码有3种表达：</li>
+</ol>
+<ul>
+<li>ZERO: 00xxxxxx, 占用一个byte，前2位的0表示ZERO表达，后面6位表示连续的0的桶位的个数</li>
+<li>XZERO: 01xxxxxx xxxxxxxx,占用两个byte,这个可以理解位ZERO的增强版，因为上面一共只有6位来表达，最大能表达64。XZERO用14位来表达,可最大表达16384</li>
+<li>VAL: 1vvvvvxx,占用一个byte，中间的5位来表示具体的值，后面的2位来表示前面的值出现的次数，所以可以表达的最大的数为32，重复次数1-4.</li>
+</ul>
+<p>从上面可以看出，稀疏编码最大能表达的数是32，所以当有值超过32时，就不得不转为稠密编码。</p>
+<p>稀疏编码的例子：假如在桶位为1001，1002，1010的值分别为2，2，3，其余桶位均为0，那么稀疏编码表达如下：<br>1001，1002，1010的二进制分别为，11 1110 1001，11 1111 0010</p>
+<pre><code>XZERO: 0100 0011 1110 1000 表示0-1000都为0
+VAL: 1 00010 02 表示1001，1002连续出现两个2
+ZERO: 0000 0111 表示1003-1009连续7个0
+VAL: 1 00011 01 表示1010是3
+XZERO: 0111 1100 0000 1110 表示从1011到16384都为0</code></pre><p>这里一共用了2+1+1+1+2=7个字节，相较于稠密编码用到了12k节约了很大的内存。</p>
+<p>问题：<br>在执行padd时，数据可能会发生变化，稀疏编码岂不是是改动很大？ </p>
+<h2 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h2><h3 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">hllhdr</span> &#123;</span></span><br><span class="line">    <span class="keyword">char</span> magic[<span class="number">4</span>];      <span class="comment">/* "HYLL" */</span></span><br><span class="line">    <span class="keyword">uint8_t</span> encoding;   <span class="comment">/* HLL_DENSE or HLL_SPARSE. 表达稠密编码或稀疏编码 */</span></span><br><span class="line">    <span class="keyword">uint8_t</span> notused[<span class="number">3</span>]; <span class="comment">/* Reserved for future use, must be zero. 未使用的位 */</span></span><br><span class="line">    <span class="keyword">uint8_t</span> card[<span class="number">8</span>];    <span class="comment">/* Cached cardinality, little endian. 缓存的基数*/</span></span><br><span class="line">    <span class="keyword">uint8_t</span> registers[]; <span class="comment">/* Data bytes. 上面讲到的桶位*/</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>创建redis的HLLObject。刚创建是稀疏编码，由于刚创建值都为0，所以需要足够的XZERO来表达。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">robj *<span class="title">createHLLObject</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</span><br><span class="line">    robj *o;                                  </span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">hllhdr</span> *<span class="title">hdr</span>;</span></span><br><span class="line">    sds s;</span><br><span class="line">    <span class="keyword">uint8_t</span> *p;</span><br><span class="line">    <span class="keyword">int</span> sparselen = HLL_HDR_SIZE +</span><br><span class="line">                    (((HLL_REGISTERS+(HLL_SPARSE_XZERO_MAX_LEN<span class="number">-1</span>)) /</span><br><span class="line">                     HLL_SPARSE_XZERO_MAX_LEN)*<span class="number">2</span>);</span><br><span class="line">    <span class="keyword">int</span> aux;</span><br><span class="line">    </span><br><span class="line">    aux = HLL_REGISTERS;  <span class="comment">//最开始需要表达16384个连续的0</span></span><br><span class="line">    s = sdsnewlen(<span class="literal">NULL</span>,sparselen);</span><br><span class="line">    p = (<span class="keyword">uint8_t</span>*)s + HLL_HDR_SIZE;</span><br><span class="line">    <span class="keyword">while</span>(aux) &#123;</span><br><span class="line">        <span class="keyword">int</span> xzero = HLL_SPARSE_XZERO_MAX_LEN; <span class="comment">//这个长度就是16384</span></span><br><span class="line">        <span class="keyword">if</span> (xzero &gt; aux) xzero = aux;</span><br><span class="line">        HLL_SPARSE_XZERO_SET(p,xzero); <span class="comment">//设置连续0的个数 </span></span><br><span class="line">        p += <span class="number">2</span>; <span class="comment">//因为XZERO是2个字节</span></span><br><span class="line">        aux -= xzero; </span><br><span class="line">    &#125;</span><br><span class="line">    serverAssert((p-(<span class="keyword">uint8_t</span>*)s) == sparselen);</span><br><span class="line"></span><br><span class="line">    o = createObject(OBJ_STRING,s);</span><br><span class="line">    hdr = o-&gt;ptr;</span><br><span class="line">    <span class="built_in">memcpy</span>(hdr-&gt;magic,<span class="string">"HYLL"</span>,<span class="number">4</span>); </span><br><span class="line">    hdr-&gt;encoding = HLL_SPARSE; <span class="comment">//默认为稀疏编码</span></span><br><span class="line">    <span class="keyword">return</span> o;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Add操作"><a href="#Add操作" class="headerlink" title="Add操作"></a>Add操作</h2><p>根据编码的不同，选择不同的函数处理。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">hllAdd</span><span class="params">(robj *o, <span class="keyword">unsigned</span> <span class="keyword">char</span> *ele, <span class="keyword">size_t</span> elesize)</span> </span>&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">hllhdr</span> *<span class="title">hdr</span> = <span class="title">o</span>-&gt;<span class="title">ptr</span>;</span></span><br><span class="line">    <span class="keyword">switch</span>(hdr-&gt;encoding) &#123;</span><br><span class="line">    <span class="keyword">case</span> HLL_DENSE: <span class="keyword">return</span> hllDenseAdd(hdr-&gt;registers,ele,elesize);</span><br><span class="line">    <span class="keyword">case</span> HLL_SPARSE: <span class="keyword">return</span> hllSparseAdd(o,ele,elesize);</span><br><span class="line">    <span class="keyword">default</span>: <span class="keyword">return</span> <span class="number">-1</span>; <span class="comment">/* Invalid representation. */</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>先看稠密编码的情况：</p>
+<p>regp最后是桶位的索引位置，返回的第一次出现1的位置。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">hllPatLen</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">char</span> *ele, <span class="keyword">size_t</span> elesize, <span class="keyword">long</span> *regp)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">uint64_t</span> hash, bit, index;</span><br><span class="line">    <span class="keyword">int</span> count;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    hash = MurmurHash64A(ele,elesize,<span class="number">0xadc83b19</span>ULL);</span><br><span class="line">    index = hash &amp; HLL_P_MASK; <span class="comment">/* Register index. HLL_P_MASK 其实就是:111 1111 11111  */</span></span><br><span class="line">    hash &gt;&gt;= HLL_P; <span class="comment">/* hash左移14位，剩余的50位用来求职 */</span></span><br><span class="line">    hash |= ((<span class="keyword">uint64_t</span>)<span class="number">1</span>&lt;&lt;HLL_Q); <span class="comment">// 避免hash都为0的情况，下面的循环无法退出</span></span><br><span class="line">    bit = <span class="number">1</span>;</span><br><span class="line">    count = <span class="number">1</span>; <span class="comment">/* Initialized to 1 since we count the "00000...1" pattern. */</span></span><br><span class="line">    <span class="keyword">while</span>((hash &amp; bit) == <span class="number">0</span>) &#123;</span><br><span class="line">        count++;</span><br><span class="line">        bit &lt;&lt;= <span class="number">1</span>; <span class="comment">//计算第一次出现1的位置</span></span><br><span class="line">    &#125;</span><br><span class="line">    *regp = (<span class="keyword">int</span>) index; <span class="comment">//桶位的位置</span></span><br><span class="line">    <span class="keyword">return</span> count;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>首先获取到对应桶位中对应的oldcount，只有这个oldcount值小于当前的count值，则更新为当前值</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">hllDenseSet</span><span class="params">(<span class="keyword">uint8_t</span> *registers, <span class="keyword">long</span> index, <span class="keyword">uint8_t</span> count)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">uint8_t</span> oldcount;</span><br><span class="line"></span><br><span class="line">    HLL_DENSE_GET_REGISTER(oldcount,registers,index);</span><br><span class="line">    <span class="keyword">if</span> (count &gt; oldcount) &#123;</span><br><span class="line">        HLL_DENSE_SET_REGISTER(registers,index,count);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+    </div>
+
+    
+    
+    
+        
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/redis/" rel="tag"># redis</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2020/10/02/源码阅读系列/redis源码阅读（二）-内存编码数据结构/" rel="prev" title="redis源码阅读(二) - 内存编码数据结构">
+                  redis源码阅读(二) - 内存编码数据结构 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#动态字符串-sds-h-和-sds-c"><span class="nav-number">1.</span> <span class="nav-text">动态字符串(sds.h 和 sds.c)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-数据定义"><span class="nav-number">1.1.</span> <span class="nav-text">1. 数据定义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-提供的操作api"><span class="nav-number">1.2.</span> <span class="nav-text">2. 提供的操作api</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-具体的实现"><span class="nav-number">1.3.</span> <span class="nav-text">3. 具体的实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#sds-sdscat-sds-s-const-char-t-函数"><span class="nav-number">1.3.1.</span> <span class="nav-text">sds sdscat(sds s, const char *t)函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#sdslen-const-sds-s-函数"><span class="nav-number">1.3.2.</span> <span class="nav-text">sdslen(const sds s)函数</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#双向链表实现（adlist-h-和-adlist-c）"><span class="nav-number">2.</span> <span class="nav-text">双向链表实现（adlist.h 和 adlist.c）</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-数据结构"><span class="nav-number">2.1.</span> <span class="nav-text">1. 数据结构</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#字典（dict-h-和-dict-c）"><span class="nav-number">3.</span> <span class="nav-text">字典（dict.h 和 dict.c）</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-数据结构-1"><span class="nav-number">3.1.</span> <span class="nav-text">1. 数据结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-哈希table"><span class="nav-number">3.2.</span> <span class="nav-text">2. 哈希table</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-数据结构"><span class="nav-number">3.2.1.</span> <span class="nav-text">2.1 数据结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-rehash"><span class="nav-number">3.2.2.</span> <span class="nav-text">2.2 rehash</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#跳表"><span class="nav-number">4.</span> <span class="nav-text">跳表</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#HyperLogLog"><span class="nav-number">5.</span> <span class="nav-text">HyperLogLog</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#什么是基数"><span class="nav-number">5.1.</span> <span class="nav-text">什么是基数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#hyperLog用法"><span class="nav-number">5.2.</span> <span class="nav-text">hyperLog用法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#hyperLog原理"><span class="nav-number">5.3.</span> <span class="nav-text">hyperLog原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#redis中HyperLog实现原理"><span class="nav-number">5.4.</span> <span class="nav-text">redis中HyperLog实现原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#编码方式"><span class="nav-number">5.5.</span> <span class="nav-text">编码方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#代码实现"><span class="nav-number">5.6.</span> <span class="nav-text">代码实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#数据结构"><span class="nav-number">5.6.1.</span> <span class="nav-text">数据结构</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Add操作"><span class="nav-number">5.7.</span> <span class="nav-text">Add操作</span></a></li></ol></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">阿娟</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">9</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">categories</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">tags</span>
+        </a>
+      </div>
+    
+  </nav>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">阿娟</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.9.0</div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.4.0</div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+
+
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.0"></script><script src="/js/motion.js?v=7.4.0"></script>
+<script src="/js/schemes/pisces.js?v=7.4.0"></script>
+<script src="/js/next-boot.js?v=7.4.0"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.4.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: 'Copy',
+      copy_success: 'Copied',
+      copy_failure: 'Copy failed'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="HyperLogLog是redis中用来做基数统计的。  什么是基数? 即一组元素中不重复的所有元素，比如一组元素{1,2,2,3,4,5,5,5,6,7,7},不重复的数为{1,2,3,4,5,6,7},所以基数为7。  hyperLog用法 PFADD key element [element …] 添加指定元素到 HyperLogLog 中。 PFCOUNT key [key …] 返回给定">
+<meta name="keywords" content="redis">
+<meta property="og:type" content="article">
+<meta property="og:title" content="redis源码阅读-HyperLogLog">
+<meta property="og:url" content="https://yuajuan.github.io/2020/10/10/源码阅读系列/redis源码阅读-HyperLogLog/index.html">
+<meta property="og:site_name" content="发现问题并解决问题">
+<meta property="og:description" content="HyperLogLog是redis中用来做基数统计的。  什么是基数? 即一组元素中不重复的所有元素，比如一组元素{1,2,2,3,4,5,5,5,6,7,7},不重复的数为{1,2,3,4,5,6,7},所以基数为7。  hyperLog用法 PFADD key element [element …] 添加指定元素到 HyperLogLog 中。 PFCOUNT key [key …] 返回给定">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https://yuajuan.github.io/.io//dv.jpg">
+<meta property="og:updated_time" content="2020-10-12T07:24:05.326Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="redis源码阅读-HyperLogLog">
+<meta name="twitter:description" content="HyperLogLog是redis中用来做基数统计的。  什么是基数? 即一组元素中不重复的所有元素，比如一组元素{1,2,2,3,4,5,5,5,6,7,7},不重复的数为{1,2,3,4,5,6,7},所以基数为7。  hyperLog用法 PFADD key element [element …] 添加指定元素到 HyperLogLog 中。 PFCOUNT key [key …] 返回给定">
+<meta name="twitter:image" content="https://yuajuan.github.io/.io//dv.jpg">
+  <link rel="canonical" href="https://yuajuan.github.io/2020/10/10/源码阅读系列/redis源码阅读-HyperLogLog/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>redis源码阅读-HyperLogLog | 发现问题并解决问题</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">发现问题并解决问题</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">心之所向，不慌不忙</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-about">
+      
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>About</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>Tags</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>Categories</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-commonweal">
+      
+    
+
+    <a href="/404/" rel="section"><i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br>Commonweal 404</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block post">
+    <link itemprop="mainEntityOfPage" href="https://yuajuan.github.io/2020/10/10/源码阅读系列/redis源码阅读-HyperLogLog/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="阿娟">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="发现问题并解决问题">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">redis源码阅读-HyperLogLog
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              
+                
+              
+
+              <time title="Created: 2020-10-10 17:29:59" itemprop="dateCreated datePublished" datetime="2020-10-10T17:29:59+08:00">2020-10-10</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-10-12 15:24:05" itemprop="dateModified" datetime="2020-10-12T15:24:05+08:00">2020-10-12</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/源码阅读系列/" itemprop="url" rel="index"><span itemprop="name">源码阅读系列</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>HyperLogLog是redis中用来做基数统计的。</p>
+<blockquote>
+<p><strong>什么是基数?</strong></p>
+<p>即一组元素中不重复的所有元素，比如一组元素{1,2,2,3,4,5,5,5,6,7,7},不重复的数为{1,2,3,4,5,6,7},所以基数为7。</p>
+</blockquote>
+<h1 id="hyperLog用法"><a href="#hyperLog用法" class="headerlink" title="hyperLog用法"></a>hyperLog用法</h1><ul>
+<li>PFADD key element [element …] 添加指定元素到 HyperLogLog 中。</li>
+<li>PFCOUNT key [key …] 返回给定 HyperLogLog 的基数估算值。</li>
+<li>PFMERGE destkey sourcekey [sourcekey …] 将多个 HyperLogLog 合并为一个 HyperLogLog</li>
+</ul>
+<a id="more"></a>
+<h1 id="hyperLog原理"><a href="#hyperLog原理" class="headerlink" title="hyperLog原理"></a>hyperLog原理</h1><p>hyperLog其实是基于伯努利实验提出的，怎么来理解伯努利实验，这里举个简单的例子：</p>
+<blockquote>
+<p>假如你扔了很多次硬币，然后告诉我连续出现反面的最大次数为2，让我猜你一共扔了多少次实验？<br>用1代表正面，0代表反面<br>序列如下： 1110100110，那么出现我连续出现反面的最大次数为2的概率为1/2<em>1/2</em>1/2=1/8，所以我猜测总共抛了8次。</p>
+</blockquote>
+<p><strong>那如何把这种思想应用到基数统计呢？</strong></p>
+<p>通过把值进行hash，得到固定长度的结果，然后将这个结果表示为二进制形式，每次新添加一个值，相当于抛了一次硬币。记录这个抛硬币序列的某种信息，我理解这里可以有多种信息表达，然后根据上面的伯努利实验来估计总共有多少个不同的数加入（由于相同的值不会改变原来的信息，所以这样就可以估计出加入的不同的值）。</p>
+<p>但是上面这样的估计是不准确的？<br>假设我们用第一个出现1的位置来表达信息，那么两个不同的值完全可能出现第一次出现1的位置是相同的，所以这样就会导致出现冲突。<br>怎么解决这样的冲突呢？<br>分桶。说白了，就是把数据分成m份，减少这种冲突，每份分别计算结果，然后将求的值求调和平均即可。</p>
+<p><img src="/.io//dv.jpg" alt="avatar"></p>
+<h2 id="redis中HyperLog实现原理"><a href="#redis中HyperLog实现原理" class="headerlink" title="redis中HyperLog实现原理"></a>redis中HyperLog实现原理</h2><p>将值通过hash后得到64位的值，用前14位来计算桶位，2的14次方是16384，所以需要16384个桶位。剩下的50位的第一个1出现的位置这个信息，需要装入桶中，最大的值就是50，需要用6个bit来表示。理论上需要的内存大小16384*6=12k。</p>
+<h1 id="redis中的编码方式"><a href="#redis中的编码方式" class="headerlink" title="redis中的编码方式"></a>redis中的编码方式</h1><p>这里编码方式其实就是指redis中如何去存储上面讲到的16384*6。<br>redis中针对hyperLogLog有两种编码方式：稠密编码和稀疏编码</p>
+<ol>
+<li>稠密编码<br>稠密编码很容易理解：每6bit表达一个桶位即可。</li>
+<li>稀疏编码<br>虽然12k大小已经很小了，但redis对内存的优化是非常严格的。稀疏编码有3种表达：</li>
+</ol>
+<ul>
+<li>ZERO: 00xxxxxx, 占用一个byte，前2位的0表示ZERO表达，后面6位表示连续的0的桶位的个数</li>
+<li>XZERO: 01xxxxxx xxxxxxxx,占用两个byte,这个可以理解位ZERO的增强版，因为上面一共只有6位来表达，最大能表达64。XZERO用14位来表达,可最大表达16384</li>
+<li>VAL: 1vvvvvxx,占用一个byte，中间的5位来表示具体的值，后面的2位来表示前面的值出现的次数，所以可以表达的最大的数为32，重复次数1-4.</li>
+</ul>
+<p>从上面可以看出，稀疏编码最大能表达的数是32，所以当有值超过32时，就不得不转为稠密编码。</p>
+<blockquote>
+<p>这里需要注意一下。计数是从0开始的，即0表示1，用1vvvvvxx来比喻，10000300表示的是4重复1次。<br>稀疏编码的例子：假如在桶位为1001，1002，1010的值分别为2，2，3，其余桶位均为0，那么稀疏编码表达如下：<br>1001，1002，1010的二进制分别为，11 1110 1001，11 1111 0010</p>
+</blockquote>
+<pre><code>XZERO: 0100 0011 1110 1000 表示0-1000都为0
+VAL: 1 00010 02 表示1001，1002连续出现两个2
+ZERO: 0000 0111 表示1003-1009连续7个0
+VAL: 1 00011 01 表示1010是3
+XZERO: 0111 1100 0000 1110 表示从1011到16384都为0</code></pre><p><strong>这里需要改为从0开始的计数</strong></p>
+<p>这里一共用了2+1+1+1+2=7个字节，相较于稠密编码用到了12k节约了很大的内存。</p>
+<h1 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h1><h2 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">hllhdr</span> &#123;</span></span><br><span class="line">    <span class="keyword">char</span> magic[<span class="number">4</span>];      <span class="comment">/* "HYLL" */</span></span><br><span class="line">    <span class="keyword">uint8_t</span> encoding;   <span class="comment">/* HLL_DENSE or HLL_SPARSE. 表达稠密编码或稀疏编码 */</span></span><br><span class="line">    <span class="keyword">uint8_t</span> notused[<span class="number">3</span>]; <span class="comment">/* Reserved for future use, must be zero. 未使用的位 */</span></span><br><span class="line">    <span class="keyword">uint8_t</span> card[<span class="number">8</span>];    <span class="comment">/* Cached cardinality, little endian. 缓存的基数*/</span></span><br><span class="line">    <span class="keyword">uint8_t</span> registers[]; <span class="comment">/* Data bytes. 上面讲到的桶位*/</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>创建redis的HLLObject。刚创建是稀疏编码，由于刚创建值都为0，所以需要足够的XZERO来表达。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">robj *<span class="title">createHLLObject</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</span><br><span class="line">    robj *o;                                  </span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">hllhdr</span> *<span class="title">hdr</span>;</span></span><br><span class="line">    sds s;</span><br><span class="line">    <span class="keyword">uint8_t</span> *p;</span><br><span class="line">    <span class="keyword">int</span> sparselen = HLL_HDR_SIZE +</span><br><span class="line">                    (((HLL_REGISTERS+(HLL_SPARSE_XZERO_MAX_LEN<span class="number">-1</span>)) /</span><br><span class="line">                     HLL_SPARSE_XZERO_MAX_LEN)*<span class="number">2</span>);</span><br><span class="line">    <span class="keyword">int</span> aux;</span><br><span class="line">    </span><br><span class="line">    aux = HLL_REGISTERS;  <span class="comment">//最开始需要表达16384个连续的0</span></span><br><span class="line">    s = sdsnewlen(<span class="literal">NULL</span>,sparselen);</span><br><span class="line">    p = (<span class="keyword">uint8_t</span>*)s + HLL_HDR_SIZE;</span><br><span class="line">    <span class="keyword">while</span>(aux) &#123;</span><br><span class="line">        <span class="keyword">int</span> xzero = HLL_SPARSE_XZERO_MAX_LEN; <span class="comment">//这个长度就是16384</span></span><br><span class="line">        <span class="keyword">if</span> (xzero &gt; aux) xzero = aux;</span><br><span class="line">        HLL_SPARSE_XZERO_SET(p,xzero); <span class="comment">//设置连续0的个数 </span></span><br><span class="line">        p += <span class="number">2</span>; <span class="comment">//因为XZERO是2个字节</span></span><br><span class="line">        aux -= xzero; </span><br><span class="line">    &#125;</span><br><span class="line">    serverAssert((p-(<span class="keyword">uint8_t</span>*)s) == sparselen);</span><br><span class="line"></span><br><span class="line">    o = createObject(OBJ_STRING,s);</span><br><span class="line">    hdr = o-&gt;ptr;</span><br><span class="line">    <span class="built_in">memcpy</span>(hdr-&gt;magic,<span class="string">"HYLL"</span>,<span class="number">4</span>); </span><br><span class="line">    hdr-&gt;encoding = HLL_SPARSE; <span class="comment">//默认为稀疏编码</span></span><br><span class="line">    <span class="keyword">return</span> o;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Add操作"><a href="#Add操作" class="headerlink" title="Add操作"></a>Add操作</h2><h3 id="宏定义"><a href="#宏定义" class="headerlink" title="宏定义"></a>宏定义</h3><p>先了解一些重要的宏定义，后面的代码会多次使用到.</p>
+<ol>
+<li>计算重复的次数</li>
+</ol>
+<p>为什么要加上1呢?因为前面讲过了计数是从0开始的，0表示1，所以这里算长度需要加1.</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> HLL_SPARSE_ZERO_LEN(p) (((*(p)) &amp; 0x3f)+1) <span class="comment">//0x3f 111111</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> HLL_SPARSE_VAL_LEN(p) (((*(p)) &amp; 0x3)+1) <span class="comment">// p指向的值&amp;2进值的11，因为VAL的最后两位来表达重复</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> HLL_SPARSE_XZERO_LEN(p) (((((*(p)) &amp; 0x3f) &lt;&lt; 8) | (*((p)+1)))+1) <span class="comment">// p这个位置的后7位加上p后面一个位置的8位</span></span></span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>设置具体的值</li>
+</ol>
+<p><strong>为什么这里需要定义位do…while(0)呢？</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> HLL_SPARSE_VAL_SET(p,val,len) do &#123; \</span></span><br><span class="line">    *(p) = (((val)<span class="number">-1</span>)&lt;&lt;<span class="number">2</span>|((len)<span class="number">-1</span>))|HLL_SPARSE_VAL_BIT; \</span><br><span class="line">&#125; <span class="keyword">while</span>(<span class="number">0</span>) <span class="comment">//while(0)的写法是什么意思呢？？</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> HLL_SPARSE_ZERO_SET(p,len) do &#123; \</span></span><br><span class="line">    *(p) = (len)<span class="number">-1</span>; \</span><br><span class="line">&#125; <span class="keyword">while</span>(<span class="number">0</span>)</span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> HLL_SPARSE_XZERO_SET(p,len) do &#123; \</span></span><br><span class="line">    <span class="keyword">int</span> _l = (len)<span class="number">-1</span>; \</span><br><span class="line">    *(p) = (_l&gt;&gt;<span class="number">8</span>) | HLL_SPARSE_XZERO_BIT; \</span><br><span class="line">    *((p)+<span class="number">1</span>) = (_l&amp;<span class="number">0xff</span>); \</span><br><span class="line">&#125; <span class="keyword">while</span>(<span class="number">0</span>)</span><br></pre></td></tr></table></figure>
+
+<p>根据编码的不同，选择不同的函数处理。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">hllAdd</span><span class="params">(robj *o, <span class="keyword">unsigned</span> <span class="keyword">char</span> *ele, <span class="keyword">size_t</span> elesize)</span> </span>&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">hllhdr</span> *<span class="title">hdr</span> = <span class="title">o</span>-&gt;<span class="title">ptr</span>;</span></span><br><span class="line">    <span class="keyword">switch</span>(hdr-&gt;encoding) &#123;</span><br><span class="line">    <span class="keyword">case</span> HLL_DENSE: <span class="keyword">return</span> hllDenseAdd(hdr-&gt;registers,ele,elesize);</span><br><span class="line">    <span class="keyword">case</span> HLL_SPARSE: <span class="keyword">return</span> hllSparseAdd(o,ele,elesize);</span><br><span class="line">    <span class="keyword">default</span>: <span class="keyword">return</span> <span class="number">-1</span>; <span class="comment">/* Invalid representation. */</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>两个函数都会调用到下面的函数：<br>regp最后是桶位的索引位置，返回的第一次出现1的位置。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">hllPatLen</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">char</span> *ele, <span class="keyword">size_t</span> elesize, <span class="keyword">long</span> *regp)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">uint64_t</span> hash, bit, index;</span><br><span class="line">    <span class="keyword">int</span> count;</span><br><span class="line">    hash = MurmurHash64A(ele,elesize,<span class="number">0xadc83b19</span>ULL);</span><br><span class="line">    index = hash &amp; HLL_P_MASK; <span class="comment">/* Register index. HLL_P_MASK 其实就是:111 1111 11111  */</span></span><br><span class="line">    hash &gt;&gt;= HLL_P; <span class="comment">/* hash左移14位，剩余的50位用来求职 */</span></span><br><span class="line">    hash |= ((<span class="keyword">uint64_t</span>)<span class="number">1</span>&lt;&lt;HLL_Q); <span class="comment">// 避免hash都为0的情况，下面的循环无法退出</span></span><br><span class="line">    bit = <span class="number">1</span>;</span><br><span class="line">    count = <span class="number">1</span>; <span class="comment">/* Initialized to 1 since we count the "00000...1" pattern. */</span></span><br><span class="line">    <span class="keyword">while</span>((hash &amp; bit) == <span class="number">0</span>) &#123;</span><br><span class="line">        count++;</span><br><span class="line">        bit &lt;&lt;= <span class="number">1</span>; <span class="comment">//计算第一次出现1的位置</span></span><br><span class="line">    &#125;</span><br><span class="line">    *regp = (<span class="keyword">int</span>) index; <span class="comment">//桶位的位置</span></span><br><span class="line">    <span class="keyword">return</span> count;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>先看稠密编码的情况：</p>
+<p>首先获取到对应桶位中对应的oldcount，只有这个oldcount值小于当前的count值，则更新为当前值</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">hllDenseSet</span><span class="params">(<span class="keyword">uint8_t</span> *registers, <span class="keyword">long</span> index, <span class="keyword">uint8_t</span> count)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">uint8_t</span> oldcount;</span><br><span class="line"></span><br><span class="line">    HLL_DENSE_GET_REGISTER(oldcount,registers,index);</span><br><span class="line">    <span class="keyword">if</span> (count &gt; oldcount) &#123;</span><br><span class="line">        HLL_DENSE_SET_REGISTER(registers,index,count);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>稀疏编码的情况会被稠密编码的情况复杂得多。<br>因为某个值改变，可能会改变原来的编码，就需要重新编码，甚至所占用的内存大小也会改变。如果count值大于了32，还需要转化为dense编码。<br>下面的代码可以简单理解为以下几步（具体见代码注释）：</p>
+<ol>
+<li>判断count值是否大于32,如果是直接转为dense编码；</li>
+<li>找到桶位index所处的opcode的内存位置；</li>
+<li>如果该opcode的中表达重复次数的值为1，意味着当前opcode只表示了当前一个桶位，分两种情况：<ul>
+<li>如果是ZERO和VAL的情况，可以直接设置值</li>
+<li>如果是XZERO，因为占用两个字节，不能直接表达VAL(VAL只需要一个字节)，所以按照后面的步骤处理</li>
+</ul>
+</li>
+<li>不是3种的第一种情况，就需要重新分配来把之前的opcode进行分裂。分3段来设置值:[first,index）之间的值，index的值，(index,last]的值。</li>
+</ol>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">hllSparseSet</span><span class="params">(robj *o, <span class="keyword">long</span> index, <span class="keyword">uint8_t</span> count)</span> </span>&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">hllhdr</span> *<span class="title">hdr</span>;</span></span><br><span class="line">    <span class="keyword">uint8_t</span> oldcount, *sparse, *end, *p, *prev, *next;</span><br><span class="line">    <span class="keyword">long</span> first, span;</span><br><span class="line">    <span class="keyword">long</span> is_zero = <span class="number">0</span>, is_xzero = <span class="number">0</span>, is_val = <span class="number">0</span>, runlen = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//当count大于32时，需要转为dense编码</span></span><br><span class="line">    <span class="keyword">if</span> (count &gt; HLL_SPARSE_VAL_MAX_VALUE) <span class="keyword">goto</span> promote;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//在更新中，所需的内存可能会变大，最坏的情况就是XZERO变为：XZERO-VAL-XZERO,所以可能需要新增3个byte的内存</span></span><br><span class="line">    <span class="comment">//先调用sdsMakeRoomFor来分配足够的空间</span></span><br><span class="line">    o-&gt;ptr = sdsMakeRoomFor(o-&gt;ptr,<span class="number">3</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//step1: 定位桶位index所在的内存位置</span></span><br><span class="line">    sparse = p = ((<span class="keyword">uint8_t</span>*)o-&gt;ptr) + HLL_HDR_SIZE; <span class="comment">//p表示的桶位所在opcode位置的起始地址</span></span><br><span class="line">    end = p + sdslen(o-&gt;ptr) - HLL_HDR_SIZE;</span><br><span class="line"></span><br><span class="line">    first = <span class="number">0</span>; <span class="comment">//表示循环里已经遍历到的桶位的个数</span></span><br><span class="line">    prev = <span class="literal">NULL</span>; <span class="comment">//指向前一个opcode</span></span><br><span class="line">    next = <span class="literal">NULL</span>; <span class="comment">//指向下一个opcode</span></span><br><span class="line">    span = <span class="number">0</span>; <span class="comment">//表示当前这个opcode下，0或者val重复的次数</span></span><br><span class="line">    <span class="keyword">while</span>(p &lt; end) &#123;</span><br><span class="line">        <span class="keyword">long</span> oplen;</span><br><span class="line">        oplen = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">if</span> (HLL_SPARSE_IS_ZERO(p)) &#123;</span><br><span class="line">            span = HLL_SPARSE_ZERO_LEN(p);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (HLL_SPARSE_IS_VAL(p)) &#123;</span><br><span class="line">            span = HLL_SPARSE_VAL_LEN(p);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123; <span class="comment">/* XZERO. */</span></span><br><span class="line">            span = HLL_SPARSE_XZERO_LEN(p);</span><br><span class="line">            oplen = <span class="number">2</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (index &lt;= first+span<span class="number">-1</span>) <span class="keyword">break</span>; <span class="comment">//当前就是opcode就是桶位index的位置</span></span><br><span class="line">        prev = p;</span><br><span class="line">        p += oplen; <span class="comment">//注意这里p变化了，后面会用到</span></span><br><span class="line">        first += span;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (span == <span class="number">0</span> || p &gt;= end) <span class="keyword">return</span> <span class="number">-1</span>; <span class="comment">/* Invalid format. */</span></span><br><span class="line"></span><br><span class="line">    next = HLL_SPARSE_IS_XZERO(p) ? p+<span class="number">2</span> : p+<span class="number">1</span>; <span class="comment">//当前opcode的下一个opcode</span></span><br><span class="line">    <span class="keyword">if</span> (next &gt;= end) next = <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//记录下当前opcode的类型和长度，避免之后重复计算</span></span><br><span class="line">    <span class="keyword">if</span> (HLL_SPARSE_IS_ZERO(p)) &#123;</span><br><span class="line">        is_zero = <span class="number">1</span>;</span><br><span class="line">        runlen = HLL_SPARSE_ZERO_LEN(p);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (HLL_SPARSE_IS_XZERO(p)) &#123;</span><br><span class="line">        is_xzero = <span class="number">1</span>;</span><br><span class="line">        runlen = HLL_SPARSE_XZERO_LEN(p);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        is_val = <span class="number">1</span>;</span><br><span class="line">        runlen = HLL_SPARSE_VAL_LEN(p);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//情况1： runlen==1并且原来为VAL或者ZERO</span></span><br><span class="line">    <span class="comment">//为什么这种情况可直接设置值：runlen==1,表示重复次数为1，即该opcode只表达了当前这个桶位</span></span><br><span class="line">    <span class="keyword">if</span> (is_val) &#123;</span><br><span class="line">        oldcount = HLL_SPARSE_VAL_VALUE(p);</span><br><span class="line">        <span class="keyword">if</span> (oldcount &gt;= count) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">if</span> (runlen == <span class="number">1</span>) &#123;</span><br><span class="line">            HLL_SPARSE_VAL_SET(p,count,<span class="number">1</span>);</span><br><span class="line">            <span class="keyword">goto</span> updated;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//原来是ZERO，但现在要设置为VAL，所以和上面的情况一样</span></span><br><span class="line">    <span class="keyword">if</span> (is_zero &amp;&amp; runlen == <span class="number">1</span>) &#123;</span><br><span class="line">        HLL_SPARSE_VAL_SET(p,count,<span class="number">1</span>);</span><br><span class="line">        <span class="keyword">goto</span> updated;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//到这里说明 runlen!=1,或者为xzero的情况</span></span><br><span class="line">    <span class="comment">//原来的opcode就需要被分裂为多个opcodes</span></span><br><span class="line">    <span class="comment">//最坏的情况是XZERO会被分裂为：XZERO - VAL - XZERO，共需要5bytes</span></span><br><span class="line">    <span class="comment">//基本思路就是先创建一个5byte的新空间，把分裂后的值放到这个内存空间中</span></span><br><span class="line">    <span class="keyword">uint8_t</span> seq[<span class="number">5</span>], *n = seq; <span class="comment">//这个seq为什么需要5个字节？因为最坏的情况XZERO-VAL-XZERO 一共需要2+1+2=5种情况</span></span><br><span class="line">    <span class="keyword">int</span> last = first+span<span class="number">-1</span>; <span class="comment">/* Last register covered by the sequence. */</span></span><br><span class="line">    <span class="keyword">int</span> len;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//设置分为3步</span></span><br><span class="line">    <span class="comment">// [first,index）之间的值，index的值，(index,last]的值</span></span><br><span class="line">    <span class="keyword">if</span> (is_zero || is_xzero) &#123; <span class="comment">//如果原来的操作是ZERO或者XZERO</span></span><br><span class="line">        <span class="keyword">if</span> (index != first) &#123;</span><br><span class="line">            len = index-first;  <span class="comment">//index是桶位的位置,first是当前这个opcode起始那个位置表示的桶位</span></span><br><span class="line">            <span class="keyword">if</span> (len &gt; HLL_SPARSE_ZERO_MAX_LEN) &#123; <span class="comment">//len&gt;64,即ZERO无法表达，所以设置为XZERO来表达</span></span><br><span class="line">                HLL_SPARSE_XZERO_SET(n,len);</span><br><span class="line">                n += <span class="number">2</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                HLL_SPARSE_ZERO_SET(n,len); <span class="comment">//ZERO可以表达</span></span><br><span class="line">                n++;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        HLL_SPARSE_VAL_SET(n,count,<span class="number">1</span>);</span><br><span class="line">        n++;</span><br><span class="line">        <span class="keyword">if</span> (index != last) &#123;</span><br><span class="line">            len = last-index;</span><br><span class="line">            <span class="keyword">if</span> (len &gt; HLL_SPARSE_ZERO_MAX_LEN) &#123;</span><br><span class="line">                HLL_SPARSE_XZERO_SET(n,len);</span><br><span class="line">                n += <span class="number">2</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                HLL_SPARSE_ZERO_SET(n,len);</span><br><span class="line">                n++;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123; <span class="comment">//原来的opcode是VAL</span></span><br><span class="line">        <span class="keyword">int</span> curval = HLL_SPARSE_VAL_VALUE(p); <span class="comment">//取得原来的值</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (index != first) &#123;</span><br><span class="line">            len = index-first;</span><br><span class="line">            HLL_SPARSE_VAL_SET(n,curval,len); <span class="comment">//设置[first.index)的值</span></span><br><span class="line">            n++;</span><br><span class="line">        &#125;</span><br><span class="line">        HLL_SPARSE_VAL_SET(n,count,<span class="number">1</span>); <span class="comment">//设置当前的值</span></span><br><span class="line">        n++;</span><br><span class="line">        <span class="keyword">if</span> (index != last) &#123; <span class="comment">//设置（index,last]的值</span></span><br><span class="line">            len = last-index;</span><br><span class="line">            HLL_SPARSE_VAL_SET(n,curval,len);</span><br><span class="line">            n++;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">     <span class="comment">//前面已经调用了sdsMakeRoomFor()来分配足够多的空间</span></span><br><span class="line">     <span class="keyword">int</span> seqlen = n-seq; <span class="comment">//两个char指针相减，得到的实际分裂后新的opcode的总长度</span></span><br><span class="line">     <span class="keyword">int</span> oldlen = is_xzero ? <span class="number">2</span> : <span class="number">1</span>;</span><br><span class="line">     <span class="keyword">int</span> deltalen = seqlen-oldlen; <span class="comment">//增加的长度</span></span><br><span class="line"></span><br><span class="line">     <span class="keyword">if</span> (deltalen &gt; <span class="number">0</span> &amp;&amp;</span><br><span class="line">         sdslen(o-&gt;ptr)+deltalen &gt; server.hll_sparse_max_bytes) <span class="keyword">goto</span> promote;</span><br><span class="line">     <span class="keyword">if</span> (deltalen &amp;&amp; next) memmove(next+deltalen,next,end-next); <span class="comment">//把后面的内存位置往后面移动一下，为分裂出的opcode腾出空间</span></span><br><span class="line">     sdsIncrLen(o-&gt;ptr,deltalen); <span class="comment">//增加长度</span></span><br><span class="line">     <span class="built_in">memcpy</span>(p,seq,seqlen); <span class="comment">//把新的地址拷贝到原来的位置</span></span><br><span class="line">     end += deltalen;</span><br><span class="line"></span><br><span class="line">updated:</span><br><span class="line">    <span class="comment">// Step 4: 合并可以合并的相邻项</span></span><br><span class="line">    <span class="comment">//代码省略</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">promote: <span class="comment">//需要转化为紧密编码</span></span><br><span class="line">     <span class="comment">//代码省略......</span></span><br><span class="line">    <span class="keyword">return</span> dense_retval;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="count操作"><a href="#count操作" class="headerlink" title="count操作"></a>count操作</h2><p>根据前面的公式，可以想到，统计基数时，需要先统计每个桶位的值。<br>稀疏编码的方式很简单，不同的opcode，不同的值得到的重复次数，累加起来即可。<br>稠密编码因为是每6位表达一个桶位，所以需要分别遍历这6位，在实际遍历时，redis并不是遍历了16384次，而是一次遍历处理了16个桶位，所以只需要循环1024次即可。<br>（但是这么做，真正能有多大的优化呢？这里我不太理解。）</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">uint64_t</span> hllCount(struct hllhdr *hdr, <span class="keyword">int</span> *invalid) &#123;</span><br><span class="line">    <span class="keyword">double</span> m = HLL_REGISTERS;</span><br><span class="line">    <span class="keyword">double</span> E;</span><br><span class="line">    <span class="keyword">int</span> j;</span><br><span class="line">    <span class="comment">//reghisto类似柱状图统计的表达，reghisto[1]代表值为1的桶个数，reghisto[2]代表值为2的桶个数</span></span><br><span class="line">    <span class="comment">//桶位最大的值为50，reghisto分配51就够了，这里为了避免溢出所以分配了64</span></span><br><span class="line">    <span class="keyword">int</span> reghisto[<span class="number">64</span>] = &#123;<span class="number">0</span>&#125;;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//分不同的编码来统计这个柱状图</span></span><br><span class="line">    <span class="keyword">if</span> (hdr-&gt;encoding == HLL_DENSE) &#123;</span><br><span class="line">        hllDenseRegHisto(hdr-&gt;registers,reghisto);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (hdr-&gt;encoding == HLL_SPARSE) &#123;</span><br><span class="line">        hllSparseRegHisto(hdr-&gt;registers,</span><br><span class="line">                         sdslen((sds)hdr)-HLL_HDR_SIZE,invalid,reghisto);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (hdr-&gt;encoding == HLL_RAW) &#123;</span><br><span class="line">        hllRawRegHisto(hdr-&gt;registers,reghisto);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        serverPanic(<span class="string">"Unknown HyperLogLog encoding in hllCount()"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">   </span><br><span class="line">    <span class="comment">//计算方法参考 "New cardinality estimation algorithms for HyperLogLog sketches"</span></span><br><span class="line">    <span class="keyword">double</span> z = m * hllTau((m-reghisto[HLL_Q+<span class="number">1</span>])/(<span class="keyword">double</span>)m);</span><br><span class="line">    <span class="keyword">for</span> (j = HLL_Q; j &gt;= <span class="number">1</span>; --j) &#123;</span><br><span class="line">        z += reghisto[j];</span><br><span class="line">        z *= <span class="number">0.5</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    z += m * hllSigma(reghisto[<span class="number">0</span>]/(<span class="keyword">double</span>)m);</span><br><span class="line">    E = llroundl(HLL_ALPHA_INF*m*m/z);</span><br><span class="line">    <span class="keyword">return</span> (<span class="keyword">uint64_t</span>) E;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>稠密编码的统计方法</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">hllDenseRegHisto</span><span class="params">(<span class="keyword">uint8_t</span> *registers, <span class="keyword">int</span>* reghisto)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> j;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (HLL_REGISTERS == <span class="number">16384</span> &amp;&amp; HLL_BITS == <span class="number">6</span>) &#123;</span><br><span class="line">        <span class="keyword">uint8_t</span> *r = registers;</span><br><span class="line">        <span class="keyword">unsigned</span> <span class="keyword">long</span> r0, r1, r2, r3, r4, r5, r6, r7, r8, r9,</span><br><span class="line">                      r10, r11, r12, r13, r14, r15;</span><br><span class="line">        <span class="keyword">for</span> (j = <span class="number">0</span>; j &lt; <span class="number">1024</span>; j++) &#123;</span><br><span class="line">            <span class="comment">//每次迭代处理16个桶位</span></span><br><span class="line">            <span class="comment">//为什么要这么做？很显然的一点是可以通过移位操作来计算会比循环来得快</span></span><br><span class="line">            <span class="comment">//为什么一次处理16个桶位，而不是其他的值？12个字节好像也没什么特殊指出</span></span><br><span class="line">            </span><br><span class="line">            <span class="comment">//每隔6位获得一个值</span></span><br><span class="line">            r0 = r[<span class="number">0</span>] &amp; <span class="number">63</span>;</span><br><span class="line">            r1 = (r[<span class="number">0</span>] &gt;&gt; <span class="number">6</span> | r[<span class="number">1</span>] &lt;&lt; <span class="number">2</span>) &amp; <span class="number">63</span>;</span><br><span class="line">            r2 = (r[<span class="number">1</span>] &gt;&gt; <span class="number">4</span> | r[<span class="number">2</span>] &lt;&lt; <span class="number">4</span>) &amp; <span class="number">63</span>;</span><br><span class="line">            r3 = (r[<span class="number">2</span>] &gt;&gt; <span class="number">2</span>) &amp; <span class="number">63</span>;</span><br><span class="line">            r4 = r[<span class="number">3</span>] &amp; <span class="number">63</span>;</span><br><span class="line">            r5 = (r[<span class="number">3</span>] &gt;&gt; <span class="number">6</span> | r[<span class="number">4</span>] &lt;&lt; <span class="number">2</span>) &amp; <span class="number">63</span>;</span><br><span class="line">            r6 = (r[<span class="number">4</span>] &gt;&gt; <span class="number">4</span> | r[<span class="number">5</span>] &lt;&lt; <span class="number">4</span>) &amp; <span class="number">63</span>;</span><br><span class="line">            r7 = (r[<span class="number">5</span>] &gt;&gt; <span class="number">2</span>) &amp; <span class="number">63</span>;</span><br><span class="line">            r8 = r[<span class="number">6</span>] &amp; <span class="number">63</span>;</span><br><span class="line">            r9 = (r[<span class="number">6</span>] &gt;&gt; <span class="number">6</span> | r[<span class="number">7</span>] &lt;&lt; <span class="number">2</span>) &amp; <span class="number">63</span>;</span><br><span class="line">            r10 = (r[<span class="number">7</span>] &gt;&gt; <span class="number">4</span> | r[<span class="number">8</span>] &lt;&lt; <span class="number">4</span>) &amp; <span class="number">63</span>;</span><br><span class="line">            r11 = (r[<span class="number">8</span>] &gt;&gt; <span class="number">2</span>) &amp; <span class="number">63</span>;</span><br><span class="line">            r12 = r[<span class="number">9</span>] &amp; <span class="number">63</span>;</span><br><span class="line">            r13 = (r[<span class="number">9</span>] &gt;&gt; <span class="number">6</span> | r[<span class="number">10</span>] &lt;&lt; <span class="number">2</span>) &amp; <span class="number">63</span>;</span><br><span class="line">            r14 = (r[<span class="number">10</span>] &gt;&gt; <span class="number">4</span> | r[<span class="number">11</span>] &lt;&lt; <span class="number">4</span>) &amp; <span class="number">63</span>;</span><br><span class="line">            r15 = (r[<span class="number">11</span>] &gt;&gt; <span class="number">2</span>) &amp; <span class="number">63</span>;</span><br><span class="line"></span><br><span class="line">            reghisto[r0]++;</span><br><span class="line">            reghisto[r1]++;</span><br><span class="line">            reghisto[r2]++;</span><br><span class="line">            reghisto[r3]++;</span><br><span class="line">            reghisto[r4]++;</span><br><span class="line">            reghisto[r5]++;</span><br><span class="line">            reghisto[r6]++;</span><br><span class="line">            reghisto[r7]++;</span><br><span class="line">            reghisto[r8]++;</span><br><span class="line">            reghisto[r9]++;</span><br><span class="line">            reghisto[r10]++;</span><br><span class="line">            reghisto[r11]++;</span><br><span class="line">            reghisto[r12]++;</span><br><span class="line">            reghisto[r13]++;</span><br><span class="line">            reghisto[r14]++;</span><br><span class="line">            reghisto[r15]++;</span><br><span class="line">            <span class="comment">//16*6=96,刚好12个字节，所以r后移12</span></span><br><span class="line">            r += <span class="number">12</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123; <span class="comment">//否则，依次循环统计</span></span><br><span class="line">        <span class="keyword">for</span>(j = <span class="number">0</span>; j &lt; HLL_REGISTERS; j++) &#123;</span><br><span class="line">            <span class="keyword">unsigned</span> <span class="keyword">long</span> reg;</span><br><span class="line">            HLL_DENSE_GET_REGISTER(reg,registers,j);</span><br><span class="line">            reghisto[reg]++;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+    </div>
+
+    
+    
+    
+        
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/redis/" rel="tag"># redis</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2020/10/07/源码阅读系列/redis源码阅读-集群/" rel="next" title="redis源码阅读(二) - 集群">
+                  <i class="fa fa-chevron-left"></i> redis源码阅读(二) - 集群
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2020/10/12/redis源码阅读-hyperLogLog实现/" rel="prev" title="redis源码阅读-hyperLogLog实现">
+                  redis源码阅读-hyperLogLog实现 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#hyperLog用法"><span class="nav-number">1.</span> <span class="nav-text">hyperLog用法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#hyperLog原理"><span class="nav-number">2.</span> <span class="nav-text">hyperLog原理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#redis中HyperLog实现原理"><span class="nav-number">2.1.</span> <span class="nav-text">redis中HyperLog实现原理</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#redis中的编码方式"><span class="nav-number">3.</span> <span class="nav-text">redis中的编码方式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#代码实现"><span class="nav-number">4.</span> <span class="nav-text">代码实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#数据结构"><span class="nav-number">4.1.</span> <span class="nav-text">数据结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Add操作"><span class="nav-number">4.2.</span> <span class="nav-text">Add操作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#宏定义"><span class="nav-number">4.2.1.</span> <span class="nav-text">宏定义</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#count操作"><span class="nav-number">4.3.</span> <span class="nav-text">count操作</span></a></li></ol></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">阿娟</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">9</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">categories</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">tags</span>
+        </a>
+      </div>
+    
+  </nav>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">阿娟</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.9.0</div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.4.0</div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+
+
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.0"></script><script src="/js/motion.js?v=7.4.0"></script>
+<script src="/js/schemes/pisces.js?v=7.4.0"></script>
+<script src="/js/next-boot.js?v=7.4.0"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
